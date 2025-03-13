@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import override
 
 from ..idrawer import UIFont
@@ -33,23 +32,18 @@ class UIABCText(UIABCObject, ABC):
 
 
 from ..generic import Color
-from ..uiobject import UIABCObjectRender, UIABCObjectRenderInfo
-
-@dataclass
-class UIABCTextRenderInfo(UIABCObjectRenderInfo, ABC):
-    """
-    UIABCTextRenderInfo is the abstract base class for all UITextRenderInfo
-    """
+from ..uiobject import UIABCObjectRenderer
     
-    fontName: str = 'Arial'
-    fontColor: Color = Color('white')
-    fontSize: int = 10
-    font: UIFont = UIFont.SysFont(fontName, fontSize)
 
-class UIABCTextRender(UIABCObjectRender[UIABCText, UIABCTextRenderInfo], ABC):
+class UIABCTextRenderer(UIABCObjectRenderer[UIABCText], ABC):
     """
     UIABCTextRender is the abstract base class for all UITextRender
     """
+    fontName: str
+    fontColor: Color
+    fontSize: int
+    font: UIFont
+
     @abstractmethod
     def updateFont(self) -> None:
         """

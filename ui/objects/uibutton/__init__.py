@@ -1,5 +1,5 @@
-from .UIABCButton import UIABCButton, UIABCButtonRenderInfo, UIABCButtonRender
+from .UIABCButton import UIABCButton, UIABCButtonRenderer
 from .UIABCClickButton import UIABCClickButton
-from .UICycleButton import UICycleButton, CycleButtonRenderStyle, UICycleButtonRenderInfo, UICycleButtonRender
+from .UICycleButton import UICycleButton, CycleButtonRenderStyle, UICycleButtonRenderer
 
 

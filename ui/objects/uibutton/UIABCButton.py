@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 from ui.responsiveness import EventManager
 from ..uiobject import UIABCObject
@@ -73,20 +72,11 @@ class UIABCButton(UIABCObject, ABC):
         
 
 
-from ..uiobject import UIABCObjectRenderInfo, UIABCObjectRender
+from ..uiobject import UIABCObjectRenderer
 
 B = TypeVar('B', bound=UIABCButton)
 
-@dataclass
-class UIABCButtonRenderInfo(UIABCObjectRenderInfo):
-    """
-    UIABCButtonRenderInfo is the abstract base class for all UIButtonRenderInfo
-    """
-    pass
-
-I = TypeVar('I', bound=UIABCButtonRenderInfo)
-
-class UIABCButtonRender(UIABCObjectRender[B, I], ABC):
+class UIABCButtonRenderer(Generic[B], UIABCObjectRenderer[B], ABC):
     """
     UIABCButtonRender is the abstract base class for all UIButtonRender
     """

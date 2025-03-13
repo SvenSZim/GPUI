@@ -1,5 +1,4 @@
 from abc import ABC
-from dataclasses import dataclass
 from typing import Generic, TypeVar
 
 from ..UIABC import UIABC
@@ -12,22 +11,12 @@ class UIABCObject(UIABC, ABC):
     pass
 
 
-from ..UIABCRender import UIABCRenderInfo, UIABCRender
+from ..UIABCRenderer import UIABCRenderer
 
 B = TypeVar('B', bound=UIABCObject)
 
-@dataclass
-class UIABCObjectRenderInfo(UIABCRenderInfo, ABC):
+class UIABCObjectRenderer(Generic[B], UIABCRenderer[B], ABC):
     """
-    UIABCObjectRenderInfo is the abstract base class for all UIObjectRenderInfo.
-    """
-    active: bool = True # active status of rendering (activates or deactivates rendering)
-    borders: tuple[bool, bool, bool, bool] | bool = True # draw borders
-
-I = TypeVar('I', bound=UIABCObjectRenderInfo)
-
-class UIABCObjectRender(Generic[B, I], UIABCRender[B, I], ABC):
-    """
-    UIABCObjectRender is the abstract base class for all UIObjectRender.
+    UIABCObjectRender is the abstract base class for all UIObjectRenderer.
     """
     pass
