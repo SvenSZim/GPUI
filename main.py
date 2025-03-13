@@ -8,16 +8,13 @@ from ui import UIDynamicBody
 from ui import UIText, UIDynamicTextRenderInfo, UIDynamicTextRender
 from ui import UICycleButton, UICycleButtonRenderInfo, UICycleButtonRender
 
-def sayHello():
-    print('HELLO')
 
-def switchText(textobj: UIDynamicTextRender, newtext):
+def setText(textobj: UIDynamicTextRender, newtext):
     textobj.getUIObject().setContent(newtext)
     textobj.update()
 
-def switchList(textobj: UIDynamicTextRender, l: list[str]):
-    l[0], l[1] = l[1], l[0]
-    textobj.getUIObject().setContent(l[0])
+def switchList(textobj: UIDynamicTextRender, l: list[str], i: int):
+    textobj.getUIObject().setContent(l[i])
     textobj.update()
 
 def main():
@@ -49,8 +46,8 @@ def main():
     button.getUIObject().addTriggerEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN))
     button.getUIObject().addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
 
-    button.getUIObject().subscribeToButtonEvent(switchList, text, ['Hello World!', 'My name is sven'])
-    button.getUIObject().subscribeToButtonEvent(switchText, text2, 'Moinsen from Button. YOLO ROFL XD :P')
+    [button.getUIObject().subscribeToButtonEvent(x, switchList, text, ['Hello World!', 'My', 'name',  'is', 'sven'], x) for x in range(5)]
+    button.getUIObject().subscribeToButtonEvent(3, setText, text2, 'Moinsen from Button. YOLO ROFL XD :P')
 
     while running:
         InputManager.update()
