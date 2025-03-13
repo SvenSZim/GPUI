@@ -1,5 +1,9 @@
+
 from enum import Enum
-from typing import Optional
+from typing import Optional, override
+
+from .UIABCBody import UIABCBody
+
 
 class AlignmentType(Enum):
     TopLeft = 0
@@ -7,7 +11,7 @@ class AlignmentType(Enum):
     BottomLeft = 2
     BottomRight = 3
 
-class UIObjectBody():
+class UIDynamicBody(UIABCBody):
     """
     Custom definition of object body as a rect which can be placed and scaled
     absolute or in relation to another object body element.
@@ -18,9 +22,9 @@ class UIObjectBody():
     position: tuple[int | float, int | float]
     size: tuple[int | float, int | float]
 
-    relativeObjectsPosition: tuple[Optional['UIObject'], Optional['UIObject']]
+    relativeObjectsPosition: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']]
     relativeObjectsPositionType: tuple[AlignmentType, AlignmentType]
-    relativeObjectsSize: tuple[Optional['UIObject'], Optional['UIObject']]
+    relativeObjectsSize: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']]
     
     topleft: tuple[int, int]
     width: int
@@ -28,9 +32,9 @@ class UIObjectBody():
 
 
     def __init__(self, position: tuple[int | float, int | float], size: tuple[int | float, int | float],
-                relativeObjectsPosition: tuple[Optional['UIObject'], Optional['UIObject']] = (None, None), 
+                relativeObjectsPosition: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']] = (None, None), 
                 relativeObjectsPositionType: tuple[int, int] = (0, 0),
-                relativeObjectsSize: tuple[Optional['UIObject'], Optional['UIObject']] = (None, None)) -> None:
+                relativeObjectsSize: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']] = (None, None)) -> None:
         self.position = position
         self.size = size
         self.relativeObjectsPosition = relativeObjectsPosition
@@ -39,6 +43,7 @@ class UIObjectBody():
         self.relativeObjectsSize = relativeObjectsSize
 
 
+    @override
     def getSize(self) -> tuple[int, int]:
         """
         Function that calculates the size of the UIObjectBody object.
@@ -67,7 +72,7 @@ class UIObjectBody():
             absoluteSizeX = int(selfSizeX)
         else:
             #relative sized
-            relObjX: 'UIObject' = self.relativeObjectsSize[0]
+            relObjX: 'UIDynamicBody' = self.relativeObjectsSize[0]
 
             #modify parent size by given amount
             if isinstance(selfSizeX, int):
@@ -86,7 +91,7 @@ class UIObjectBody():
             absoluteSizeY = int(selfSizeY)
         else:
             #relative sized
-            relObjY: 'UIObject' = self.relativeObjectsSize[1]
+            relObjY: 'UIDynamicBody' = self.relativeObjectsSize[1]
 
             #modify parent size by given amount
             if isinstance(selfSizeY, int):
@@ -102,6 +107,7 @@ class UIObjectBody():
         return (absoluteSizeX, absoluteSizeY)
 
 
+    @override
     def getPosition(self) -> tuple[int, int]:
         """
         Function that calculates the position (top-left corner) of the UIObjectBody object.
@@ -139,7 +145,7 @@ class UIObjectBody():
             absolutePosX = int(selfPosX)
         else:
             #relative positioned
-            relObjX: 'UIObject' = self.relativeObjectsPosition[0]
+            relObjX: 'UIDynamicBody' = self.relativeObjectsPosition[0]
             
             #interpret 'position' as offset
             if isinstance(selfPosX, int):
@@ -168,7 +174,7 @@ class UIObjectBody():
             absolutePosY = int(selfPosY)
         else:
             #relative positioned
-            relObjY: 'UIObject' = self.relativeObjectsPosition[1]
+            relObjY: 'UIDynamicBody' = self.relativeObjectsPosition[1]
             
             #interpret 'position' as offset
             if isinstance(selfPosY, int):
@@ -193,42 +199,10 @@ class UIObjectBody():
 
         return (absolutePosX, absolutePosY)
 
+
+    @override
     def update(self) -> None:
         self.width, self.height = self.getSize()
         self.topleft = self.getPosition()
 
 
-
-
-class UIObject():
-    """
-    UIObject is a abstract class to define functionality
-    of UIObjects
-    """
-    
-    active: bool
-    body: 'UIObjectBody'
-
-    def __init__(self, objectBody: 'UIObjectBody', active: bool=True) -> None:
-        self.active = active
-        self.body = objectBody
-        UIObject.update(self) #explicitly calls the update function from UIObject (in case it gets overwritten)
-
-    def isActive(self) -> bool:
-        return self.active
-
-    def setActive(self, active: bool) -> None:
-        self.active = active
-
-    def toggleActive(self) -> bool:
-        self.active = not self.active
-        return self.active
-
-    def getSize(self) -> tuple[int, int]:
-        return (self.body.width, self.body.height)
-
-    def getPosition(self) -> tuple[int, int]:
-        return self.body.topleft
-
-    def update(self) -> None:
-        self.body.update()

@@ -1,75 +1,79 @@
 from enum import Enum
 from typing import Callable
-import pygame as pg
 
-from ui.objects import DynamicCycleState, UIButton
-from ui.objects import UIObject
-from ui.objects import UIDynamicText, UIText
+from .generic import Color, Rect
+from .UIABCRender import UIABCRender
+from .idrawer import UISurface, UIFont, UISurfaceDrawer
+from .uibutton import UIABCButtonRender, CycleButtonRenderStyle, UICycleButtonRender
+from .uiobject import UIABCObjectRender
+from .uitext import UIABCTextRender
+
 
 class UIStyle(Enum):
     MOON = 0
 
-class ButtonRenderStyle(Enum):
-    DEFAULT = 0
-    PLAIN = 1
-    FILLING_HORIZONTAL = 2
-    FILLING_DIAGONAL = 3
-    FILLING_DIAGONALALT = 4
 
 class UIRenderer:
     
+
+    drawer: UISurfaceDrawer
     renderstyle: UIStyle
-    buttonrenderstyle: ButtonRenderStyle
 
-    def __init__(self, renderstyle: UIStyle = UIStyle.MOON,
-                 buttonrenderstyle: ButtonRenderStyle = ButtonRenderStyle.DEFAULT) -> None:
+
+    def __init__(self, drawer: UISurfaceDrawer, font: UIFont, renderstyle: UIStyle = UIStyle.MOON) -> None:
+        self.drawer = drawer
         self.renderstyle = renderstyle
-        self.buttonrenderstyle = buttonrenderstyle
+        UIRenderer.font = font
 
-    def render(self, screen: pg.Surface, uiobjects: list[UIObject]) -> None:
+    def render(self, screen: UISurface, uiobjects: list[UIABCRender]) -> None:
         match self.renderstyle:
             case UIStyle.MOON:
                 for uiobject in uiobjects:
                     self.renderMoon(screen, uiobject)
 
-    def renderMoon(self, screen: pg.Surface, uiobject: UIObject) -> None:
+    def renderMoon(self, screen: UISurface, uiobject: UIABCRender) -> None:
         left, top = uiobject.getPosition()
         width, height = uiobject.getSize()
         right, bottom = left + width, top + height
 
-        if isinstance(uiobject, UIButton):
-            # shrink toggle button when pressed
-            if isinstance(uiobject.button_state, DynamicCycleState) and uiobject.button_state.state == 1 and uiobject.button_state.max_state == 1:
-                activation_decrement: float = 0.1
-                left += int((activation_decrement / 2) * width)
-                right -= int((activation_decrement / 2) * width)
-                width = int(width * (1 - activation_decrement))
-                top += int((activation_decrement / 2) * height)
-                bottom -= int((activation_decrement / 2) * height)
-                height = int(height * (1 - activation_decrement))
-
-            self.renderButton(screen, uiobject, pg.Color('white'))
+        if isinstance(uiobject, UIABCButtonRender):
+            self.renderButton(screen, uiobject, Color('white'))
+        
+        #render text
+        if isinstance(uiobject, UIABCTextRender):
+            self.renderText(screen, uiobject)
         
         #render border
-        pg.draw.line(screen, 'white', (left, top), (right, top))
-        pg.draw.line(screen, 'white', (left, top), (left, bottom)) 
-        pg.draw.line(screen, 'white', (right, top), (right, bottom))
-        pg.draw.line(screen, 'white', (left, bottom), (right, bottom))
+        if isinstance(uiobject, UIABCObjectRender):
+            borders: tuple[bool, bool, bool, bool] | bool = uiobject.getUIRenderInfo().borders
+            if isinstance(borders, bool):
+                borders = (borders, borders, borders, borders)
+            
+            if borders[0]:
+                self.drawer.drawline(screen, (left, top), (right, top), (255,255,255))
+            if borders[1]:
+                self.drawer.drawline(screen, (left, top), (left, bottom), (255,255,255)) 
+            if borders[2]:
+                self.drawer.drawline(screen, (right, top), (right, bottom), (255,255,255))
+            if borders[3]:
+                self.drawer.drawline(screen, (left, bottom), (right, bottom), (255,255,255))
 
-        #render text
-        if isinstance(uiobject, (UIText, UIDynamicText)):
-            text_render: pg.Surface = uiobject.font.render(uiobject.content, True, uiobject.font_color)
-            text_size: tuple[int, int] = text_render.get_size()
-            text_position: tuple[int, int] = (int(left + (width - text_size[0]) / 2),
-                                              int(top + (height - text_size[1]) / 2))
+
+    def renderText(self, screen: UISurface, text: UIABCTextRender) -> None:
+            text_render: UISurface = text.getUIRenderInfo().font.render(text.getUIObject().getContent(), text.getUIRenderInfo().fontColor)
+            text_size: tuple[int, int] = text_render.getSize()
+            text_position: tuple[int, int] = (int(text.getPosition()[0] + (text.getSize()[0] - text_size[0]) / 2),
+                                              int(text.getPosition()[1] + (text.getSize()[1] - text_size[1]) / 2))
             
             screen.blit(text_render, text_position)
 
-    def renderButton(self, screen: pg.Surface, button: UIButton, color: pg.Color) -> None:
+
+    def renderButton(self, screen: UISurface, button: UIABCButtonRender, color: Color) -> None:
         left, top = button.getPosition()
         width, height = button.getSize()
 
-        def fill_with_lines(screen: pg.Surface, rect: pg.Rect, line_function: Callable[[int], int], line_spacing: float, draw: bool = True) -> tuple[tuple[int, int], tuple[int, int]]:
+        def fill_with_lines(screen: UISurface, rect: Rect,
+                            line_function: Callable[[int], int], line_spacing: float, draw: bool = True) -> tuple[tuple[int, int], tuple[int, int]]:
             """
             Returns:
                 tuple[
@@ -124,52 +128,45 @@ class UIRenderer:
                     nonlocal color
                     
                     if draw:
-                        pg.draw.line(screen, color, start_point, end_point)
+                        self.drawer.drawline(screen, start_point, end_point, color)
 
                     if first_start_point[0] == -1:
                         first_start_point = start_point
                         first_end_point = end_point
 
             return (first_start_point, first_end_point)
-        
-        match self.buttonrenderstyle:
-            case ButtonRenderStyle.DEFAULT:
-                pass
-            case ButtonRenderStyle.PLAIN:
-                pass
-            case ButtonRenderStyle.FILLING_HORIZONTAL:
-                if isinstance(button.button_state, DynamicCycleState):
-                    line_amount: int = min(10, int(height / 10))
-                    line_spacing: float = height / (line_amount + 1)
-                    activation_percent: float = button.button_state.state / button.button_state.max_state
+        if isinstance(button, UICycleButtonRender):
+            line_amount: int = min(10, int(height / 10))
+            line_spacing: float = height / (line_amount + 1)
+            match button.getUIRenderInfo().renderStyle:
+                case CycleButtonRenderStyle.DEFAULT:
+                    pass
+                case CycleButtonRenderStyle.PLAIN:
+                    pass
+                case CycleButtonRenderStyle.FILLING_HORIZONTAL:
+                    activation_percent: float = button.getUIObject().currentState / (button.getUIObject().numberOfStates - 1)
                     activation_width: int = int(width * activation_percent)
-                    fill_with_lines(screen, pg.Rect((left, top), (activation_width, height)), lambda x: x, line_spacing)
-                    fill_with_lines(screen, pg.Rect((left, top), (activation_width, height)), lambda x: -x, line_spacing)
-            case ButtonRenderStyle.FILLING_DIAGONAL:
-                if isinstance(button.button_state, DynamicCycleState):
-                    line_amount: int = min(10, int(height / 10))
-                    line_spacing: float = height / (line_amount + 1)
-                    activation_percent: float = button.button_state.state / button.button_state.max_state
+                    fill_with_lines(screen, Rect((left, top), (activation_width, height)), lambda x: x, line_spacing)
+                    fill_with_lines(screen, Rect((left, top), (activation_width, height)), lambda x: -x, line_spacing)
+                case CycleButtonRenderStyle.FILLING_DIAGONAL:
+                    activation_percent: float = button.getUIObject().currentState / (button.getUIObject().numberOfStates - 1)
                     activation_width: int = int(width * activation_percent)
-                    fill_with_lines(screen, pg.Rect((left, top), (activation_width, height)), lambda x: x, line_spacing)
-            case ButtonRenderStyle.FILLING_DIAGONALALT:
-                if isinstance(button.button_state, DynamicCycleState):
-                    line_amount: int = min(10, int(height / 10))
-                    line_spacing: float = height / (line_amount + 1)
-                    state_percent: float = 1 / button.button_state.max_state
+                    fill_with_lines(screen, Rect((left, top), (activation_width, height)), lambda x: x, line_spacing)
+                case CycleButtonRenderStyle.FILLING_DIAGONALALT:
+                    state_percent: float = 1 / (button.getUIObject().numberOfStates - 1)
                     state_width: int = int(width * state_percent)
-                    
+
                     sign: bool = True
                     # vertical offset to align the diagonal lines vertically
-                    p_end_point: tuple[int, int] = fill_with_lines(screen, pg.Rect((0, top), (state_width, height)), lambda x: x, line_spacing, draw=False)[1]
-                    p_start_point: tuple[int, int] = fill_with_lines(screen, pg.Rect((0, top), (state_width, height)), lambda x: -x, line_spacing, draw=False)[0]
+                    p_end_point: tuple[int, int] = fill_with_lines(screen, Rect((0, top), (state_width, height)), lambda x: x, line_spacing, draw=False)[1]
+                    p_start_point: tuple[int, int] = fill_with_lines(screen, Rect((0, top), (state_width, height)), lambda x: -x, line_spacing, draw=False)[0]
                     vertical_offset: int = p_end_point[1] - p_start_point[1]
 
-                    for cs in range(1, button.button_state.state + 1):
+                    for cs in range(1, button.getUIObject().currentState + 1):
                         state_left: int = left + (cs - 1) * state_width
                         if sign:
-                            fill_with_lines(screen, pg.Rect((state_left, top), (state_width, height)), lambda x: x, line_spacing)
+                            fill_with_lines(screen, Rect((state_left, top), (state_width, height)), lambda x: x, line_spacing)
                         else:
-                            fill_with_lines(screen, pg.Rect((state_left, top), (state_width, height)), lambda x: -x + vertical_offset, line_spacing)
+                            fill_with_lines(screen, Rect((state_left, top), (state_width, height)), lambda x: -x + vertical_offset, line_spacing)
                         sign = not sign
         

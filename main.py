@@ -1,26 +1,30 @@
 import pygame as pg
+from drawer import PygameDrawer, PygameSurface, PygameFont
 
 from ui import InputEvent, InputManager
-from ui import UIObjectBody, UIText, UIDynamicText, UIButton
 from ui import UIRenderer
-from ui import DynamicCycleState
-from ui import ButtonRenderStyle
+
+from ui import UIDynamicBody
+from ui import UIDynamicText, UIDynamicTextRenderInfo, UIDynamicTextRender
+from ui import UICycleButton, UICycleButtonRenderInfo, UICycleButtonRender
 
 def sayHello():
     print('HELLO')
 
-def switchText(textobj: UIText, newtext):
-    textobj.updateContent(newtext)
+def switchText(textobj: UIDynamicTextRender, newtext):
+    textobj.getUIObject().setContent(newtext)
+    textobj.update()
 
-def switchList(textobj: UIText, l: list[str]):
+def switchList(textobj: UIDynamicTextRender, l: list[str]):
     l[0], l[1] = l[1], l[0]
-    textobj.updateContent(l[0])
+    textobj.getUIObject().setContent(l[0])
+    textobj.update()
 
 def main():
     pg.init()
     pg.font.init()
     InputManager.init()
-    renderer: UIRenderer = UIRenderer(buttonrenderstyle=ButtonRenderStyle.FILLING_DIAGONALALT)
+    renderer: UIRenderer = UIRenderer(PygameDrawer, PygameFont)
     
     running: bool = True
 
@@ -35,25 +39,24 @@ def main():
 
     main_font: pg.font.Font = pg.font.SysFont('Arial', 10)
 
-    textbody: UIObjectBody = UIObjectBody((50,50), (500, 200))
-    text: UIDynamicText = UIDynamicText(textbody, 'Hello', 'Arial', 'white')
-    textbody = UIObjectBody((150,550), (700, 80))
-    text2: UIDynamicText = UIDynamicText(textbody, 'Hello', 'Arial', 'white')
+    textbody: UIDynamicBody = UIDynamicBody((50,50), (500, 200))
+    text: UIDynamicTextRender = UIDynamicTextRender(UIDynamicText(textbody, 'Hello'), UIDynamicTextRenderInfo())
+    textbody = UIDynamicBody((150,550), (700, 80))
+    text2: UIDynamicTextRender = UIDynamicTextRender(UIDynamicText(textbody, 'Hello'), UIDynamicTextRenderInfo())
 
-    textbody = UIObjectBody((0, 0), (200, 150), relativeObjectsPosition=(text, text2), relativeObjectsPositionType=(2,2))
-    button: UIButton = UIButton(textbody, DynamicCycleState(0, 5))
-    button.addTriggerEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN))
-    button.addGlobalResetEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONUP))
-    button.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
+    textbody = UIDynamicBody((0, 0), (200, 150), relativeObjectsPosition=(text.getUIObject().body, text2.getUIObject().body), relativeObjectsPositionType=(2,2))
+    button: UICycleButtonRender = UICycleButtonRender(UICycleButton(textbody, numberOfStates=5), UICycleButtonRenderInfo())
+    button.getUIObject().addTriggerEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN))
+    button.getUIObject().addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
 
-    button.subscribeToButtonEvent(switchList, text, ['Hello World!', 'My name is sven'])
-    button.subscribeToButtonEvent(switchText, text2, 'Moinsen from Button. YOLO ROFL XD :P')
+    button.getUIObject().subscribeToButtonEvent(switchList, text, ['Hello World!', 'My name is sven'])
+    button.getUIObject().subscribeToButtonEvent(switchText, text2, 'Moinsen from Button. YOLO ROFL XD :P')
 
     while running:
         InputManager.update()
 
         main_screen.fill('black')
-        renderer.render(main_screen, [text, text2, button])
+        renderer.render(PygameSurface(main_screen), [text, text2, button])
 
         pg.display.flip()
 

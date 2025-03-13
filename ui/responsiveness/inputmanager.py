@@ -49,4 +49,7 @@ class InputManager:
             return EventManager.subscribeToEvent(InputManager.events[event], f, *args)
         return False
 
+    @staticmethod
+    def getMousePosition() -> tuple[int, int]:
+        return pg.mouse.get_pos()
 
