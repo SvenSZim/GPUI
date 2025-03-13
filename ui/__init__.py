@@ -2,8 +2,8 @@ from .responsiveness import EventManager, InputEvent, InputManager
 
 from .objects import UIDynamicBody
 from .objects import UIObject, UIObjectRenderInfo, UIObjectRender
-from .objects import UIDynamicText, UIDynamicTextRenderInfo, UIDynamicTextRender, \
-                    UIStaticText, UIStaticTextRenderInfo, UIStaticTextRender
+from .objects import UIText, UIDynamicTextRenderInfo, UIDynamicTextRender, \
+                             UIStaticTextRenderInfo, UIStaticTextRender
 from .objects import UICycleButton, CycleButtonRenderStyle, UICycleButtonRenderInfo, UICycleButtonRender
 
 from .objects import Color, Rect

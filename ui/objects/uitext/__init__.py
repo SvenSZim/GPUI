@@ -1,3 +1,4 @@
 from .UIABCText import UIABCText, UIABCTextRenderInfo, UIABCTextRender
-from .UIStaticText import UIStaticText, UIStaticTextRenderInfo, UIStaticTextRender
-from .UIDynamicText import UIDynamicText, UIDynamicTextRenderInfo, UIDynamicTextRender
+from .UIText import UIText
+from .UIStaticText import UIStaticTextRenderInfo, UIStaticTextRender
+from .UIDynamicText import UIDynamicTextRenderInfo, UIDynamicTextRender

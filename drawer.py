@@ -54,6 +54,10 @@ class PygameDrawer(UISurfaceDrawer):
         if isinstance(color, Color):
             color = color.value
         if isinstance(surface, PygameSurface):
-            pg.draw.rect(surface.surface, color, pg.Rect((rect.left, rect.top), (rect.width, rect.height)))
-
-
+            if fill:
+                pg.draw.rect(surface.surface, color, pg.Rect((rect.left, rect.top), (rect.width, rect.height)))
+            else:
+                pg.draw.line(surface.surface, color, (rect.left, rect.top), (rect.right, rect.top))
+                pg.draw.line(surface.surface, color, (rect.left, rect.top), (rect.left, rect.bottom))
+                pg.draw.line(surface.surface, color, (rect.right, rect.top), (rect.right, rect.bottom))
+                pg.draw.line(surface.surface, color, (rect.left, rect.bottom), (rect.right, rect.bottom))

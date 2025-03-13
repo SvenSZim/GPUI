@@ -5,19 +5,18 @@ from ui.responsiveness import EventManager, InputManager
 from .UIABCButton import UIABCButton
 
 
-def collidepoint(topleft: tuple[int, int], size: tuple[int, int], point: tuple[int, int]) -> bool:
-    x, y = topleft
-    w, h = size
-    px, py = point
-    return px > x and py > y and px < x + w and py < y + h
-
-
 class UIABCClickButton(UIABCButton, ABC):
+    """
+    UIABCClickButton is the abstract base class for all UIClickButtons
+    (which are clickable buttons).
+    """
     
-    def testForClickIntersect(self):
-        if collidepoint(self.getPosition(), self.getSize(), InputManager.getMousePosition()):
-            self.trigger()
-
     @override
-    def addTriggerEvent(self, event: str) -> bool:
-        return EventManager.subscribeToEvent(event, UIABCClickButton.testForClickIntersect, self)
+    def _activeTrigger(self):
+        """
+        activeTrigger is the default function to call when trying to trigger the
+        button. It checks if the button is active and the mousecursor being inside
+        the button rect before calling the true trigger.
+        """
+        if self.getButtonActive() and self.getRect().collidepoint(InputManager.getMousePosition()):
+            self._trigger()

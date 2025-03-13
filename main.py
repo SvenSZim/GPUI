@@ -5,7 +5,7 @@ from ui import InputEvent, InputManager
 from ui import UIRenderer
 
 from ui import UIDynamicBody
-from ui import UIDynamicText, UIDynamicTextRenderInfo, UIDynamicTextRender
+from ui import UIText, UIDynamicTextRenderInfo, UIDynamicTextRender
 from ui import UICycleButton, UICycleButtonRenderInfo, UICycleButtonRender
 
 def sayHello():
@@ -40,9 +40,9 @@ def main():
     main_font: pg.font.Font = pg.font.SysFont('Arial', 10)
 
     textbody: UIDynamicBody = UIDynamicBody((50,50), (500, 200))
-    text: UIDynamicTextRender = UIDynamicTextRender(UIDynamicText(textbody, 'Hello'), UIDynamicTextRenderInfo())
+    text: UIDynamicTextRender = UIDynamicTextRender(UIText(textbody, 'Hello'), UIDynamicTextRenderInfo())
     textbody = UIDynamicBody((150,550), (700, 80))
-    text2: UIDynamicTextRender = UIDynamicTextRender(UIDynamicText(textbody, 'Hello'), UIDynamicTextRenderInfo())
+    text2: UIDynamicTextRender = UIDynamicTextRender(UIText(textbody, 'Hello'), UIDynamicTextRenderInfo())
 
     textbody = UIDynamicBody((0, 0), (200, 150), relativeObjectsPosition=(text.getUIObject().body, text2.getUIObject().body), relativeObjectsPositionType=(2,2))
     button: UICycleButtonRender = UICycleButtonRender(UICycleButton(textbody, numberOfStates=5), UICycleButtonRenderInfo())

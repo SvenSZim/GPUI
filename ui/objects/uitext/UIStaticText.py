@@ -2,41 +2,41 @@
 from dataclasses import dataclass
 from typing import override
 
-from ..uiobjectbody import UIABCBody
-from ..uiobject import UIABCObject
-from .UIABCText import UIABCText
-
-class UIStaticText(UIABCText):
-
-    def __init__(self, objectBody: UIABCBody, content: str, active: bool=True) -> None:
-        self.active = active
-        self.body = objectBody
-        UIABCObject.update(self) #explicitly calls the update function from UIObject (in case it gets overwritten)
-
-        self.content = content
- 
+from .UIText import UIText
 
 from ..idrawer import UIFont
 from .UIABCText import UIABCTextRenderInfo, UIABCTextRender
 
 @dataclass
 class UIStaticTextRenderInfo(UIABCTextRenderInfo):
+    """
+    UIStaticTextRenderInfo is the UIRenderInfo for the UIStaticTextRenderer
+    """
     pass
 
 class UIStaticTextRender(UIABCTextRender):
+    """
+    UIStaticTextRender is a UITextRender which has a fixed used font for rendering.
+    """
 
-    def __init__(self, body: UIStaticText, renderInfo: UIStaticTextRenderInfo) -> None:
+    def __init__(self, body: UIText, renderInfo: UIStaticTextRenderInfo) -> None:
+        """
+        __init__ initializes the UIStaticTextRender instance
+
+        Args:
+            body: UIText = the refering UIText
+            renderInfo: UIStaticTextRenderInfo = the UIRenderInfo used for rendering the UIStaticTextRender
+        """
         self.body = body
         self.renderInfo = renderInfo
 
         self.updateFont()
 
     def updateFont(self) -> None:
-        fontname = self.renderInfo.fontName
-        fontsize = self.renderInfo.fontSize
-        self.renderInfo.font = UIFont.SysFont(fontname, fontsize)
- 
-    @override
-    def update(self) -> None:
-        self.body.update()
-        self.updateFont()
+        """
+        updateFont updates the font used for rendering.
+        In UIStaticTextRender the fontsize does not scale with the box-size or the text-content.
+        """
+        fontname = self.getUIRenderInfo().fontName
+        fontsize = self.getUIRenderInfo().fontSize
+        self.getUIRenderInfo().font = UIFont.SysFont(fontname, fontsize)

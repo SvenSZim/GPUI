@@ -6,20 +6,10 @@ from ..UIABC import UIABC
 
 
 class UIABCObject(UIABC, ABC):
-
-    active: bool
-
-    def getActive(self) -> bool:
-        return self.active
-
-    def toggleActive(self) -> bool:
-        self.active = not self.active
-        return self.active
-
-    def setActive(self, active: bool) -> None:
-        self.active = active
-
-
+    """
+    UIABCObject is the abstract base class for all UIObjects.
+    """
+    pass
 
 
 from ..UIABCRender import UIABCRenderInfo, UIABCRender
@@ -28,9 +18,16 @@ B = TypeVar('B', bound=UIABCObject)
 
 @dataclass
 class UIABCObjectRenderInfo(UIABCRenderInfo, ABC):
-    borders: tuple[bool, bool, bool, bool] | bool = True
+    """
+    UIABCObjectRenderInfo is the abstract base class for all UIObjectRenderInfo.
+    """
+    active: bool = True # active status of rendering (activates or deactivates rendering)
+    borders: tuple[bool, bool, bool, bool] | bool = True # draw borders
 
 I = TypeVar('I', bound=UIABCObjectRenderInfo)
 
 class UIABCObjectRender(Generic[B, I], UIABCRender[B, I], ABC):
+    """
+    UIABCObjectRender is the abstract base class for all UIObjectRender.
+    """
     pass

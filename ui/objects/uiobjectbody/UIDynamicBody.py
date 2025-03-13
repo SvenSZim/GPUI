@@ -2,6 +2,7 @@
 from enum import Enum
 from typing import Optional, override
 
+from ..generic import Rect
 from .UIABCBody import UIABCBody
 
 
@@ -19,16 +20,12 @@ class UIDynamicBody(UIABCBody):
     on screen.
     """
 
-    position: tuple[int | float, int | float]
-    size: tuple[int | float, int | float]
+    position: tuple[int | float, int | float] # int: absolute offset | float: relative offset to own size
+    size: tuple[int | float, int | float] # int: absolute size | float: percentage sizing relative to relativeObj
 
     relativeObjectsPosition: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']]
     relativeObjectsPositionType: tuple[AlignmentType, AlignmentType]
     relativeObjectsSize: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']]
-    
-    topleft: tuple[int, int]
-    width: int
-    height: int
 
 
     def __init__(self, position: tuple[int | float, int | float], size: tuple[int | float, int | float],
@@ -42,9 +39,11 @@ class UIDynamicBody(UIABCBody):
                                             AlignmentType(relativeObjectsPositionType[1]))
         self.relativeObjectsSize = relativeObjectsSize
 
+        self.rect = Rect() # initialize empty Rect ~ 0,0,0,0
+
 
     @override
-    def getSize(self) -> tuple[int, int]:
+    def calculateSize(self) -> tuple[int, int]:
         """
         Function that calculates the size of the UIObjectBody object.
         Two modes:
@@ -58,7 +57,7 @@ class UIDynamicBody(UIABCBody):
             Calls the `getSize` method(s) from parent UIObject('s)
 
         Returns:
-            tuple[int, int]: The size of the UIObject object
+            tuple[int, int] = (width, height) ~ the size of the UIObject object
         """
         absoluteSizeX: int = 0
         absoluteSizeY: int = 0
@@ -108,7 +107,7 @@ class UIDynamicBody(UIABCBody):
 
 
     @override
-    def getPosition(self) -> tuple[int, int]:
+    def calculatePosition(self) -> tuple[int, int]:
         """
         Function that calculates the position (top-left corner) of the UIObjectBody object.
         Two modes:
@@ -131,7 +130,7 @@ class UIDynamicBody(UIABCBody):
             Calls the `getSize` method(s) from parent UIObject('s)
 
         Returns:
-            tuple[int, int]: The position of the top-left corner of the UIObject
+            tuple[int, int] = (posX, posY) ~ the position of the top-left corner of the UIObject
         """
         absolutePosX: int = 0
         absolutePosY: int = 0
@@ -166,7 +165,7 @@ class UIDynamicBody(UIABCBody):
                 absolutePosX += relObjX.getSize()[0]
             if connectionTypeLeftOrRightChild == 1:
                 #use right edge of this object
-                absolutePosX -= self.getSize()[0]
+                absolutePosX -= self.getSize()[0] # size should already be cached
         
         #Y-Position
         if self.relativeObjectsPosition[1] is None:
@@ -195,14 +194,21 @@ class UIDynamicBody(UIABCBody):
                 absolutePosY += relObjY.getSize()[1]
             if connectionTypeTopOrBottomChild == 1:
                 #use bottom edge of this object
-                absolutePosY -= self.getSize()[1]
+                absolutePosY -= self.getSize()[1] # size should already be cached
 
         return (absolutePosX, absolutePosY)
 
 
+
     @override
     def update(self) -> None:
-        self.width, self.height = self.getSize()
-        self.topleft = self.getPosition()
+        """
+        update calculates the position and size of the UIElementBody and
+        caches the values in hte UIElementBody attributes.
 
+        (override because in DynamicBody the calculatePosition function
+            depends on the calculateSize -> suboptimal)
+        """
+        self.rect.setSize(self.calculateSize())
+        self.rect.setPosition(self.calculatePosition())
 
