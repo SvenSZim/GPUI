@@ -20,7 +20,7 @@ def main():
     pg.font.init()
     InputManager.init()
     UIRenderer.init(PygameDrawer, PygameFont, UIStyle.MOON)
-    
+
     running: bool = True
 
     def quit():
@@ -36,15 +36,15 @@ def main():
 
     textbody1: UIDynamicBody = UIDynamicBody((50,50), (500, 200))
     text1_core: UIText = UIText(textbody1, 'Hello')
-    text1: UIDynamicTextRender = UIDynamicTextRenderer(text1_core, 'Arial', 'white')
+    text1: UIDynamicTextRenderer = UIDynamicTextRenderer(text1_core, 'Arial', 'white')
     
     textbody2 = UIDynamicBody((150,550), (700, 80))
     text2_core: UIText = UIText(textbody2, 'Hello')
-    text2: UIDynamicTextRender = UIDynamicTextRenderer(text2_core, 'Arial', 'white')
+    text2: UIDynamicTextRenderer = UIDynamicTextRenderer(text2_core, 'Arial', 'white')
 
     textbody = UIDynamicBody((0, 0), (200, 150), relativeObjectsForPosition=(textbody1, textbody2), relativeObjectsForPositionRelationType=(2,0))
     button_core: UICycleButton = UICycleButton(textbody, numberOfStates=8)
-    button: UICycleButtonRender = UICycleButtonRenderer(button_core)
+    button: UICycleButtonRenderer = UICycleButtonRenderer(button_core)
     button_core.addTriggerEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN))
     button_core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
 

@@ -1,6 +1,5 @@
 
 from ..uiobjectbody import UIABCBody
-from ..uiobject import UIABCObject
 from .UIABCText import UIABCText
 
 class UIText(UIABCText):
@@ -9,7 +8,7 @@ class UIText(UIABCText):
 	It is used to store basic textcontainer for rendering.
 	"""
 
-	def __init__(self, content: str, body: UIABCBody) -> None:
+	def __init__(self, body: UIABCBody, content: str, ) -> None:
 		"""
 		__init__ initializes the UIText instance
 
@@ -17,4 +16,4 @@ class UIText(UIABCText):
 			content: str = the text-content of the UIText
 			body: UIABCBody = the body of the UIText
 		"""
-		super().__init__(content, body)
+		super().__init__(body, content)

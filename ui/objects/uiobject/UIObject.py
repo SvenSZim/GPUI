@@ -2,7 +2,6 @@ from typing import override
 
 from ..idrawer import UISurfaceDrawer, UISurface
 from ..uiobjectbody import UIABCBody
-from ..uistyle import UIStyleElements
 
 from .UIABCObject import UIABCObject
 from .UIABCObject import UIABCObjectRenderer
@@ -37,12 +36,12 @@ class UIObjectRenderer(UIABCObjectRenderer[UIObject]):
             core: UIObject | UIABCBody = the refering UIObject (Or UIABCBody bcs. they are 'equivalet')
             active: bool = active-state of the UIObjectRenderer
         """
-        if isinstance(body, UIABCBody):
-            body = UIObject(body)
-        super().__init__(body, active)
+        if isinstance(core, UIABCBody):
+            core = UIObject(core)
+        super().__init__(core, active)
 
     @override
-    def render(self, surfaceDrawer: UISurfaceDrawer, surface: UISurface) -> None:
+    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface) -> None:
         """
         render renders the UIObject onto the given surface
 
@@ -52,10 +51,10 @@ class UIObjectRenderer(UIABCObjectRenderer[UIObject]):
         """
 
         # check if UIElement should be rendered
-        if not self.__active:
+        if not self._active:
             return
 
-        surfaceDrawer.drawrect(surface, self.__body.getRect(), 'white', fill=False)
+        surfaceDrawer.drawrect(surface, self._core.getRect(), 'white', fill=False)
 
     """
     def renderStyled(self, surfaceDrawer: UISurfaceDrawer, surface: UISurface, renderStyle: UIStyle) -> None:

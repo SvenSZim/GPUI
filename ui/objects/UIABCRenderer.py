@@ -62,7 +62,7 @@ class UIABCRenderer(Generic[Core], ABC):
 
     
     @abstractmethod
-    def render(self, surfaceDrawer: UISurfaceDrawer, surface: UISurface) -> None:
+    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface) -> None:
         """
         render renders the UIElement onto the given surface
 

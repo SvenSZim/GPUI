@@ -35,7 +35,7 @@ class UIDynamicBody(UIABCBody):
 
     def __init__(self, position: tuple[int | float, int | float], size: tuple[int | float, int | float],
                 relativeObjectsForPosition: tuple[Optional[UIABCBody], Optional[UIABCBody]]=(None, None), 
-                relativeObjectsForPositionRelationType: tuple[int | AlignmentType, int | AlignmentType]=(0, 0),
+                relativeObjectsForPositionRelationType: tuple[int, int]=(0, 0),
                 relativeObjectsForSize: tuple[Optional[UIABCBody], Optional[UIABCBody]]=(None, None)) -> None:
         super().__init__(Rect()) # initialize empty Rect ~ 0,0,0,0
 
@@ -44,11 +44,7 @@ class UIDynamicBody(UIABCBody):
         self.__relativeObjForPos = relativeObjectsForPosition
         self.__relativeObjForSize = relativeObjectsForSize
 
-        if isinstance(relativeObjectsForPositionRelationType[0], int) or isinstance(relativeObjectsForPositionRelationType[1], int):
-            relativeObjectsForPositionRelationType = (AlignmentType(relativeObjectsForPositionRelationType[0]),
-                                                      AlignmentType(relativeObjectsForPositionRelationType[1]))
-        
-        self.__relativeObjPosRelationType = relativeObjectsForPositionRelationType
+        self.__relativeObjPosRelationType = (AlignmentType(relativeObjectsForPositionRelationType[0]), AlignmentType(relativeObjectsForPositionRelationType[1]))
 
 
     @override

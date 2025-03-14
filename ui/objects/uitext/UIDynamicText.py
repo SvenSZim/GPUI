@@ -1,9 +1,8 @@
-from typing import override
+from typing import Union, override
 
 from ..generic import Color
-from ..idrawer import UISurfaceDrawer, UISurface
+from ..idrawer import UISurfaceDrawer, UISurface, UIFont
 from ..UIFontManager import UIFontManager
-from ..uistyle import UIStyleElements
 
 from .UIABCText import UIABCTextRenderer
 from .UIText import UIText
@@ -16,7 +15,7 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
     """
 
     def __init__(self, core: UIText, 
-                       fontName: str, fontColor: Color,
+                       fontName: str, fontColor: Union[str, tuple[int, int, int], Color],
                        active: bool=True) -> None:
         """
         __init__ initializes the UIDynamicTextRender instance
@@ -42,7 +41,7 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
 
 
     @override
-    def render(self, surfaceDrawer: UISurfaceDrawer, surface: UISurface) -> None:
+    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface) -> None:
         """
         render renders the UIObject onto the given surface
 

@@ -7,11 +7,11 @@ from .UIABCRenderer import UIABCRenderer
 
 class UIRenderer:
 
-    __drawer: UISurfaceDrawer | None = None
+    __drawer: type[UISurfaceDrawer] | None = None
     __renderstyle: UIStyle | None = None
 
     @staticmethod
-    def init(drawer: UISurfaceDrawer, font: UIFont, renderstyle: UIStyle) -> None:
+    def init(drawer: type[UISurfaceDrawer], font: type[UIFont], renderstyle: UIStyle) -> None:
         UIRenderer.__drawer = drawer
         UIFontManager.setFont(font)
         UIRenderer.__renderstyle = renderstyle

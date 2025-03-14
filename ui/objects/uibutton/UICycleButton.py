@@ -6,7 +6,6 @@ from ui.responsiveness import EventManager
 from ..generic import Rect
 from ..idrawer import UISurfaceDrawer, UISurface
 from ..uiobjectbody import UIABCBody
-from ..uiobject import UIABCObject
 
 from .UIABCButton import UIABCButtonRenderer
 from .UIABCClickButton import UIABCClickButton
@@ -126,7 +125,7 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
         super().__init__(core, active)
 
     @override
-    def render(self, surfaceDrawer: UISurfaceDrawer, surface: UISurface) -> None:
+    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface) -> None:
         """
         render renders the UIObject onto the given surface
 

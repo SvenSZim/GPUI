@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import override, Generic, TypeVar
+from typing import Union, override, Generic, TypeVar
 
 
 from ..generic import Color
@@ -54,13 +54,13 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core], ABC):
     UIABCTextRender is the abstract base class for all UITextRender
     """
     _fontName: str
-    _fontColor: Color
+    _fontColor: Union[str, tuple[int, int, int], Color]
     _fontSize: int
     _font: UIFont
 
     def __init__(self, core: Core, 
                        fontName: str, fontSize: int, 
-                       font: UIFont, fontColor: Color, 
+                       font: UIFont, fontColor: Union[str, tuple[int, int, int], Color], 
                        active: bool=True) -> None:
         """
         __init__ initializes the UIDynamicTextRender instance

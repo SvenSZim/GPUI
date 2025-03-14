@@ -11,8 +11,9 @@ class UISurfaceDrawer(ABC):
     It defines some needed functionality which needs to be implemented as interface.
     """
 
+    @staticmethod
     @abstractmethod
-    def drawline(self, surface: UISurface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Union[str, tuple[int, int, int], Color]) -> None:
+    def drawline(surface: UISurface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Union[str, tuple[int, int, int], Color]) -> None:
         """
         drawline draws a line from startpoint to endpoint with the given color on the surface
 
@@ -24,8 +25,9 @@ class UISurfaceDrawer(ABC):
         """
         pass
 
+    @staticmethod
     @abstractmethod
-    def drawrect(self, surface: UISurface, rect: Rect, color: Union[str, tuple[int, int, int], Color], fill: bool=True) -> None:
+    def drawrect(surface: UISurface, rect: Rect, color: Union[str, tuple[int, int, int], Color], fill: bool=True) -> None:
         """
         drawrect draws the given rect with the given color on the surface
 

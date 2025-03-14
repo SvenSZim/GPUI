@@ -82,7 +82,7 @@ class UIABCButton(UIABC[UIABCBody], ABC):
         """
         addGlobalTriggerEvent adds a event which immediatly triggers the button.
         """
-        EventManager.subscribeToEvent(event, UIABCButton._activeTrigger, self)
+        return EventManager.subscribeToEvent(event, UIABCButton._activeTrigger, self)
 
 
 
