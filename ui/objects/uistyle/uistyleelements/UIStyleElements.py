@@ -1,8 +1,12 @@
 from enum import Enum
 
+
 class UIStyleElements(Enum):
-    COLOR = 0
-    COLOR1 = 1
-    COLOR2 = 2
-    BASIC_RECT = 10
-    ADVANCED_RECT = 11
+    """
+    UIStyleElements is the abstract base class for all UIStyleElements:
+
+    Objects: 0x100 to 0x1FF
+    Texts: 0x200 to 0x2FF
+    Buttons: 0x300 to 0x3FF
+    """
+    pass

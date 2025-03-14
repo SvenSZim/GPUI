@@ -4,6 +4,7 @@ from typing import Union, override, Generic, TypeVar
 
 from ..generic import Color
 from ..idrawer import UIFont
+from ..uistyle import UIStyleTexts
 
 from ..uiobjectbody import UIABCBody
 from ..UIABC import UIABC
@@ -49,7 +50,7 @@ class UIABCText(UIABC[UIABCBody], ABC):
 
 Core = TypeVar('Core', bound=UIABCText)
 
-class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core], ABC):
+class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyleTexts], ABC):
     """
     UIABCTextRender is the abstract base class for all UITextRender
     """
@@ -103,3 +104,6 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core], ABC):
         """
         super().update()
         self.updateFont()
+
+
+

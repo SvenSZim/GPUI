@@ -2,6 +2,7 @@ from typing import Union, override
 
 from ..generic import Color
 from ..idrawer import UISurfaceDrawer, UISurface, UIFont
+from ..uistyle import UIABCStyle, UIStyleTexts
 from ..UIFontManager import UIFontManager
 
 from .UIText import UIText
@@ -36,6 +37,7 @@ class UIStaticTextRenderer(UIABCTextRenderer):
         """
         self._font = UIFontManager.getFont().SysFont(self._fontName, self._fontSize)
 
+
     @override
     def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface) -> None:
         """
@@ -57,3 +59,17 @@ class UIStaticTextRenderer(UIABCTextRenderer):
         textPosition: tuple[int, int] = (int(self._core.getPosition()[0] + (self._core.getSize()[0] - textSize[0]) / 2),
                                               int(self._core.getPosition()[1] + (self._core.getSize()[1] - textSize[1]) / 2))
         surface.blit(textRender, textPosition)
+    
+
+    @override
+    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
+        if not self._active:
+            return
+        
+        if self._renderStyleElement is None:
+            renderStyle.getStyledText(UIStyleTexts.BASIC).render(surfaceDrawer, surface, self._core.getRect(), self._core.getContent(), self._font, self._fontColor)
+        else:
+            renderStyle.getStyledText(self._renderStyleElement).render(surfaceDrawer, surface, self._core.getRect(), self._core.getContent(), self._font, self._fontColor)
+
+
+

@@ -1,6 +1,7 @@
 from abc import ABC
 from typing import Generic, TypeVar
 
+from ..uistyle import UIStyleObjects
 from ..uiobjectbody import UIABCBody
 from ..UIABC import UIABC
 from ..UIABCRenderer import UIABCRenderer
@@ -21,7 +22,7 @@ class UIABCObject(UIABC[UIABCBody], ABC):
 
 Core = TypeVar('Core', bound=UIABCObject)
 
-class UIABCObjectRenderer(Generic[Core], UIABCRenderer[Core], ABC):
+class UIABCObjectRenderer(Generic[Core], UIABCRenderer[Core, UIStyleObjects], ABC):
     """
     UIABCObjectRender is the abstract base class for all UIObjectRenderer.
     """

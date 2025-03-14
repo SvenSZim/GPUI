@@ -1,6 +1,6 @@
-from .UIStyle import UIStyle
+from .uistyleelements import UIStyleElements, UIStyleObjects, UIStyleTexts, UIStyleButtons
+from .uistyleelements import UIABCStyleElement, UIABCStyleObject, UIABCStyleText, UIABCStyleButton
+from .uistyleelements import UIStyleObjectBasic, UIStyleTextBasic, UIStyleButtonBasic
 
-from .uistyleelements import UIStyleElements
 
-from .uistyleelements import UIStyleColor
-from .uistyleelements import UIStyleBasicRect
+from .uistyles import UIABCStyle, UIStyleMOON

@@ -5,6 +5,7 @@ from ui.responsiveness import EventManager
 
 from ..generic import Rect
 from ..idrawer import UISurfaceDrawer, UISurface
+from ..uistyle import UIABCStyle, UIStyleButtons
 from ..uiobjectbody import UIABCBody
 
 from .UIABCButton import UIABCButtonRenderer
@@ -248,3 +249,19 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
                     else:
                         fill_with_lines(surface, Rect((state_left, rect.top), (state_width, rect.height)), lambda x: -x + vertical_offset, line_spacing)
                     sign = not sign
+
+
+
+    @override
+    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
+        if not self._active:
+            return
+        
+        if self._renderStyleElement is None:
+            renderStyle.getStyledButton(UIStyleButtons.BASIC).render(surfaceDrawer, surface, self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState())
+        else:
+            renderStyle.getStyledButton(self._renderStyleElement).render(surfaceDrawer, surface, self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState())
+
+
+
+

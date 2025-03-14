@@ -2,11 +2,13 @@ import pygame as pg
 from drawer import PygameDrawer, PygameSurface, PygameFont
 
 from ui import InputEvent, InputManager
-from ui import UIRenderer, UIStyle
+from ui import UIRenderer, UIStyleMOON
 
 from ui import UIDynamicBody
 from ui import UIText, UIDynamicTextRenderer
 from ui import UICycleButton, UICycleButtonRenderer
+from ui.objects.uiobject.UIObject import UIObject, UIObjectRenderer
+from ui.objects.uitext.UIStaticText import UIStaticTextRenderer
 
 
 def setText(textobj: UIDynamicTextRenderer, newtext):
@@ -19,7 +21,7 @@ def main():
     pg.init()
     pg.font.init()
     InputManager.init()
-    UIRenderer.init(PygameDrawer, PygameFont, UIStyle.MOON)
+    UIRenderer.init(PygameDrawer, PygameFont, UIStyleMOON)
 
     running: bool = True
 
@@ -34,13 +36,16 @@ def main():
 
     main_font: pg.font.Font = pg.font.SysFont('Arial', 10)
 
+    objbody1: UIDynamicBody = UIDynamicBody((600, 0), (100, 200))
+    obj1: UIObjectRenderer = UIObjectRenderer(objbody1)
+
     textbody1: UIDynamicBody = UIDynamicBody((50,50), (500, 200))
     text1_core: UIText = UIText(textbody1, 'Hello')
     text1: UIDynamicTextRenderer = UIDynamicTextRenderer(text1_core, 'Arial', 'white')
     
     textbody2 = UIDynamicBody((150,550), (700, 80))
     text2_core: UIText = UIText(textbody2, 'Hello')
-    text2: UIDynamicTextRenderer = UIDynamicTextRenderer(text2_core, 'Arial', 'white')
+    text2: UIStaticTextRenderer = UIStaticTextRenderer(text2_core, 'Arial', 24, 'white')
 
     textbody = UIDynamicBody((0, 0), (200, 150), relativeObjectsForPosition=(textbody1, textbody2), relativeObjectsForPositionRelationType=(2,0))
     button_core: UICycleButton = UICycleButton(textbody, numberOfStates=8)
@@ -55,7 +60,7 @@ def main():
         InputManager.update()
 
         main_screen.fill('black')
-        UIRenderer.render(PygameSurface(main_screen), [text1, text2, button])
+        UIRenderer.render(PygameSurface(main_screen), [obj1, text1, text2, button])
 
         pg.display.flip()
 

@@ -7,6 +7,6 @@ from .uibutton import UICycleButton, CycleButtonRenderStyle, UICycleButtonRender
 
 
 from .generic import Color, Rect
-from .UIRenderer import UIStyle, UIRenderer
-from .uistyle import UIStyle
+from .UIRenderer import UIRenderer
+from .uistyle import UIABCStyle, UIStyleMOON
 from .idrawer import UISurface, UIFont, UISurfaceDrawer
