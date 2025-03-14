@@ -1,35 +1,12 @@
 from typing import override
 
-from ..idrawer import UISurface
 from ..generic import Color
-from ..UIRenderer import UIRenderer
+from ..idrawer import UISurfaceDrawer, UISurface
+from ..UIFontManager import UIFontManager
 from ..uistyle import UIStyleElements
 
 from .UIABCText import UIABCTextRenderer
 from .UIText import UIText
-
-
-def get_maximal_font_size(max_size: tuple[int, int], sysfont_name: str, text: str) -> int:
-    
-    def text_fits_in_box(max_size: tuple[int, int], text_size: tuple[int, int]) -> bool:
-        return (max_size[0] > text_size[0]) and (max_size[1] > text_size[1])
-
-    start_search: int = 0
-    end_search: int = min(max_size)
-    while start_search < end_search:
-        mid_search: int = int((start_search + end_search) / 2)
-        
-        test_font = UIRenderer.font.SysFont(sysfont_name, mid_search)
-        test_render: UISurface = test_font.render(text, (255, 255, 255))
-        test_size: tuple[int, int] = test_render.getSize()
-
-        if text_fits_in_box(max_size, test_size):
-            start_search = mid_search + 1
-        else: 
-            end_search = mid_search - 1
-
-    return start_search
-
 
 
 class UIDynamicTextRenderer(UIABCTextRenderer):
@@ -38,25 +15,21 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
     with the box-size, text-length and font type.
     """
 
-    def __init__(self, body: UIText,
-                       fontName: str='Arial', fontColor: Color=Color('white'),
+    def __init__(self, core: UIText, 
+                       fontName: str, fontColor: Color,
                        active: bool=True) -> None:
         """
         __init__ initializes the UIDynamicTextRender instance
 
         Args:
-            body: UIText = the refering UIText
+            core: UIText = the refering UIText
             fontName: str = the systemfont name of used font
             fontColor: Color = the color the font should have
             active: bool = the active-state of the UIDynamicTextRenderer
         """
-        self.active = active
-        self.body = body
-
-        self.fontName = fontName
-        self.fontColor = fontColor
-
-        self.updateFont()
+        fontSize: int = self.__getDynamicFontSize(fontName, core.getSize(), core.getContent())
+        font: UIFont = UIFontManager.getFont().SysFont(fontName, fontSize)
+        super().__init__(core, fontName, fontSize, font, fontColor, active)
 
     @override
     def updateFont(self) -> None:
@@ -64,30 +37,65 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
         updateFont updates the font of the UIDynamicTextRender used for render
         depending on the text-content, box-size and font type.
         """
-        content = self.getUIObject().getContent()
-        self.font = UIRenderer.font.SysFont(self.fontName, get_maximal_font_size(self.body.getSize(), self.fontName, content))
+        self._fontSize = self.__getDynamicFontSize(self._fontName, self._core.getSize(), self._core.getContent())
+        self._font = UIFontManager.getFont().SysFont(self._fontName, self._fontSize)
 
 
     @override
-    def render(self, surface: UISurface) -> None:
+    def render(self, surfaceDrawer: UISurfaceDrawer, surface: UISurface) -> None:
         """
         render renders the UIObject onto the given surface
 
         Args:
+            surfaceDrawer: UISurfaceDrawer = the drawer to use when drawing on surface
             surface: UISurface = the surface the UIObject should be drawn on
         """
 
         # check if UIElement should be rendered
-        if not self.active:
+        if not self._active:
             return
 
 
-        UIRenderer.getRenderStyle().getStyleElement(UIStyleElements.BASIC_RECT).render(UIRenderer.getDrawer(), surface, self.getUIObject().getRect())
+        surfaceDrawer.drawrect(surface, self._core.getRect(), 'white', fill=False)
+
+        textRender: UISurface = self._font.render(self._core.getContent(), self._fontColor)
+        textSize: tuple[int, int] = textRender.getSize()
+        textPosition: tuple[int, int] = (int(self._core.getPosition()[0] + (self._core.getSize()[0] - textSize[0]) / 2),
+                                              int(self._core.getPosition()[1] + (self._core.getSize()[1] - textSize[1]) / 2))
+        surface.blit(textRender, textPosition)
 
 
-        text_render: UISurface = self.font.render(self.getUIObject().getContent(), self.fontColor)
-        text_size: tuple[int, int] = text_render.getSize()
-        text_position: tuple[int, int] = (int(self.getUIObject().getPosition()[0] + (self.getUIObject().getSize()[0] - text_size[0]) / 2),
-                                              int(self.getUIObject().getPosition()[1] + (self.getUIObject().getSize()[1] - text_size[1]) / 2))
-        surface.blit(text_render, text_position)
+    @staticmethod
+    def __getDynamicFontSize(fontName: str, boxSize: tuple[int, int], text: str) -> int:
+        """
+        getDynamicFont calculates the maximal fontsize to use for the given SysFont
+        to still make the given text fit in the given box
 
+        Args:
+            fontName: str = the SysFont name to use
+            boxSize: tuple[int, int]: the size of the box the text should fit in
+            text: str = the text to fit in the box
+
+        Returns:
+            int = the maximal fontsize to still fit in the box
+        """
+
+        def text_fits_in_box(textRender: UISurface) -> bool:
+            nonlocal boxSize
+            textSize: tuple[int, int] = textRender.getSize()
+            return (boxSize[0] > textSize[0]) and (boxSize[1] > textSize[1])
+
+        start_search: int = 0
+        end_search: int = min(boxSize)
+        while start_search < end_search:
+            mid_search: int = int((start_search + end_search) / 2)
+        
+            test_font = UIFontManager.getFont().SysFont(fontName, mid_search)
+            test_render: UISurface = test_font.render(text, (255, 255, 255))
+
+            if text_fits_in_box(test_render):
+                start_search = mid_search + 1
+            else: 
+                end_search = mid_search - 1
+
+        return start_search

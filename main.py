@@ -10,12 +10,10 @@ from ui import UICycleButton, UICycleButtonRenderer
 
 
 def setText(textobj: UIDynamicTextRenderer, newtext):
-    textobj.getUIObject().setContent(newtext)
-    textobj.update()
+    textobj.updateContent(newtext)
 
 def switchList(textobj: UIDynamicTextRenderer, l: list[str], i: int):
-    textobj.getUIObject().setContent(l[i])
-    textobj.update()
+    textobj.updateContent(l[i])
 
 def main():
     pg.init()
@@ -36,25 +34,28 @@ def main():
 
     main_font: pg.font.Font = pg.font.SysFont('Arial', 10)
 
-    textbody: UIDynamicBody = UIDynamicBody((50,50), (500, 200))
-    text: UIDynamicTextRender = UIDynamicTextRenderer(UIText(textbody, 'Hello'))
+    textbody1: UIDynamicBody = UIDynamicBody((50,50), (500, 200))
+    text1_core: UIText = UIText(textbody1, 'Hello')
+    text1: UIDynamicTextRender = UIDynamicTextRenderer(text1_core, 'Arial', 'white')
     
-    textbody = UIDynamicBody((150,550), (700, 80))
-    text2: UIDynamicTextRender = UIDynamicTextRenderer(UIText(textbody, 'Hello'))
+    textbody2 = UIDynamicBody((150,550), (700, 80))
+    text2_core: UIText = UIText(textbody2, 'Hello')
+    text2: UIDynamicTextRender = UIDynamicTextRenderer(text2_core, 'Arial', 'white')
 
-    textbody = UIDynamicBody((0, 0), (200, 150), relativeObjectsPosition=(text.getUIObject().body, text2.getUIObject().body), relativeObjectsPositionType=(2,0))
-    button: UICycleButtonRender = UICycleButtonRenderer(UICycleButton(textbody, numberOfStates=8))
-    button.getUIObject().addTriggerEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN))
-    button.getUIObject().addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
+    textbody = UIDynamicBody((0, 0), (200, 150), relativeObjectsForPosition=(textbody1, textbody2), relativeObjectsForPositionRelationType=(2,0))
+    button_core: UICycleButton = UICycleButton(textbody, numberOfStates=8)
+    button: UICycleButtonRender = UICycleButtonRenderer(button_core)
+    button_core.addTriggerEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN))
+    button_core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
 
-    [button.getUIObject().subscribeToButtonEvent(x, switchList, text, ['Hello World!', 'My', 'name',  'is', 'sven!'], x) for x in range(5)]
-    button.getUIObject().subscribeToButtonEvent(3, setText, text2, 'Moinsen from Button. YOLO ROFL XD :P')
+    [button_core.subscribeToButtonEvent(x, switchList, text1, ['Hello World!', 'My', 'name',  'is', 'sven!'], x) for x in range(5)]
+    button_core.subscribeToButtonEvent(3, setText, text2, 'Moinsen from Button. YOLO ROFL XD :P')
 
     while running:
         InputManager.update()
 
         main_screen.fill('black')
-        UIRenderer.render(PygameSurface(main_screen), [text, text2, button])
+        UIRenderer.render(PygameSurface(main_screen), [text1, text2, button])
 
         pg.display.flip()
 

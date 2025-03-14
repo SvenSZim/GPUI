@@ -25,7 +25,7 @@ class UISurfaceDrawer(ABC):
         pass
 
     @abstractmethod
-    def drawrect(self, surface: UISurface, rect: Rect, color: Union[str, tuple[int, int, int], Color], fill: bool = True) -> None:
+    def drawrect(self, surface: UISurface, rect: Rect, color: Union[str, tuple[int, int, int], Color], fill: bool=True) -> None:
         """
         drawrect draws the given rect with the given color on the surface
 

@@ -1,14 +1,16 @@
-
-from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, override
 
 from ui.responsiveness import EventManager
-from ..idrawer import UISurface
+
 from ..generic import Rect
+from ..idrawer import UISurfaceDrawer, UISurface
 from ..uiobjectbody import UIABCBody
 from ..uiobject import UIABCObject
+
+from .UIABCButton import UIABCButtonRenderer
 from .UIABCClickButton import UIABCClickButton
+
 
 class UICycleButton(UIABCClickButton):
     """
@@ -16,28 +18,26 @@ class UICycleButton(UIABCClickButton):
     the button cycles between a fixed amount of states when clicked.
     """
 
-    buttonEvents: list[str]
-    numberOfStates: int
-    currentState: int
+    __buttonEvents: list[str]
+    __numberOfStates: int
+    __currentState: int
 
-    def __init__(self, objectBody: UIABCBody, numberOfStates: int=2, startState: int=0, buttonActive: bool=True) -> None:
+    def __init__(self, body: UIABCBody, buttonActive: bool=True, numberOfStates: int=2, startState: int=0) -> None:
         """
         __init__ initializes the UICycleButton instance
 
         Args:
-            objectBody: UIABCBody = the body of the UICycleButton
+            objectBody: UIABCBody = the body of the UICycleButton (for UIABCClickButton)
+            buttonActive: bool = boolean if the UICycleButton starts active (for UIABCClickButton)
             numberOfStates: int = the number of states of the button (min 2)
             startState: int = the startState of the UICycleButton (min 0, max numberOfState - 1)
-            buttonActive: bool = boolean if the UICycleButton starts active
         """
-        self.body = objectBody
-        UIABCObject.update(self) #explicitly calls the update function from UIObject (in case it gets overwritten)
+        super().__init__(body, buttonActive)
 
-        self.numberOfStates = max(2, numberOfStates)
-        self.currentState = min(self.numberOfStates - 1, max(0, startState))
-        self.buttonActive = buttonActive
+        self.__numberOfStates = max(2, numberOfStates)
+        self.__currentState = min(self.__numberOfStates - 1, max(0, startState))
         
-        self.buttonEvents = [EventManager.createEvent() for _ in range(numberOfStates)]
+        self.__buttonEvents = [EventManager.createEvent() for _ in range(self.__numberOfStates)]
 
     @override
     def _trigger(self) -> None:
@@ -46,8 +46,8 @@ class UICycleButton(UIABCClickButton):
         For UICycleButton the currentState of the Butten gets incremented 
         (and wraps around if it reaches maxState).
         """
-        EventManager.triggerEvent(self.buttonEvents[self.currentState])
-        self.currentState = (self.currentState + 1) % self.numberOfStates
+        EventManager.triggerEvent(self.__buttonEvents[self.__currentState])
+        self.__currentState = (self.__currentState + 1) % self.__numberOfStates
 
     def subscribeToButtonEvent(self, state: int, f: Callable, *args: Any) -> bool:
         """
@@ -62,8 +62,8 @@ class UICycleButton(UIABCClickButton):
         Returns:
             bool = returns if the subscription was successful
         """
-        if state >= 0 and state < self.numberOfStates:
-            return EventManager.subscribeToEvent(self.buttonEvents[state], f, *args)
+        if state >= 0 and state < self.__numberOfStates:
+            return EventManager.subscribeToEvent(self.__buttonEvents[state], f, *args)
         return False
 
     def subscribeToButtonClick(self, f: Callable, *args: Any) -> bool:
@@ -78,13 +78,27 @@ class UICycleButton(UIABCClickButton):
         Returns:
             bool = returns if the subscriptions were successful
         """
-        return all([EventManager.subscribeToEvent(self.buttonEvents[x], f, *args) for x in range(self.numberOfStates)])
+        return all([EventManager.subscribeToEvent(self.__buttonEvents[x], f, *args) for x in range(self.__numberOfStates)])
  
+    def getNumberOfStates(self) -> int:
+        """
+        getNumberOfStates returns the number of states the UICycleButton consists of.
 
-from .UIABCButton import UIABCButtonRenderer
-from ..UIRenderer import UIRenderer
-from ..uistyle import UIStyleElements
-from ..UIABCRenderer import UIABCRenderer
+        Returns:
+            int = number of states of the UICycleButton
+        """
+        return self.__numberOfStates
+
+    def getCurrentState(self) -> int:
+        """
+        getCurrentState return the current state of the UICycleButton.
+
+        Returns:
+            int = the current state of the UICycleButton
+        """
+        return self.__currentState
+
+
 
 class CycleButtonRenderStyle(Enum):
     """
@@ -98,28 +112,21 @@ class CycleButtonRenderStyle(Enum):
 
 class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
     """
-    UICycleButtonRender is a UIButtonRender which uses UICycleButtonRenderInfo to
-    render the UICycleButton.
+    UICycleButtonRender is a UIButtonRender which renders the UICycleButton.
     """
-    buttonRenderStyle: CycleButtonRenderStyle
-
-    def __init__(self, body: UICycleButton, 
-                       buttonRenderStyle: CycleButtonRenderStyle=CycleButtonRenderStyle.FILLING_DIAGONALALT, 
-                       active: bool=True) -> None:
+    
+    def __init__(self, core: UICycleButton, active: bool=True) -> None:
         """
         __init__ initializes the UICycleButtonRender instance
 
         Args:
-            body: UICycleButton = the refering UICycleButton
-            renderInfo: UICycleButtonRenderInfo = the UIRenderInfo used for rendering the UICycleButtonRender
+            core: UICycleButton = the refering UICycleButton (for UIABCButtonRenderer)
+            active: bool = the active-state of the Renderer
         """
-        self.active = active
-        self.body = body
-        
-        self.buttonRenderStyle = buttonRenderStyle
+        super().__init__(core, active)
 
     @override
-    def render(self, surface: UISurface) -> None:
+    def render(self, surfaceDrawer: UISurfaceDrawer, surface: UISurface) -> None:
         """
         render renders the UIObject onto the given surface
 
@@ -128,15 +135,15 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
         """
 
         # check if UIElement should be rendered
-        if not self.active:
+        if not self._active:
             return
 
 
-        UIRenderer.getRenderStyle().getStyleElement(UIStyleElements.BASIC_RECT).render(UIRenderer.getDrawer(), surface, self.getUIObject().getRect())
+        surfaceDrawer.drawrect(surface, self._core.getRect(), 'white', fill=False)
 
         color: str = 'white'
 
-        rect: Rect = self.getUIObject().getRect()
+        rect: Rect = self._core.getRect()
 
         def fill_with_lines(screen: UISurface, rect: Rect,
                             line_function: Callable[[int], int], line_spacing: float, draw: bool = True) -> tuple[tuple[int, int], tuple[int, int]]:
@@ -194,7 +201,7 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
                     nonlocal color
                     
                     if draw:
-                        UIRenderer.drawer.drawline(screen, start_point, end_point, color)
+                        surfaceDrawer.drawline(screen, start_point, end_point, color)
 
                     if first_start_point[0] == -1:
                         first_start_point = start_point
@@ -206,7 +213,8 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
         line_amount: int = min(10, int(rect.height / 10))
         line_spacing: float = rect.height / (line_amount + 1)
         
-        match self.buttonRenderStyle:
+        style: CycleButtonRenderStyle = CycleButtonRenderStyle.FILLING_DIAGONAL
+        match style:
             case CycleButtonRenderStyle.DEFAULT:
                 pass
 
@@ -214,18 +222,18 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
                 pass
 
             case CycleButtonRenderStyle.FILLING_HORIZONTAL:
-                activation_percent: float = self.getUIObject().currentState / (self.getUIObject().numberOfStates - 1)
+                activation_percent: float = self._core.getCurrentState() / (self._core.getNumberOfStates() - 1)
                 activation_width: int = int(rect.width * activation_percent)
                 fill_with_lines(surface, Rect(rect.getPosition(), (activation_width, rect.height)), lambda x: x, line_spacing)
                 fill_with_lines(surface, Rect(rect.getPosition(), (activation_width, rect.height)), lambda x: -x, line_spacing)
 
             case CycleButtonRenderStyle.FILLING_DIAGONAL:
-                activation_percent: float = self.getUIObject().currentState / (self.getUIObject().numberOfStates - 1)
+                activation_percent: float = self._core.getCurrentState() / (self._core.getNumberOfStates() - 1)
                 activation_width: int = int(rect.width * activation_percent)
                 fill_with_lines(surface, Rect(rect.getPosition(), (activation_width, rect.height)), lambda x: x, line_spacing)
 
             case CycleButtonRenderStyle.FILLING_DIAGONALALT:
-                state_percent: float = 1 / (self.getUIObject().numberOfStates - 1)
+                state_percent: float = 1 / (self._core.getNumberOfStates() - 1)
                 state_width: int = int(rect.width * state_percent)
 
                 sign: bool = True
@@ -234,7 +242,7 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
                 p_start_point: tuple[int, int] = fill_with_lines(surface, Rect((0, rect.top), (state_width, rect.height)), lambda x: -x, line_spacing, draw=False)[0]
                 vertical_offset: int = p_end_point[1] - p_start_point[1]
 
-                for cs in range(1, self.getUIObject().currentState + 1):
+                for cs in range(1, self._core.getCurrentState() + 1):
                     state_left: int = rect.left + (cs - 1) * state_width
                     if sign:
                         fill_with_lines(surface, Rect((state_left, rect.top), (state_width, rect.height)), lambda x: x, line_spacing)

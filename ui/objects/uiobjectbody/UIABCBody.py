@@ -8,11 +8,19 @@ class UIABCBody(ABC):
     It defines the needed functionality all UIElementBodys should implement.
     """
 
-    # cached object data
-    rect: Rect
+    _rect: Rect # cached object data
+
+    def __init__(self, rect: Rect) -> None:
+        """
+        __init__ initializes the values of UIABCBody for the UIBodyElement
+
+        Args:
+            rect: Rect = the rect containing the start position and sizing of the UIBodyElement
+        """
+        self._rect = rect
 
     @abstractmethod
-    def calculatePosition(self) -> tuple[int, int]:
+    def _calculatePosition(self) -> tuple[int, int]:
         """
         calculatePosition calculates the position (top-left-corner) of the UIElementBody
 
@@ -22,7 +30,7 @@ class UIABCBody(ABC):
         pass
 
     @abstractmethod
-    def calculateSize(self) -> tuple[int, int]:
+    def _calculateSize(self) -> tuple[int, int]:
         """
         calculateSize calculates the sizes of the UIElementBody
 
@@ -38,7 +46,7 @@ class UIABCBody(ABC):
         Returns:
             Rect = the cached Rect of the UIElementBody
         """
-        return self.rect
+        return self._rect
 
     def getPosition(self) -> tuple[int, int]:
         """
@@ -47,7 +55,7 @@ class UIABCBody(ABC):
         Returns:
             tuple[int, int] = (posX, posY) ~ the position of the top-left-corner of the UIElementBody
         """
-        return self.getRect().getPosition()
+        return self._rect.getPosition()
 
     def getSize(self) -> tuple[int, int]:
         """
@@ -56,11 +64,11 @@ class UIABCBody(ABC):
         Returns:
             tuple[int, int] = (width, height) ~ the size of the UIElementBody
         """
-        return self.getRect().getSize()
+        return self._rect.getSize()
 
     def update(self) -> None:
         """
         update calculates the position and size of the UIElementBody and
         caches the values in hte UIElementBody attributes.
         """
-        self.rect = Rect(self.calculatePosition(), self.calculateSize())
+        self._rect = Rect(self._calculatePosition(), self._calculateSize())

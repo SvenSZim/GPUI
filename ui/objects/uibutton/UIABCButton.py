@@ -2,16 +2,30 @@ from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
 from ui.responsiveness import EventManager
-from ..uiobject import UIABCObject
+
+from ..UIABC import UIABC
+from ..UIABCRenderer import UIABCRenderer
+from ..uiobjectbody import UIABCBody
 
 
 
-class UIABCButton(UIABCObject, ABC):
+class UIABCButton(UIABC[UIABCBody], ABC):
     """
     UIABCButton is the abstract base class for all UIButtons
     """
 
-    buttonActive: bool # button active-state
+    _buttonActive: bool # button active-state
+
+    def __init__(self, body: UIABCBody, buttonActive: bool=True) -> None:
+        """
+        __init__ initializes the UIABCButton values for the UIButtonElement
+
+        Args:
+            body: UIABCBody = the body of the UIButtonElement (for UIABC)
+            buttonActive: bool = the button active-state
+        """
+        super().__init__(body)
+        self._buttonActive = buttonActive
 
     def getButtonActive(self) -> bool:
         """
@@ -20,7 +34,7 @@ class UIABCButton(UIABCObject, ABC):
         Returns:
             bool = active-state of the UIButton
         """
-        return self.buttonActive
+        return self._buttonActive
 
     def toggleButtonActive(self) -> bool:
         """
@@ -29,8 +43,8 @@ class UIABCButton(UIABCObject, ABC):
         Returns:
             bool = new active-state of the UIButton
         """
-        self.buttonActive = not self.buttonActive
-        return self.buttonActive
+        self._buttonActive = not self._buttonActive
+        return self._buttonActive
 
     def setButtonActive(self, buttonActive: bool) -> None:
         """
@@ -39,7 +53,7 @@ class UIABCButton(UIABCObject, ABC):
         Args:
             buttonActive: bool = new active-state of the UIButton
         """
-        self.buttonActive = buttonActive
+        self._buttonActive = buttonActive
     
     @abstractmethod
     def _trigger(self) -> None:
@@ -69,15 +83,21 @@ class UIABCButton(UIABCObject, ABC):
         addGlobalTriggerEvent adds a event which immediatly triggers the button.
         """
         EventManager.subscribeToEvent(event, UIABCButton._activeTrigger, self)
-        
 
 
-from ..uiobject import UIABCObjectRenderer
 
-B = TypeVar('B', bound=UIABCButton)
+Core = TypeVar('Core', bound=UIABCButton)
 
-class UIABCButtonRenderer(Generic[B], UIABCObjectRenderer[B], ABC):
+class UIABCButtonRenderer(Generic[Core], UIABCRenderer[Core], ABC):
     """
     UIABCButtonRender is the abstract base class for all UIButtonRender
     """
-    pass
+    def __init__(self, core: Core, active: bool=True) -> None:
+        """
+        __init__ initializes the values of UIABCButtonRenderer for the UIButtonRenderer
+
+        Args:
+            core: Core (bound=UIABCButton) = the refering UIButtonElement of the UIButtonRenderer (for UIABCRenderer)
+            active: bool = active-state of the UIButtonRenderer (for UIABCRenderer)
+        """
+        super().__init__(core, active)

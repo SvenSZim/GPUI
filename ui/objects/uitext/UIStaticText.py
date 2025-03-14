@@ -1,9 +1,8 @@
 from typing import override
 
-from ..idrawer import UISurface
 from ..generic import Color
-from ..UIRenderer import UIRenderer
-from ..uistyle import UIStyleElements
+from ..idrawer import UISurface
+from ..UIFontManager import UIFontManager
 
 from .UIText import UIText
 from .UIABCText import UIABCTextRenderer
@@ -40,7 +39,7 @@ class UIStaticTextRenderer(UIABCTextRenderer):
         updateFont updates the font used for rendering.
         In UIStaticTextRender the fontsize does not scale with the box-size or the text-content.
         """
-        self.font = UIRenderer.font.SysFont(self.fontname, self.fontsize)
+        self._font = UIFontManager.getFont().SysFont(self.fontname, self.fontsize)
 
     @override
     def renderer(self, surface: UISurface) -> None:

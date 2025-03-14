@@ -1,21 +1,41 @@
-
-
 from typing import Any, Callable
 
 
 class Event:
+    """
+    Event is a container class for Callables.
+    It is used to create and store events which can be
+    triggered or subscribed to.
+    When triggered it calls all stored Callables (callbacks).
+    """
     
-    name: str
-    subscriptions: list[tuple[Callable, list[Any]]]
+    __name: str
+    __l_subscriptions: list[tuple[Callable, list[Any]]]
 
     def __init__(self, name: str) -> None:
-        self.name = name
-        self.subscriptions = []
+        """
+        __init__ intializes the instance of Event
+
+        Args:
+            name: str = the name of the event
+        """
+        self.__name = name
+        self.__l_subscriptions = []
 
     def subscribe(self, f: Callable, *args: Any) -> None:
-        self.subscriptions.append((f, list(args)))
+        """
+        subscribe takes a callback and adds it to the stored subscriptions
+
+        Args:
+            f: Callable = the function to add as callback
+            *args: Any = the parameters the function takes in
+        """
+        self.__l_subscriptions.append((f, list(args)))
 
     def trigger(self) -> None:
-        actual_subscriptions: list[tuple[Callable, list[Any]]] = self.subscriptions.copy()
-        for f, args in actual_subscriptions:
+        """
+        trigger 'triggers' the event ~ all stored callbacks get called
+        """
+        _v_actual_subscriptions: list[tuple[Callable, list[Any]]] = self.__l_subscriptions.copy()
+        for f, args in _v_actual_subscriptions:
             f(*args)

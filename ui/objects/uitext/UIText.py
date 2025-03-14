@@ -9,15 +9,12 @@ class UIText(UIABCText):
 	It is used to store basic textcontainer for rendering.
 	"""
 
-	def __init__(self, objectBody: UIABCBody, content: str) -> None:
+	def __init__(self, content: str, body: UIABCBody) -> None:
 		"""
 		__init__ initializes the UIText instance
 
 		Args:
-			objectBody: UIABCBody = the body of the UIText
 			content: str = the text-content of the UIText
+			body: UIABCBody = the body of the UIText
 		"""
-		self.body = objectBody
-		UIABCObject.update(self) #explicitly calls the update function from UIObject (in case it gets overwritten)
-
-		self.content = content
+		super().__init__(content, body)

@@ -1,4 +1,3 @@
-
 from enum import Enum
 from typing import Optional, override
 
@@ -7,71 +6,81 @@ from .UIABCBody import UIABCBody
 
 
 class AlignmentType(Enum):
-    TopLeft = 0
-    TopRight = 1
-    BottomLeft = 2
-    BottomRight = 3
+    """
+    AlignmentType is used to store the positioning relation between two
+    UIBody elements.
+    """
+    TOP_LEFT = 0
+    TOP_RIGHT = 1
+    BOTTOM_LEFT = 2
+    BOTTOM_RIGHT = 3
 
 class UIDynamicBody(UIABCBody):
     """
-    Custom definition of object body as a rect which can be placed and scaled
-    absolute or in relation to another object body element.
+    UIDynamicBody is a custom definition of object body as a rect
+    which can be placed and scaled absolute or in relation to another
+    object body element. 
     This enables more flexibility when positioning multiple related elements
     on screen.
     """
 
-    position: tuple[int | float, int | float] # int: absolute offset | float: relative offset to own size
-    size: tuple[int | float, int | float] # int: absolute size | float: percentage sizing relative to relativeObj
+    __position: tuple[int | float, int | float] # int: absolute offset         | float: relative offset to parent size
+    __size: tuple[int | float, int | float] # int: absolute size / size offset | float: percentage sizing relative to relativeObj
 
-    relativeObjectsPosition: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']]
-    relativeObjectsPositionType: tuple[AlignmentType, AlignmentType]
-    relativeObjectsSize: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']]
+    __relativeObjForPos: tuple[Optional[UIABCBody], Optional[UIABCBody]]
+    __relativeObjPosRelationType: tuple[AlignmentType, AlignmentType]
+    
+    __relativeObjForSize: tuple[Optional[UIABCBody], Optional[UIABCBody]]
 
 
     def __init__(self, position: tuple[int | float, int | float], size: tuple[int | float, int | float],
-                relativeObjectsPosition: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']] = (None, None), 
-                relativeObjectsPositionType: tuple[int, int] = (0, 0),
-                relativeObjectsSize: tuple[Optional['UIDynamicBody'], Optional['UIDynamicBody']] = (None, None)) -> None:
-        self.position = position
-        self.size = size
-        self.relativeObjectsPosition = relativeObjectsPosition
-        self.relativeObjectsPositionType = (AlignmentType(relativeObjectsPositionType[0]), 
-                                            AlignmentType(relativeObjectsPositionType[1]))
-        self.relativeObjectsSize = relativeObjectsSize
+                relativeObjectsForPosition: tuple[Optional[UIABCBody], Optional[UIABCBody]]=(None, None), 
+                relativeObjectsForPositionRelationType: tuple[int | AlignmentType, int | AlignmentType]=(0, 0),
+                relativeObjectsForSize: tuple[Optional[UIABCBody], Optional[UIABCBody]]=(None, None)) -> None:
+        super().__init__(Rect()) # initialize empty Rect ~ 0,0,0,0
 
-        self.rect = Rect() # initialize empty Rect ~ 0,0,0,0
+        self.__position = position
+        self.__size = size
+        self.__relativeObjForPos = relativeObjectsForPosition
+        self.__relativeObjForSize = relativeObjectsForSize
+
+        if isinstance(relativeObjectsForPositionRelationType[0], int) or isinstance(relativeObjectsForPositionRelationType[1], int):
+            relativeObjectsForPositionRelationType = (AlignmentType(relativeObjectsForPositionRelationType[0]),
+                                                      AlignmentType(relativeObjectsForPositionRelationType[1]))
+        
+        self.__relativeObjPosRelationType = relativeObjectsForPositionRelationType
 
 
     @override
-    def calculateSize(self) -> tuple[int, int]:
+    def _calculateSize(self) -> tuple[int, int]:
         """
-        Function that calculates the size of the UIObjectBody object.
+        calculateSize calculates the size of the UIDynamicBody object.
         Two modes:
         1. Object is absolute sized: It just returns the absolute size of the object.
         2. Object is relative sized: 
-            Size is calculated in respect to the parent UIObject(s) size(s).
+            Size is calculated in respect to the parent UIBody(s) size(s).
             Given size is interpreted as either scale down of parent size (float)
-            or reduction of parent size (int).
+            or offset of parent size (int).
         
         If relative positioned:
-            Calls the `getSize` method(s) from parent UIObject('s)
+            Calls the `getSize` method(s) from parent UIBody('s)
 
         Returns:
-            tuple[int, int] = (width, height) ~ the size of the UIObject object
+            tuple[int, int] = (width, height) ~ the size of the UIDynamicBody object
         """
         absoluteSizeX: int = 0
         absoluteSizeY: int = 0
         selfSizeX: int | float
         selfSizeY: int | float
-        (selfSizeX, selfSizeY) = self.size
+        (selfSizeX, selfSizeY) = self.__size
 
         #X-Size
-        if self.relativeObjectsSize[0] is None:
+        if self.__relativeObjForSize[0] is None:
             #absolute sized
             absoluteSizeX = int(selfSizeX)
         else:
             #relative sized
-            relObjX: 'UIDynamicBody' = self.relativeObjectsSize[0]
+            relObjX: UIABCBody = self.__relativeObjForSize[0]
 
             #modify parent size by given amount
             if isinstance(selfSizeX, int):
@@ -85,12 +94,12 @@ class UIDynamicBody(UIABCBody):
                 absoluteSizeX = int(relObjX.getSize()[0] * selfSizeX)
 
         #Y-Size
-        if self.relativeObjectsSize[1] is None:
+        if self.__relativeObjForSize[1] is None:
             #absolute sized
             absoluteSizeY = int(selfSizeY)
         else:
             #relative sized
-            relObjY: 'UIDynamicBody' = self.relativeObjectsSize[1]
+            relObjY: UIABCBody = self.__relativeObjForSize[1]
 
             #modify parent size by given amount
             if isinstance(selfSizeY, int):
@@ -107,14 +116,14 @@ class UIDynamicBody(UIABCBody):
 
 
     @override
-    def calculatePosition(self) -> tuple[int, int]:
+    def _calculatePosition(self) -> tuple[int, int]:
         """
-        Function that calculates the position (top-left corner) of the UIObjectBody object.
+        calculatePosition calculates the position (top-left corner) of the UIDynamicBody object.
         Two modes:
         1. Object is absolute positioned: It just returns the absolute position of the object.
         2. Object is relative positioned: 
-            Position is calculated in respect to the parent UIObject(s) position
-            and the corner connection given by the relativeObjectsPositionType:
+            Position is calculated in respect to the parent UIBody(s) position
+            and the corner connection given by the relativeObjPosRelationType:
                 child-corner -> parent-corner
                 top-left to top-left (0,0)
                 top-left to top-right (0,1)
@@ -125,9 +134,9 @@ class UIDynamicBody(UIABCBody):
             Furthermore the given 'position' is interpreted as offset. (if float relative to parent size)
 
         If relative positioned:
-            Calls the `getSize` method from this UIObjectBody
-            Calls the `getPosition` method(s) from parent UIObject('s)
-            Calls the `getSize` method(s) from parent UIObject('s)
+            Calls the `getSize` method from this UIBody
+            Calls the `getPosition` method(s) from parent UIBody('s)
+            Calls the `getSize` method(s) from parent UIBody('s)
 
         Returns:
             tuple[int, int] = (posX, posY) ~ the position of the top-left corner of the UIObject
@@ -136,15 +145,15 @@ class UIDynamicBody(UIABCBody):
         absolutePosY: int = 0
         selfPosX: int | float
         selfPosY: int | float
-        (selfPosX, selfPosY) = self.position
+        (selfPosX, selfPosY) = self.__position
 
         #X-Position
-        if self.relativeObjectsPosition[0] is None:
+        if self.__relativeObjForPos[0] is None:
             #absolute positioned
             absolutePosX = int(selfPosX)
         else:
             #relative positioned
-            relObjX: 'UIDynamicBody' = self.relativeObjectsPosition[0]
+            relObjX: UIABCBody = self.__relativeObjForPos[0]
             
             #interpret 'position' as offset
             if isinstance(selfPosX, int):
@@ -155,8 +164,8 @@ class UIDynamicBody(UIABCBody):
             
             #topleft: 0, topright: 1, bottomleft: 2, bottomright: 3
             absolutePosX += relObjX.getPosition()[0]
-            connectionTypeChild: int = self.relativeObjectsPositionType[0].value
-            connectionTypeParent: int = self.relativeObjectsPositionType[1].value
+            connectionTypeChild: int = self.__relativeObjPosRelationType[0].value
+            connectionTypeParent: int = self.__relativeObjPosRelationType[1].value
             connectionTypeLeftOrRightChild: int = connectionTypeChild % 2 # left: 0, right: 1
             connectionTypeLeftOrRightParent: int = connectionTypeParent % 2
 
@@ -168,12 +177,12 @@ class UIDynamicBody(UIABCBody):
                 absolutePosX -= self.getSize()[0] # size should already be cached
         
         #Y-Position
-        if self.relativeObjectsPosition[1] is None:
+        if self.__relativeObjForPos[1] is None:
             #absolute positioned
             absolutePosY = int(selfPosY)
         else:
             #relative positioned
-            relObjY: 'UIDynamicBody' = self.relativeObjectsPosition[1]
+            relObjY: UIABCBody = self.__relativeObjForPos[1]
             
             #interpret 'position' as offset
             if isinstance(selfPosY, int):
@@ -184,8 +193,8 @@ class UIDynamicBody(UIABCBody):
             
             #topleft: 0, topright: 1, bottomleft: 2, bottomright: 3
             absolutePosY += relObjY.getPosition()[1]
-            connectionTypeChild: int = self.relativeObjectsPositionType[0].value
-            connectionTypeParent: int = self.relativeObjectsPositionType[1].value
+            connectionTypeChild: int = self.__relativeObjPosRelationType[0].value
+            connectionTypeParent: int = self.__relativeObjPosRelationType[1].value
             connectionTypeTopOrBottomChild: int = connectionTypeChild // 2 # top: 0, bottom: 1
             connectionTypeTopOrBottomParent: int = connectionTypeParent // 2
 
@@ -209,6 +218,6 @@ class UIDynamicBody(UIABCBody):
         (override because in DynamicBody the calculatePosition function
             depends on the calculateSize -> suboptimal)
         """
-        self.rect.setSize(self.calculateSize())
-        self.rect.setPosition(self.calculatePosition())
+        self._rect.setSize(self._calculateSize())
+        self._rect.setPosition(self._calculatePosition())
 

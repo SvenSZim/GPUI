@@ -4,15 +4,25 @@ from typing import Generic, TypeVar
 from .generic import Rect
 from .uiobjectbody import UIABCBody
 
-B = TypeVar('B', bound=UIABCBody)
+Body = TypeVar('Body', bound=UIABCBody)
 
 
-class UIABC(Generic[B], ABC):
+class UIABC(Generic[Body], ABC):
     """
     UIABC is the abstract base class for all UIElements.
     """
 
-    body: B # A UIBody which contains the positioning of the UIElement
+    _body: Body # A UIBody which contains the positioning of the UIElement
+
+    def __init__(self, body: Body):
+        """
+        __init__ initializes the values of UIABC for the UIElement
+
+        Args:
+            body: Body (bound=UIABCBody) = the body value for the UIElement
+        """
+        self._body = body
+        self.update()
 
     def getRect(self) -> Rect:
         """
@@ -21,7 +31,7 @@ class UIABC(Generic[B], ABC):
         Returns:
             Rect = rect of the UIElement
         """
-        return self.body.getRect()
+        return self._body.getRect()
     
     def getSize(self) -> tuple[int, int]:
         """
@@ -45,5 +55,5 @@ class UIABC(Generic[B], ABC):
         """
         update updates the position and sizing of the UIElement
         """
-        self.body.update()
+        self._body.update()
 
