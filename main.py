@@ -5,11 +5,11 @@ from ui import Rect
 from ui import InputEvent, InputManager
 from ui import UIRenderer, UIStyleMOON
 
-from ui import UIDynamicBody, UIStaticBody
+from ui import UIDynamicBody
 from ui import UIText, UIFont, UIDynamicTextRenderer
 from ui import UICycleButton, UICycleButtonRenderer
-from ui.objects.uiobject.UIObject import UIObjectRenderer
-from ui.objects.uitext.UIStaticText import UIStaticTextRenderer
+from ui import UIObjectRenderer
+from ui import UIStaticTextRenderer
 
 
 def setText(textobj: UIDynamicTextRenderer, newtext):

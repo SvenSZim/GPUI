@@ -1,10 +1,10 @@
 from .responsiveness import EventManager, InputEvent, InputManager
 
-from .objects import UIDynamicBody, UIStaticBody
-from .objects import UIObject, UIObjectRenderer
-from .objects import UIText, UIDynamicTextRenderer, UIStaticTextRenderer
-from .objects import UICycleButton, CycleButtonRenderStyle, UICycleButtonRenderer
+from .elements import UIDynamicBody, UIStaticBody
+from .elements import UIObject, UIObjectRenderer
+from .elements import UIText, UIDynamicTextRenderer, UIStaticTextRenderer
+from .elements import UICycleButton, CycleButtonRenderStyle, UICycleButtonRenderer
 
-from .objects import Color, Rect
-from .objects import UIABCStyle, UIStyleMOON, UIRenderer
-from .objects import UISurface, UIFont, UISurfaceDrawer
+from .elements import Color, Rect
+from .elements import UIABCStyle, UIStyleMOON, UIRenderer
+from .elements import UISurface, UIFont, UISurfaceDrawer
