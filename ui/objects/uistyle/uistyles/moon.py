@@ -34,4 +34,4 @@ class UIStyleMOON(UIABCStyle):
     def getStyledButton(stylebutton: UIStyleButtons) -> UIABCStyleButton:
         match stylebutton:
             case UIStyleButtons.BASIC:
-                return UIStyleButtonBasic(borderColor='white', buttonStateFillColor='red')
+                return UIStyleButtonBasic(borderColor='white', buttonStateFillColor='white')

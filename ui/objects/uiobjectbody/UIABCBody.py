@@ -19,26 +19,6 @@ class UIABCBody(ABC):
         """
         self._rect = rect
 
-    @abstractmethod
-    def _calculatePosition(self) -> tuple[int, int]:
-        """
-        calculatePosition calculates the position (top-left-corner) of the UIElementBody
-
-        Returns:
-            tuple[int, int] = (posX, posY) ~ the position of the top-left-corner of the UIElementBody
-        """
-        pass
-
-    @abstractmethod
-    def _calculateSize(self) -> tuple[int, int]:
-        """
-        calculateSize calculates the sizes of the UIElementBody
-
-        Returns:
-            tuple[int, int] = (width, height) ~ the sizes of the UIElementBody
-        """
-        pass
-
     def getRect(self) -> Rect:
         """
         getRect returns the cached Rect of the UIElementBody
@@ -65,10 +45,11 @@ class UIABCBody(ABC):
             tuple[int, int] = (width, height) ~ the size of the UIElementBody
         """
         return self._rect.getSize()
-
+    
+    @abstractmethod
     def update(self) -> None:
         """
         update calculates the position and size of the UIElementBody and
-        caches the values in hte UIElementBody attributes.
+        caches the values in the UIElementBody attributes.
         """
-        self._rect = Rect(self._calculatePosition(), self._calculateSize())
+        pass

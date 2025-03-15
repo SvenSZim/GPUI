@@ -1,6 +1,6 @@
 
 
-from .uiobjectbody import UIDynamicBody
+from .uiobjectbody import UIDynamicBody, UIStaticBody
 from .uiobject import UIObject, UIObjectRenderer
 from .uitext import UIText, UIDynamicTextRenderer, UIStaticTextRenderer
 from .uibutton import UICycleButton, CycleButtonRenderStyle, UICycleButtonRenderer

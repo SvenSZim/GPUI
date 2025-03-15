@@ -1,10 +1,10 @@
-from abc import ABC, abstractmethod
-from typing import Union, override, Generic, TypeVar
+from abc import ABC
+from typing import Union, Generic, TypeVar
 
 
 from ..generic import Color
-from ..idrawer import UIFont
-from ..uistyle import UIStyleTexts
+from ..idrawer import UIFont, UISurface, UISurfaceDrawer
+from ..uistyle import UIStyleTexts, UIABCStyle
 
 from ..uiobjectbody import UIABCBody
 from ..UIABC import UIABC
@@ -54,13 +54,10 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyleTexts], ABC):
     """
     UIABCTextRender is the abstract base class for all UITextRender
     """
-    _fontName: str
     _fontColor: Union[str, tuple[int, int, int], Color]
-    _fontSize: int
     _font: UIFont
 
     def __init__(self, core: Core, 
-                       fontName: str, fontSize: int, 
                        font: UIFont, fontColor: Union[str, tuple[int, int, int], Color], 
                        active: bool=True) -> None:
         """
@@ -75,18 +72,8 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyleTexts], ABC):
             active: bool = the active-state of the UITextElementRenderer (for UIABCRenderer)
         """
         super().__init__(core, active)
-        self._fontName = fontName
-        self._fontColor = fontColor
-        self._fontSize = fontSize
         self._font = font
-
-
-    @abstractmethod
-    def updateFont(self) -> None:
-        """
-        updateFont updates the font of the UIABCTextRender used for rendering.
-        """
-        pass
+        self._fontColor = fontColor
 
 
     def updateContent(self, content: str) -> None:
@@ -94,16 +81,38 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyleTexts], ABC):
         update Content updates the str-content of the refering UITextElement.
         """
         self._core.setContent(content)
-        self.updateFont()
 
-
-    @override
-    def update(self) -> None:
+    
+    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface) -> None:
         """
-        update extends the update from UIABCRenderer to also update the font.
-        """
-        super().update()
-        self.updateFont()
+        render renders the UIObject onto the given surface
 
+        Args:
+            surfaceDrawer: UISurfaceDrawer = the drawer to use when drawing on surface
+            surface: UISurface = the surface the UIObject should be drawn on
+        """
+
+        # check if UIElement should be rendered
+        if not self._active:
+            return
+
+
+        surfaceDrawer.drawrect(surface, self._core.getRect(), 'white', fill=False)
+
+        textRender: UISurface = self._font.render(self._core.getContent(), self._fontColor)
+        textSize: tuple[int, int] = textRender.getSize()
+        textPosition: tuple[int, int] = (int(self._core.getPosition()[0] + (self._core.getSize()[0] - textSize[0]) / 2),
+                                              int(self._core.getPosition()[1] + (self._core.getSize()[1] - textSize[1]) / 2))
+        surface.blit(textRender, textPosition)
+
+
+    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
+        if not self._active:
+            return
+        
+        if self._renderStyleElement is None:
+            renderStyle.getStyledText(UIStyleTexts.BASIC).render(surfaceDrawer, surface, self._core.getRect(), self._core.getContent(), self._font, self._fontColor)
+        else:
+            renderStyle.getStyledText(self._renderStyleElement).render(surfaceDrawer, surface, self._core.getRect(), self._core.getContent(), self._font, self._fontColor)
 
 

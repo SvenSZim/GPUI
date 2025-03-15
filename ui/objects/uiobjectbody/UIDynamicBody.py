@@ -46,8 +46,9 @@ class UIDynamicBody(UIABCBody):
 
         self.__relativeObjPosRelationType = (AlignmentType(relativeObjectsForPositionRelationType[0]), AlignmentType(relativeObjectsForPositionRelationType[1]))
 
+        self.update()
 
-    @override
+
     def _calculateSize(self) -> tuple[int, int]:
         """
         calculateSize calculates the size of the UIDynamicBody object.
@@ -111,7 +112,6 @@ class UIDynamicBody(UIABCBody):
         return (absoluteSizeX, absoluteSizeY)
 
 
-    @override
     def _calculatePosition(self) -> tuple[int, int]:
         """
         calculatePosition calculates the position (top-left corner) of the UIDynamicBody object.
@@ -202,7 +202,6 @@ class UIDynamicBody(UIABCBody):
                 absolutePosY -= self.getSize()[1] # size should already be cached
 
         return (absolutePosX, absolutePosY)
-
 
 
     @override

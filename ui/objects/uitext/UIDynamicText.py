@@ -1,8 +1,7 @@
 from typing import Union, override
 
 from ..generic import Color
-from ..idrawer import UISurfaceDrawer, UISurface, UIFont
-from ..uistyle import UIABCStyle, UIStyleTexts
+from ..idrawer import UISurface, UIFont
 from ..UIFontManager import UIFontManager
 
 from .UIABCText import UIABCTextRenderer
@@ -14,6 +13,9 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
     UIDynamicTextRender is a UITextRender which dynamically scales the fontsize
     with the box-size, text-length and font type.
     """
+
+    __fontName: str
+    __fontSize: int
 
     def __init__(self, core: UIText, 
                        fontName: str, fontColor: Union[str, tuple[int, int, int], Color],
@@ -27,18 +29,29 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
             fontColor: Color = the color the font should have
             active: bool = the active-state of the UIDynamicTextRenderer
         """
-        fontSize: int = self.__getDynamicFontSize(fontName, core.getSize(), core.getContent())
-        font: UIFont = UIFontManager.getFont().SysFont(fontName, fontSize)
-        super().__init__(core, fontName, fontSize, font, fontColor, active)
+        self.__fontName = fontName
+        self.__fontSize = self.__getDynamicFontSize(fontName, core.getSize(), core.getContent())
+        font: UIFont = UIFontManager.getFont().SysFont(self.__fontName, self.__fontSize)
+        super().__init__(core, font, fontColor, active)
 
-    @override
+
     def updateFont(self) -> None:
         """
         updateFont updates the font of the UIDynamicTextRender used for render
         depending on the text-content, box-size and font type.
         """
-        self._fontSize = self.__getDynamicFontSize(self._fontName, self._core.getSize(), self._core.getContent())
-        self._font = UIFontManager.getFont().SysFont(self._fontName, self._fontSize)
+        self.__fontSize = self.__getDynamicFontSize(self.__fontName, self._core.getSize(), self._core.getContent())
+        self._font = UIFontManager.getFont().SysFont(self.__fontName, self.__fontSize)
+
+
+    @override
+    def updateContent(self, content: str) -> None:
+        """
+        update Content updates the str-content of the refering UITextElement and the
+        font-size to fit the content in the text-container.
+        """
+        super().updateContent(content)
+        self.updateFont()
 
 
     @staticmethod
@@ -76,39 +89,3 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
 
         return start_search
     
-
-    @override
-    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface) -> None:
-        """
-        render renders the UIObject onto the given surface
-
-        Args:
-            surfaceDrawer: UISurfaceDrawer = the drawer to use when drawing on surface
-            surface: UISurface = the surface the UIObject should be drawn on
-        """
-
-        # check if UIElement should be rendered
-        if not self._active:
-            return
-
-
-        surfaceDrawer.drawrect(surface, self._core.getRect(), 'white', fill=False)
-
-        textRender: UISurface = self._font.render(self._core.getContent(), self._fontColor)
-        textSize: tuple[int, int] = textRender.getSize()
-        textPosition: tuple[int, int] = (int(self._core.getPosition()[0] + (self._core.getSize()[0] - textSize[0]) / 2),
-                                              int(self._core.getPosition()[1] + (self._core.getSize()[1] - textSize[1]) / 2))
-        surface.blit(textRender, textPosition)
-
-
-    @override
-    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
-        if not self._active:
-            return
-        
-        if self._renderStyleElement is None:
-            renderStyle.getStyledText(UIStyleTexts.BASIC).render(surfaceDrawer, surface, self._core.getRect(), self._core.getContent(), self._font, self._fontColor)
-        else:
-            renderStyle.getStyledText(self._renderStyleElement).render(surfaceDrawer, surface, self._core.getRect(), self._core.getContent(), self._font, self._fontColor)
-
-

@@ -4,10 +4,10 @@ from drawer import PygameDrawer, PygameSurface, PygameFont
 from ui import InputEvent, InputManager
 from ui import UIRenderer, UIStyleMOON
 
-from ui import UIDynamicBody
-from ui import UIText, UIDynamicTextRenderer
+from ui import UIDynamicBody, UIStaticBody
+from ui import UIText, UIFont, UIDynamicTextRenderer
 from ui import UICycleButton, UICycleButtonRenderer
-from ui.objects.uiobject.UIObject import UIObject, UIObjectRenderer
+from ui.objects.uiobject.UIObject import UIObjectRenderer
 from ui.objects.uitext.UIStaticText import UIStaticTextRenderer
 
 
@@ -34,21 +34,21 @@ def main():
     screen_size = (1280, 720)
     main_screen = pg.display.set_mode(screen_size)
 
-    main_font: pg.font.Font = pg.font.SysFont('Arial', 10)
+    main_font: UIFont = PygameFont(pg.font.SysFont('Arial', 24))
 
-    objbody1: UIDynamicBody = UIDynamicBody((600, 0), (100, 200))
+    objbody1: UIStaticBody = UIStaticBody((600, 0), (100, 200))
     obj1: UIObjectRenderer = UIObjectRenderer(objbody1)
 
-    textbody1: UIDynamicBody = UIDynamicBody((50,50), (500, 200))
+    textbody1: UIStaticBody = UIStaticBody((50,50), (500, 200))
     text1_core: UIText = UIText(textbody1, 'Hello')
     text1: UIDynamicTextRenderer = UIDynamicTextRenderer(text1_core, 'Arial', 'white')
     
-    textbody2 = UIDynamicBody((150,550), (700, 80))
+    textbody2 = UIStaticBody((150,550), (700, 80))
     text2_core: UIText = UIText(textbody2, 'Hello')
-    text2: UIStaticTextRenderer = UIStaticTextRenderer(text2_core, 'Arial', 24, 'white')
+    text2: UIStaticTextRenderer = UIStaticTextRenderer(text2_core, main_font, 'white')
 
     textbody = UIDynamicBody((0, 0), (200, 150), relativeObjectsForPosition=(textbody1, textbody2), relativeObjectsForPositionRelationType=(2,0))
-    button_core: UICycleButton = UICycleButton(textbody, numberOfStates=8)
+    button_core: UICycleButton = UICycleButton(textbody, numberOfStates=3)
     button: UICycleButtonRenderer = UICycleButtonRenderer(button_core)
     button_core.addTriggerEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN))
     button_core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
