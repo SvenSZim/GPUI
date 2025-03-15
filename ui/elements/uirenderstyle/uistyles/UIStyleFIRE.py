@@ -20,6 +20,9 @@ class UIStyleFIRE(UIABCStyle):
         match styledobject:
             case UIStyledObjects.BASIC:
                 return UIStyledObjectBasic(borderColor='red')
+            case _:
+                return UIStyledObjectBasic(borderColor='red')
+
 
 
     @override
@@ -28,6 +31,8 @@ class UIStyleFIRE(UIABCStyle):
         match styledtext:
             case UIStyledTexts.BASIC:
                 return UIStyledTextBasic(borderColor='red')
+            case _:
+                return UIStyledTextBasic(borderColor='red')
 
 
     @override
@@ -35,4 +40,6 @@ class UIStyleFIRE(UIABCStyle):
     def getStyledButton(styledbutton: UIStyledButtons) -> UIABCStyledButton:
         match styledbutton:
             case UIStyledButtons.BASIC:
+                return UIStyledButtonBasic(borderColor='red', buttonStateFillColor=Color((255, 102, 0)))
+            case _:
                 return UIStyledButtonBasic(borderColor='red', buttonStateFillColor=Color((255, 102, 0)))

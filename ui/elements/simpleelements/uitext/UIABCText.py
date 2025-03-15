@@ -113,8 +113,8 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyledTexts], ABC):
             return
         
         if self._renderStyleElement is None:
-            renderStyle.getStyledText(UIStyledTexts.BASIC).render(surfaceDrawer, surface, self._core.getRect(), self._core.getContent(), self._font, self._fontColor)
+            renderStyle.getStyledText(UIStyledTexts.BASIC).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getContent(), self._font, self._fontColor))
         else:
-            renderStyle.getStyledText(self._renderStyleElement).render(surfaceDrawer, surface, self._core.getRect(), self._core.getContent(), self._font, self._fontColor)
+            renderStyle.getStyledText(self._renderStyleElement).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getContent(), self._font, self._fontColor))
 
 

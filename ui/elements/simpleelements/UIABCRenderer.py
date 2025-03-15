@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Generic, Optional, TypeVar
 
-from ..uidrawerinterface import UISurfaceDrawer, UISurface
-from ..uirenderstyle import UIABCStyle, UIStyledElements
+from ..uirenderstyle import UIStyledElements
 from ..UIRenderer import UIRenderer
 from .UIABC import UIABC
 

@@ -60,15 +60,4 @@ class UIObjectRenderer(UIABCObjectRenderer[UIObject]):
         surfaceDrawer.drawrect(surface, self._core.getRect(), 'white', fill=False)
 
 
-    @override
-    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
-        if not self._active:
-            return
-        
-        if self._renderStyleElement is None:
-            renderStyle.getStyledObject(UIStyledObjects.BASIC).render(surfaceDrawer, surface, self._core.getRect())
-        else:
-            renderStyle.getStyledObject(self._renderStyleElement).render(surfaceDrawer, surface, self._core.getRect())
-
-
 

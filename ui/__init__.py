@@ -5,6 +5,8 @@ from .elements import UIObject, UIObjectRenderer
 from .elements import UIText, UIDynamicTextRenderer, UIStaticTextRenderer
 from .elements import UICycleButton, UICycleButtonRenderer
 
+from .elements import UICTextCycleButton
+
 from .elements import Color, Rect
 from .elements import UIRenderer, UIABCStyle, UIStyleMOON, UIStyleFIRE
 from .elements import UISurface, UIFont, UISurfaceDrawer

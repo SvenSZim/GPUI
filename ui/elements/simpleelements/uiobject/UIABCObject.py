@@ -1,8 +1,9 @@
 from abc import ABC
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, override
 
 from ...generic import Rect
-from ...uirenderstyle import UIStyledObjects
+from ...uidrawerinterface import UISurfaceDrawer, UISurface
+from ...uirenderstyle import UIABCStyle, UIStyledObjects
 from ..uielementbody import UIABCBody, UIStaticBody
 from ..UIABC import UIABC
 from ..UIABCRenderer import UIABCRenderer
@@ -38,3 +39,15 @@ class UIABCObjectRenderer(Generic[Core], UIABCRenderer[Core, UIStyledObjects], A
             active: bool = active-state of the UIObjectRenderer (for UIABCRenderer)
         """
         super().__init__(core, active)
+
+    @override
+    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
+        if not self._active:
+            return
+        
+        if self._renderStyleElement is None:
+            renderStyle.getStyledObject(UIStyledObjects.BASIC).render(surfaceDrawer, surface, self._core.getRect())
+        else:
+            renderStyle.getStyledObject(self._renderStyleElement).render(surfaceDrawer, surface, self._core.getRect())
+
+

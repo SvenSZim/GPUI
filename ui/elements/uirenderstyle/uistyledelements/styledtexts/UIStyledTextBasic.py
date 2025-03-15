@@ -15,11 +15,13 @@ class UIStyledTextBasic(UIABCStyledText):
         self.__fillColor = fillColor
 
     @override
-    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, rect: Rect, 
-               content: str, font: UIFont, fontColor: Union[str, tuple[int, int, int], Color]) -> None:
+    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface,
+               data: tuple[Rect, str, UIFont, Union[str, tuple[int, int, int], Color]]) -> None:
         """
         render renders the rect as a basic rectangle with outlines and the font with the given specs.
         """
+        rect, content, font, fontColor = data
+
         if self.__fillColor is not None:
             surfaceDrawer.drawrect(surface, rect, self.__fillColor)
         if self.__borderColor is not None:

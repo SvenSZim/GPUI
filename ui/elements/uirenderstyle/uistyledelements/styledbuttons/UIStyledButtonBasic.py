@@ -20,11 +20,18 @@ class UIStyledButtonBasic(UIABCStyledButton):
         self.__buttonStateFillColor = buttonStateFillColor
 
     @override
-    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, rect: Rect,
-               numberOfButtonStates: int, buttonState: int) -> None:
+    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, 
+               data: tuple[Rect, int, int]) -> None:
         """
         render renders the rect as a basic rectangle with outlines
+
+        Args:
+            surfaceDrawer: type[UISurfaceDrawer] = the surfaceDrawer used to draw
+            surface: UISurface = the surface to draw on
+            data: tuple[Rect, int, int] = the rect, the numberOfButtonStates and the current buttonState.
         """
+        rect, numberOfButtonStates, buttonState = data
+
         if self.__fillColor is not None:
             surfaceDrawer.drawrect(surface, rect, self.__fillColor)
         

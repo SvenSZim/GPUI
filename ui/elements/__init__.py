@@ -10,3 +10,5 @@ from .simpleelements import UIDynamicBody, UIStaticBody
 from .simpleelements import UIObject, UIObjectRenderer
 from .simpleelements import UIText, UIDynamicTextRenderer, UIStaticTextRenderer
 from .simpleelements import UICycleButton, UICycleButtonRenderer
+
+from .complexelements import UICTextCycleButton

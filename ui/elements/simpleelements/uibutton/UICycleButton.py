@@ -251,16 +251,15 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
                     sign = not sign
 
 
-
     @override
     def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
         if not self._active:
             return
         
         if self._renderStyleElement is None:
-            renderStyle.getStyledButton(UIStyledButtons.BASIC).render(surfaceDrawer, surface, self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState())
+            renderStyle.getStyledButton(UIStyledButtons.BASIC).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState()))
         else:
-            renderStyle.getStyledButton(self._renderStyleElement).render(surfaceDrawer, surface, self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState())
+            renderStyle.getStyledButton(self._renderStyleElement).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState()))
 
 
 

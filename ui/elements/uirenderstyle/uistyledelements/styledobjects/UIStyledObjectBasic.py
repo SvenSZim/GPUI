@@ -15,11 +15,11 @@ class UIStyledObjectBasic(UIABCStyledObject):
         self.__fillColor = fillColor
 
     @override
-    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, rect: Rect) -> None:
+    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, data: Rect) -> None:
         """
         render renders the rect as a basic rectangle with outlines
         """
         if self.__fillColor is not None:
-            surfaceDrawer.drawrect(surface, rect, self.__fillColor)
+            surfaceDrawer.drawrect(surface, data, self.__fillColor)
         if self.__borderColor is not None:
-            surfaceDrawer.drawrect(surface, rect, self.__borderColor, fill=False)
+            surfaceDrawer.drawrect(surface, data, self.__borderColor, fill=False)

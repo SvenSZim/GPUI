@@ -19,6 +19,8 @@ class UIStyleMOON(UIABCStyle):
         match styledobject:
             case UIStyledObjects.BASIC:
                 return UIStyledObjectBasic(borderColor='white')
+            case _:
+                return UIStyledObjectBasic(borderColor='white')
 
 
     @override
@@ -27,6 +29,8 @@ class UIStyleMOON(UIABCStyle):
         match styledtext:
             case UIStyledTexts.BASIC:
                 return UIStyledTextBasic(borderColor='white')
+            case _:
+                return UIStyledTextBasic(borderColor='white')
 
 
     @override
@@ -34,4 +38,6 @@ class UIStyleMOON(UIABCStyle):
     def getStyledButton(styledbutton: UIStyledButtons) -> UIABCStyledButton:
         match styledbutton:
             case UIStyledButtons.BASIC:
+                return UIStyledButtonBasic(borderColor='white', buttonStateFillColor='white')
+            case _:
                 return UIStyledButtonBasic(borderColor='white', buttonStateFillColor='white')
