@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Callable, override
+from typing import Any, Callable, Optional, override
 
 from ui.responsiveness import EventManager
 
@@ -115,15 +115,16 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
     UICycleButtonRender is a UIButtonRender which renders the UICycleButton.
     """
     
-    def __init__(self, core: UICycleButton, active: bool=True) -> None:
+    def __init__(self, core: UICycleButton, active: bool=True, renderStyleElement: Optional[UIStyledButtons]=None) -> None:
         """
         __init__ initializes the UICycleButtonRender instance
 
         Args:
             core: UICycleButton = the refering UICycleButton (for UIABCButtonRenderer)
             active: bool = the active-state of the Renderer
+            renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
         """
-        super().__init__(core, active)
+        super().__init__(core, active, renderStyleElement)
 
     @override
     def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface) -> None:

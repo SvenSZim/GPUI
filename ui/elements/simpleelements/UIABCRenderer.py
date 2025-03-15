@@ -18,13 +18,14 @@ class UIABCRenderer(Generic[Core, StyleElem], UIRenderer, ABC):
     _core: Core # refering UIElement which gets rendered by the Renderer
     _renderStyleElement: Optional[StyleElem] # used style-element for rendering
 
-    def __init__(self, core: Core, active: bool=True, renderStyleElement: Optional[StyleElem]=None) -> None:
+    def __init__(self, core: Core, active: bool, renderStyleElement: Optional[StyleElem]) -> None:
         """
         __init__ initializes the values of UIABCRenderer for the UIElementRenderer
 
         Args:
             core: Core (bound=UIABC) = the refering UIElement of the UIElementRenderer
             active: bool = the start active-state of the UIElementRenderer
+            renderStyleElement: StyleElem = the render style that should be used when rendering styled
         """
         self._active = active
         self._core = core

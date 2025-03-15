@@ -5,6 +5,6 @@ from .styledbuttons import UIStyledButtons
 
 
 from .UIABCStyledElement import UIABCStyledElement
-from .styledobjects import UIABCStyledObject, UIStyledObjectBasic
+from .styledobjects import UIABCStyledObject, UIStyledObjectBasic, UIStyledObjectPartial
 from .styledtexts import UIABCStyledText, UIStyledTextBasic
 from .styledbuttons import UIABCStyledButton, UIStyledButtonBasic

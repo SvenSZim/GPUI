@@ -3,11 +3,10 @@ from drawer import PygameDrawer, PygameSurface, PygameFont
 
 from ui import Rect
 from ui import InputEvent, InputManager
-from ui import UIRenderer, UIStyleMOON, UIStyleFIRE
+from ui import UIRenderer, UIStyleMOON
 
 from ui import UIDynamicBody
 from ui import UIText, UIFont, UIDynamicTextRenderer
-from ui import UICycleButton, UICycleButtonRenderer
 from ui import UIObjectRenderer
 from ui import UIStaticTextRenderer
 
@@ -16,9 +15,6 @@ from ui import UICTextCycleButton
 
 def setText(textobj: UIDynamicTextRenderer, newtext):
     textobj.updateContent(newtext)
-
-def switchList(textobj: UIDynamicTextRenderer, l: list[str], i: int):
-    textobj.updateContent(l[i])
 
 def main():
     pg.init()
@@ -47,7 +43,7 @@ def main():
     text2_core: UIText = UIText(Rect((150,550), (700, 80)), 'Hello')
     text2: UIStaticTextRenderer = UIStaticTextRenderer(text2_core, main_font, 'white')
 
-    btnbody = UIDynamicBody((10, -1.0), (200, 150), relativeObjectsForPosition=(text1_core.getBody(), text2_core.getBody()), relativeObjectsForPositionRelationType=(3,1))
+    btnbody = UIDynamicBody((0, -1.0), (200, 150), relativeObjectsForPosition=(text1_core.getBody(), text2_core.getBody()), relativeObjectsForPositionRelationType=(3,1))
     button: UICTextCycleButton = UICTextCycleButton(btnbody, ['Hello', 'World', 'My', 'name',  'is', 'sven!'], (main_font, 'white'))
 
     button.subscribeToButtonEvent(4, setText, text1, 'OKAY')
@@ -67,3 +63,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+

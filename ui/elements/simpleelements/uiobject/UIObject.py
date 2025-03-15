@@ -1,4 +1,4 @@
-from typing import override
+from typing import Optional, override
 
 from ...generic import Rect
 from ...uidrawerinterface import UISurfaceDrawer, UISurface
@@ -30,17 +30,18 @@ class UIObjectRenderer(UIABCObjectRenderer[UIObject]):
     UIObjectRender is the UIElementRender for all UIObjects.
     """
 
-    def __init__(self, core: UIObject | UIABCBody | Rect, active: bool=True) -> None:
+    def __init__(self, core: UIObject | UIABCBody | Rect, active: bool=True, renderStyleElement: Optional[UIStyledObjects]=None) -> None:
         """
         __init__ initializes the UIObjectRender instance
 
         Args:
             core: UIObject | UIABCBody | Rect = the refering UIObject (Or UIABCBody bcs. they are 'equivalet')
             active: bool = active-state of the UIObjectRenderer
+            renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
         """
         if not isinstance(core, UIObject):
             core = UIObject(core)
-        super().__init__(core, active)
+        super().__init__(core, active, renderStyleElement)
 
 
     @override

@@ -1,7 +1,8 @@
-from typing import Union, override
+from typing import Optional, Union, override
 
 from ...generic import Color
 from ...uidrawerinterface import UISurface, UIFont
+from ...uirenderstyle import UIStyledTexts
 from ...UIFontManager import UIFontManager
 
 from .UIABCText import UIABCTextRenderer
@@ -19,7 +20,7 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
 
     def __init__(self, core: UIText, 
                        fontName: str, fontColor: Union[str, tuple[int, int, int], Color],
-                       active: bool=True) -> None:
+                       active: bool=True, renderStyleElement: Optional[UIStyledTexts]=None) -> None:
         """
         __init__ initializes the UIDynamicTextRender instance
 
@@ -28,11 +29,12 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
             fontName: str = the systemfont name of used font
             fontColor: Color = the color the font should have
             active: bool = the active-state of the UIDynamicTextRenderer
+            renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
         """
         self.__fontName = fontName
         self.__fontSize = self.__getDynamicFontSize(fontName, core.getSize(), core.getContent())
         font: UIFont = UIFontManager.getFont().SysFont(self.__fontName, self.__fontSize)
-        super().__init__(core, font, fontColor, active)
+        super().__init__(core, font, fontColor, active, renderStyleElement)
 
 
     def updateFont(self) -> None:

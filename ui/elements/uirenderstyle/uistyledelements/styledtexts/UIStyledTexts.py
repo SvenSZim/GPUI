@@ -7,3 +7,4 @@ class UIStyledTexts(UIStyledElements, Enum):
 
     # Texts from 0x200 to 0x2FF
     BASIC = 0x200
+    BASIC_NOBORDER = 0x20A

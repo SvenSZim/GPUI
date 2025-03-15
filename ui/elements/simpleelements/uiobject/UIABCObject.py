@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Generic, TypeVar, override
+from typing import Generic, Optional, TypeVar, override
 
 from ...generic import Rect
 from ...uidrawerinterface import UISurfaceDrawer, UISurface
@@ -30,15 +30,16 @@ class UIABCObjectRenderer(Generic[Core], UIABCRenderer[Core, UIStyledObjects], A
     """
     UIABCObjectRender is the abstract base class for all UIObjectRenderer.
     """
-    def __init__(self, core: Core, active: bool=True) -> None:
+    def __init__(self, core: Core, active: bool=True, renderStyleElement: Optional[UIStyledObjects]=None) -> None:
         """
         __init__ initializes the values of UIABCObjectRenderer for the UIObjectRenderer
 
         Args:
             core: Core (bound=UIABCObject) = the refering UIObjectElement of the UIObjectRenderer (for UIABCRenderer)
             active: bool = active-state of the UIObjectRenderer (for UIABCRenderer)
+            renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
         """
-        super().__init__(core, active)
+        super().__init__(core, active, renderStyleElement)
 
     @override
     def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:

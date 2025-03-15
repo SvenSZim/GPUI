@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Union, Generic, TypeVar
+from typing import Optional, Union, Generic, TypeVar
 
 
 from ...generic import Color, Rect
@@ -60,8 +60,8 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyledTexts], ABC):
     _font: UIFont
 
     def __init__(self, core: Core, 
-                       font: UIFont, fontColor: Union[str, tuple[int, int, int], Color], 
-                       active: bool=True) -> None:
+                 font: UIFont, fontColor: Union[str, tuple[int, int, int], Color], 
+                 active: bool, renderStyleElement: Optional[UIStyledTexts]) -> None:
         """
         __init__ initializes the UIDynamicTextRender instance
 
@@ -72,8 +72,9 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyledTexts], ABC):
             font: UIFont = the font used
             fontColor: Color = the color the font should have
             active: bool = the active-state of the UITextElementRenderer (for UIABCRenderer)
+            renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
         """
-        super().__init__(core, active)
+        super().__init__(core, active, renderStyleElement)
         self._font = font
         self._fontColor = fontColor
 

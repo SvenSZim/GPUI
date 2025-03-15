@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, Optional, TypeVar
 
 from ui.responsiveness import EventManager
 from ...generic import Rect
@@ -96,15 +96,16 @@ class UIABCButtonRenderer(Generic[Core], UIABCRenderer[Core, UIStyledButtons], A
     """
     UIABCButtonRender is the abstract base class for all UIButtonRender
     """
-    def __init__(self, core: Core, active: bool=True) -> None:
+    def __init__(self, core: Core, active: bool=True, renderStyleElement: Optional[UIStyledButtons]=None) -> None:
         """
         __init__ initializes the values of UIABCButtonRenderer for the UIButtonRenderer
 
         Args:
             core: Core (bound=UIABCButton) = the refering UIButtonElement of the UIButtonRenderer (for UIABCRenderer)
             active: bool = active-state of the UIButtonRenderer (for UIABCRenderer)
+            renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
         """
-        super().__init__(core, active)
+        super().__init__(core, active, renderStyleElement)
 
 
 
