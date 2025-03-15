@@ -1,8 +1,9 @@
 from abc import ABC
 from typing import Generic, TypeVar
 
+from ..generic import Rect
 from ..uistyle import UIStyleObjects
-from ..uiobjectbody import UIABCBody
+from ..uiobjectbody import UIABCBody, UIStaticBody
 from ..UIABC import UIABC
 from ..UIABCRenderer import UIABCRenderer
 
@@ -10,13 +11,15 @@ class UIABCObject(UIABC[UIABCBody], ABC):
     """
     UIABCObject is the abstract base class for all UIObjects.
     """
-    def __init__(self, body: UIABCBody) -> None:
+    def __init__(self, body: UIABCBody | Rect) -> None:
         """
         __init__ initializes the values of UIABCObject for the UIObject
 
         Args:
             body: UIABCBody = the body value for the UIObject (for UIABC)
         """
+        if isinstance(body, Rect):
+            body = UIStaticBody(body)
         super().__init__(body)
 
 

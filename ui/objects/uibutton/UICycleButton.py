@@ -22,7 +22,7 @@ class UICycleButton(UIABCClickButton):
     __numberOfStates: int
     __currentState: int
 
-    def __init__(self, body: UIABCBody, buttonActive: bool=True, numberOfStates: int=2, startState: int=0) -> None:
+    def __init__(self, body: UIABCBody | Rect, buttonActive: bool=True, numberOfStates: int=2, startState: int=0) -> None:
         """
         __init__ initializes the UICycleButton instance
 

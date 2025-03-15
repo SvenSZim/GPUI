@@ -2,11 +2,12 @@ from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
 from ui.responsiveness import EventManager
+from ..generic import Rect
 from ..uistyle import UIStyleButtons
 
 from ..UIABC import UIABC
 from ..UIABCRenderer import UIABCRenderer
-from ..uiobjectbody import UIABCBody
+from ..uiobjectbody import UIABCBody, UIStaticBody
 
 
 
@@ -17,7 +18,7 @@ class UIABCButton(UIABC[UIABCBody], ABC):
 
     _buttonActive: bool # button active-state
 
-    def __init__(self, body: UIABCBody, buttonActive: bool=True) -> None:
+    def __init__(self, body: UIABCBody | Rect, buttonActive: bool=True) -> None:
         """
         __init__ initializes the UIABCButton values for the UIButtonElement
 
@@ -25,6 +26,8 @@ class UIABCButton(UIABC[UIABCBody], ABC):
             body: UIABCBody = the body of the UIButtonElement (for UIABC)
             buttonActive: bool = the button active-state
         """
+        if isinstance(body, Rect):
+            body = UIStaticBody(body)
         super().__init__(body)
         self._buttonActive = buttonActive
 

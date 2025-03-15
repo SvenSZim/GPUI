@@ -1,5 +1,6 @@
 from typing import override
 
+from ..generic import Rect
 from ..idrawer import UISurfaceDrawer, UISurface
 from ..uistyle import UIABCStyle, UIStyleObjects
 from ..uiobjectbody import UIABCBody
@@ -14,7 +15,7 @@ class UIObject(UIABCObject):
     It consists just of its body and a boolean which activates or deactivates itself
     """
     
-    def __init__(self, body: UIABCBody) -> None:
+    def __init__(self, body: UIABCBody | Rect) -> None:
         """
         __init__ initializes the UIObject instance
 
@@ -29,15 +30,15 @@ class UIObjectRenderer(UIABCObjectRenderer[UIObject]):
     UIObjectRender is the UIElementRender for all UIObjects.
     """
 
-    def __init__(self, core: UIObject | UIABCBody, active: bool=True) -> None:
+    def __init__(self, core: UIObject | UIABCBody | Rect, active: bool=True) -> None:
         """
         __init__ initializes the UIObjectRender instance
 
         Args:
-            core: UIObject | UIABCBody = the refering UIObject (Or UIABCBody bcs. they are 'equivalet')
+            core: UIObject | UIABCBody | Rect = the refering UIObject (Or UIABCBody bcs. they are 'equivalet')
             active: bool = active-state of the UIObjectRenderer
         """
-        if isinstance(core, UIABCBody):
+        if not isinstance(core, UIObject):
             core = UIObject(core)
         super().__init__(core, active)
 

@@ -2,11 +2,11 @@ from abc import ABC
 from typing import Union, Generic, TypeVar
 
 
-from ..generic import Color
+from ..generic import Color, Rect
 from ..idrawer import UIFont, UISurface, UISurfaceDrawer
 from ..uistyle import UIStyleTexts, UIABCStyle
 
-from ..uiobjectbody import UIABCBody
+from ..uiobjectbody import UIABCBody, UIStaticBody
 from ..UIABC import UIABC
 from ..UIABCRenderer import UIABCRenderer
 
@@ -17,7 +17,7 @@ class UIABCText(UIABC[UIABCBody], ABC):
     
     _content: str # text-content
 
-    def __init__(self, body: UIABCBody, content: str) -> None:
+    def __init__(self, body: UIABCBody | Rect, content: str) -> None:
         """
         __init__ initializes thed values of UIABCText for the UITextElement
 
@@ -25,6 +25,8 @@ class UIABCText(UIABC[UIABCBody], ABC):
             body: UIABCBody = the body of the UITextElement
             content: str = the text-content of the UITextElement
         """
+        if isinstance(body, Rect):
+            body = UIStaticBody(body)
         super().__init__(body)
         self._content = content
 

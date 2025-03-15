@@ -9,7 +9,7 @@ class UIStaticBody(UIABCBody):
     position and the size of the object are fixed.
     """
 
-    def __init__(self, positionORrect: tuple[int, int] | Rect, size: Optional[tuple[int, int]]) -> None:
+    def __init__(self, positionORrect: tuple[int, int] | Rect, size: Optional[tuple[int, int]]=None) -> None:
         """
         __init__ initializes the UIStaticBody with either a rect or the position and size of the rect.
 

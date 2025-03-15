@@ -24,6 +24,16 @@ class UIABC(Generic[Body], ABC):
         self._body = body
         self.update()
 
+    def getBody(self) -> Body:
+        """
+        getBody returns the body of the UIElements
+        (should only be used to create references between the objects like in DynamicBody!)
+
+        Returns:
+            Body = the body of the UIElement
+        """
+        return self._body
+
     def getRect(self) -> Rect:
         """
         getRect returns the rect of the UIElement

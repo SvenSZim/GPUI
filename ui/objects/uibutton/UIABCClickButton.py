@@ -2,6 +2,7 @@ from abc import ABC
 from typing import override
 
 from ui.responsiveness import InputManager
+from ..generic import Rect
 from ..uiobjectbody import UIABCBody
 from .UIABCButton import UIABCButton
 
@@ -12,7 +13,7 @@ class UIABCClickButton(UIABCButton, ABC):
     (which are clickable buttons).
     """
 
-    def __init__(self, body: UIABCBody, buttonActive: bool=True) -> None:
+    def __init__(self, body: UIABCBody | Rect, buttonActive: bool=True) -> None:
         """
         __init__ initializes the UIABCClickButton values for the UIButtonElement
 
