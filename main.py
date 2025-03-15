@@ -3,7 +3,7 @@ from drawer import PygameDrawer, PygameSurface, PygameFont
 
 from ui import Rect
 from ui import InputEvent, InputManager
-from ui import UIRenderer, UIStyleMOON
+from ui import UIRenderer, UIStyleMOON, UIStyleFIRE
 
 from ui import UIDynamicBody
 from ui import UIText, UIFont, UIDynamicTextRenderer
@@ -22,7 +22,7 @@ def main():
     pg.init()
     pg.font.init()
     InputManager.init()
-    UIRenderer.init(PygameDrawer, PygameFont, UIStyleMOON)
+    UIRenderer.init(PygameDrawer, PygameFont, UIStyleFIRE)
 
     running: bool = True
 
@@ -58,7 +58,7 @@ def main():
         InputManager.update()
 
         main_screen.fill('black')
-        UIRenderer.render(PygameSurface(main_screen), [obj1, text1, text2, button])
+        UIRenderer.renderAll(PygameSurface(main_screen), [obj1, text1, text2, button])
 
         pg.display.flip()
 

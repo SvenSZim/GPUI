@@ -1,12 +1,12 @@
 
 
-from .uiobjectbody import UIDynamicBody, UIStaticBody
-from .uiobject import UIObject, UIObjectRenderer
-from .uitext import UIText, UIDynamicTextRenderer, UIStaticTextRenderer
-from .uibutton import UICycleButton, CycleButtonRenderStyle, UICycleButtonRenderer
-
-
 from .generic import Color, Rect
 from .UIRenderer import UIRenderer
-from .uistyle import UIABCStyle, UIStyleMOON
-from .idrawer import UISurface, UIFont, UISurfaceDrawer
+from .uirenderstyle import UIABCStyle, UIStyleMOON, UIStyleFIRE
+from .uidrawerinterface import UISurface, UIFont, UISurfaceDrawer
+
+
+from .simpleelements import UIDynamicBody, UIStaticBody
+from .simpleelements import UIObject, UIObjectRenderer
+from .simpleelements import UIText, UIDynamicTextRenderer, UIStaticTextRenderer
+from .simpleelements import UICycleButton, UICycleButtonRenderer

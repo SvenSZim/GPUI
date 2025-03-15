@@ -1,4 +1,4 @@
-from .idrawer import UIFont
+from .uidrawerinterface import UIFont
 
 class UIFontManager:
 
