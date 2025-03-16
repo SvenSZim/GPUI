@@ -258,7 +258,7 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
             return
         
         if self._renderStyleElement is None:
-            UIStyleManager.getStyledButton(UISButton.SOLID, renderStyle).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState()))
+            UIStyleManager.getStyledButton(UISButton.BASIC, renderStyle).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState()))
         else:
             UIStyleManager.getStyledButton(self._renderStyleElement, renderStyle).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState()))
 

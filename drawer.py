@@ -1,7 +1,7 @@
 import pygame as pg
 
-from typing import Union, override
-from ui import UISurface, UIFont, UISurfaceDrawer, Color, Rect
+from typing import override
+from ui import UISurface, UIFont, UISurfaceDrawer, Color, tColor, Rect
 
 
 class PygameSurface(UISurface):
@@ -28,8 +28,8 @@ class PygameFont(UIFont):
         self.font = font
 
     @override
-    def render(self, text: str, color: Union[str, tuple[int, int, int], Color]) -> UISurface:
-        if isinstance(color, Color):
+    def render(self, text: str, color: Color) -> UISurface:
+        if isinstance(color, tColor):
             color = color.value
         return PygameSurface(self.font.render(text, True, pg.Color(color)))
 
@@ -41,8 +41,8 @@ class PygameFont(UIFont):
 class PygameDrawer(UISurfaceDrawer):
     @override
     @staticmethod
-    def drawline(surface: UISurface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Union[str, tuple[int, int, int], Color]) -> None:
-        if isinstance(color, Color):
+    def drawline(surface: UISurface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Color) -> None:
+        if isinstance(color, tColor):
             color = color.value
         if isinstance(surface, PygameSurface):
             pg.draw.line(surface.surface, color, startpoint, endpoint)
@@ -50,8 +50,8 @@ class PygameDrawer(UISurfaceDrawer):
 
     @override
     @staticmethod
-    def drawrect(surface: UISurface, rect: Rect, color: Union[str, tuple[int, int, int], Color], fill: bool = True) -> None:
-        if isinstance(color, Color):
+    def drawrect(surface: UISurface, rect: Rect, color: Color, fill: bool = True) -> None:
+        if isinstance(color, tColor):
             color = color.value
         if isinstance(surface, PygameSurface):
             if fill:

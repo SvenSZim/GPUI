@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ..generic import tColor, Rect
+from ..generic import Color, Rect
 from .UISurface import UISurface
 
 class UISurfaceDrawer(ABC):
@@ -12,7 +12,7 @@ class UISurfaceDrawer(ABC):
 
     @staticmethod
     @abstractmethod
-    def drawline(surface: UISurface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: tColor) -> None:
+    def drawline(surface: UISurface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Color) -> None:
         """
         drawline draws a line from startpoint to endpoint with the given color on the surface
 
@@ -26,7 +26,7 @@ class UISurfaceDrawer(ABC):
 
     @staticmethod
     @abstractmethod
-    def drawrect(surface: UISurface, rect: Rect, color: tColor, fill: bool=True) -> None:
+    def drawrect(surface: UISurface, rect: Rect, color: Color, fill: bool=True) -> None:
         """
         drawrect draws the given rect with the given color on the surface
 

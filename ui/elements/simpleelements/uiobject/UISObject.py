@@ -1,4 +1,3 @@
-
 from ..UIStyledABC import UIStyledABC
 
 class UISObject(UIStyledABC):

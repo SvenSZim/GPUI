@@ -1,69 +1,67 @@
 from abc import ABC
 from typing import Generic, TypeVar
 
-from ..generic import Rect
-from .uielementbody import UIABCBody
+from ..UIRenderer import UIRenderer
+from .UIABCCore import UIABCCore
+from .UIABCRenderData import UIABCRenderData
 
+Core = TypeVar('Core', bound=UIABCCore)
+RenderData = TypeVar('RenderData', bound=UIABCRenderData)
 
-Body = TypeVar('Body', bound=UIABCBody)
-
-class UIABC(Generic[Body], ABC):
+class UIABC(Generic[Core, RenderData], UIRenderer, ABC):
     """
-    UIABC is the abstract base class for all UIElements.
+    UIABCRenderer is the abstract base class for all UIElementRenderers.
+    UIElementRenderers consist of the corresponding UIElement and some renderInfo.
     """
+    
+    _active: bool # boolean if the renderer is active or not
+    _core: Core # refering UIElement which gets rendered by the Renderer
+    _renderData: RenderData # used style-element for rendering
 
-    _body: Body # A UIBody which contains the positioning of the UIElement
-
-    def __init__(self, body: Body):
+    def __init__(self, core: Core, active: bool, renderData: RenderData) -> None:
         """
-        __init__ initializes the values of UIABC for the UIElement
+        __init__ initializes the values of UIABCRenderer for the UIElementRenderer
 
         Args:
-            body: Body (bound=UIABCBody) = the body value for the UIElement
+            core: Core (bound=UIABC) = the refering UIElement of the UIElementRenderer
+            active: bool = the start active-state of the UIElementRenderer
+            renderStyleElement: StyleElem = the render style that should be used when rendering styled
         """
-        self._body = body
-        self.update()
+        self._active = active
+        self._core = core
+        self._renderData = renderData
 
-    def getBody(self) -> Body:
+    def isActive(self) -> bool:
         """
-        getBody returns the body of the UIElements
-        (should only be used to create references between the objects like in DynamicBody!)
-
-        Returns:
-            Body = the body of the UIElement
-        """
-        return self._body
-
-    def getRect(self) -> Rect:
-        """
-        getRect returns the rect of the UIElement
+        isActive returns the active-state of the Renderer
 
         Returns:
-            Rect = rect of the UIElement
+            bool = active-state of the Renderer
         """
-        return self._body.getRect()
-    
-    def getSize(self) -> tuple[int, int]:
+        return self._active
+
+    def toggleActive(self) -> bool:
         """
-        getSize returns the size of the UIElement
+        toggleActive toggles the active-state of the Renderer
 
         Returns:
-            tuple[int, int]: width, height of UIElement
+            bool = new active-state of the Renderer
         """
-        return self.getRect().getSize()
+        self._active = not self._active
+        return self._active
 
-    def getPosition(self) -> tuple[int, int]:
+    def setActive(self, active: bool) -> None:
         """
-        getPosition returns the position (top-left-corner) of the UIElement
+        setActive sets the active-state of the Renderer
 
-        Returns:
-            tuple[int, int]: posX, posY of the UIElement
+        Args:
+            active: bool = new active-state of the Renderer
         """
-        return self.getRect().getPosition()
+        self._active = active
 
     def update(self) -> None:
         """
-        update updates the position and sizing of the UIElement
+        update updates the positioning and sizing of the refering UIElement
         """
-        self._body.update()
+        self._core.update()
 

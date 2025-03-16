@@ -1,6 +1,6 @@
 from typing import Union
 
-class Color:
+class tColor:
     """
     Color is a utility class for defining and storing color related data
     """
@@ -32,4 +32,4 @@ class Color:
             self.value = value
 
 
-tColor = Union[str, tuple[int, int, int], Color]
+Color = Union[str, tuple[int, int, int], tColor]

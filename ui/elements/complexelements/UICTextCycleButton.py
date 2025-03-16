@@ -1,9 +1,9 @@
 
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from ui.responsiveness import InputEvent, InputManager
 
 from ..uidrawerinterface import UIFont
-from ..uirenderstyle import UISObject, UISText
+from ..uirenderstyle import UISObject, UISText, UISButton
 from ..simpleelements import UIABCRenderer
 from ..simpleelements import UIABCBody
 from ..simpleelements import UIObjectRenderer
@@ -30,7 +30,9 @@ class UICTextCycleButton(UIABCComplex):
 
     __button_core: UICycleButton
 
-    def __init__(self, body: UIABCBody, contents: list[str], fontData: tuple[UIFont | tuple[str, int] | str, str]) -> None:
+    def __init__(self, body: UIABCBody, contents: list[str], 
+                 fontData: tuple[UIFont | tuple[str, int] | str, str],
+                 styles: Optional[tuple[UISObject, UISText, UISButton]]=None) -> None:
         """
         __init__ initializes the UICTextCycleButton object.
 
@@ -44,22 +46,28 @@ class UICTextCycleButton(UIABCComplex):
         """
         if len(contents) == 0:
             contents = ['']
+        if styles is None:
+            styles = (UISObject.BORDERONLY, UISText.NOBORDERS, UISButton.INVISIBLE)
+
+        objectStyle: UISObject
+        textStyle: UISText
+        buttonStyle: UISButton
+        objectStyle, textStyle, buttonStyle = styles
 
         core_elements: list[UIABCRenderer] = []
-
-        core_elements.append(UIObjectRenderer(body, renderStyleObject=UISObject.BORDERONLY))
+        core_elements.append(UIObjectRenderer(body, renderStyleObject=objectStyle))
 
         txt: UIText = UIText(body, contents[0])
         text_core: UIABCTextRenderer
         if isinstance(fontData[0], str):
-            text_core = UIDynamicTextRenderer(txt, fontData[0], fontData[1], renderStyleText=UISText.NOBORDERS)
+            text_core = UIDynamicTextRenderer(txt, fontData[0], fontData[1], renderStyleText=textStyle)
             core_elements.append(text_core)
         else:
-            text_core = UIStaticTextRenderer(txt, fontData[0], fontData[1], renderStyleText=UISText.NOBORDERS)
+            text_core = UIStaticTextRenderer(txt, fontData[0], fontData[1], renderStyleText=textStyle)
             core_elements.append(text_core)
 
         self.__button_core = UICycleButton(body, numberOfStates=len(contents))
-        core_elements.append(UICycleButtonRenderer(self.__button_core, active=False))
+        core_elements.append(UICycleButtonRenderer(self.__button_core, renderStyleElement=buttonStyle))
         
         self.__button_core.addTriggerEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN))
         for x in range(len(contents)):
