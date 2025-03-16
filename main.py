@@ -3,7 +3,7 @@ from drawer import PygameDrawer, PygameSurface, PygameFont
 
 from ui import Rect
 from ui import InputEvent, InputManager
-from ui import UIRenderer, UIStyleMOON
+from ui import UIRenderer, UIStyle, UISObject
 
 from ui import UIDynamicBody
 from ui import UIText, UIFont, UIDynamicTextRenderer
@@ -20,7 +20,7 @@ def main():
     pg.init()
     pg.font.init()
     InputManager.init()
-    UIRenderer.init(PygameDrawer, PygameFont, UIStyleMOON)
+    UIRenderer.init(PygameDrawer, PygameFont, UIStyle.MOON)
 
     running: bool = True
 
@@ -35,7 +35,7 @@ def main():
 
     main_font: UIFont = PygameFont(pg.font.SysFont('Arial', 24))
 
-    obj1: UIObjectRenderer = UIObjectRenderer(Rect((600, 0), (100, 200)))
+    obj1: UIObjectRenderer = UIObjectRenderer(Rect((600, 0), (100, 200)), renderStyleObject=UISObject.BORDER_TB)
 
     text1_core: UIText = UIText(Rect((50,50), (500, 200)), 'Lorem ispum dolorem sit amet.')
     text1: UIDynamicTextRenderer = UIDynamicTextRenderer(text1_core, 'Arial', 'white')

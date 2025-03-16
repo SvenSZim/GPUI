@@ -1,8 +1,8 @@
 
 
-from .generic import Color, Rect
+from .generic import Color, tColor, Rect
 from .UIRenderer import UIRenderer
-from .uirenderstyle import UIABCStyle, UIStyleMOON, UIStyleFIRE
+from .uirenderstyle import UIStyle, UISObject, UISText, UISButton
 from .uidrawerinterface import UISurface, UIFont, UISurfaceDrawer
 
 

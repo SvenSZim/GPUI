@@ -2,11 +2,10 @@ from typing import override
 
 from .UIABCStyle import UIABCStyle
 
-from ...generic import Color
-from ..uistyledelements import UIStyledObjects, UIStyledTexts, UIStyledButtons
-from ..uistyledelements import UIABCStyledObject, UIABCStyledText, UIABCStyledButton
-
-from ..uistyledelements import UIStyledObjectBasic, UIStyledTextBasic, UIStyledButtonBasic
+from ..uistyledprefabs import UISBorderData
+from ..uistyledprefabs import UISObject, UISObjectData, UISObjectRenderer
+from ..uistyledprefabs import UISText, UISTextData, UISTextRenderer
+from ..uistyledprefabs import UISButton, UISButtonData, UISButtonRenderer
 
 
 class UIStyleFIRE(UIABCStyle):
@@ -16,30 +15,36 @@ class UIStyleFIRE(UIABCStyle):
 
     @override
     @staticmethod
-    def getStyledObject(styledobject: UIStyledObjects) -> UIABCStyledObject:
+    def getStyledObject(styledobject: UISObject) -> UISObjectRenderer:
+        styledObjectData: UISObjectData
         match styledobject:
-            case UIStyledObjects.BASIC:
-                return UIStyledObjectBasic(borderColor='red')
             case _:
-                return UIStyledObjectBasic(borderColor='red')
+                borderData: UISBorderData = UISBorderData(doBorders=(True, True, True, True), borderColor='red')
+                styledObjectData = UISObjectData(borderData=borderData, doFill=False, fillColor='red')
 
+        return UISObjectRenderer(styledObjectData)
 
-
+    
     @override
     @staticmethod
-    def getStyledText(styledtext: UIStyledTexts) -> UIABCStyledText:
+    def getStyledText(styledtext: UISText) -> UISTextRenderer:
+        styledTextData: UISTextData
         match styledtext:
-            case UIStyledTexts.BASIC:
-                return UIStyledTextBasic(borderColor='red')
             case _:
-                return UIStyledTextBasic(borderColor='red')
+                borderData: UISBorderData = UISBorderData(doBorders=(True, True, True, True), borderColor='red')
+                styledTextData = UISTextData(borderData=borderData, doFill=False, fillColor='red')
 
+        return UISTextRenderer(styledTextData)
 
+    
     @override
     @staticmethod
-    def getStyledButton(styledbutton: UIStyledButtons) -> UIABCStyledButton:
+    def getStyledButton(styledbutton: UISButton) -> UISButtonRenderer:
+        styledButtonData: UISButtonData
         match styledbutton:
-            case UIStyledButtons.BASIC:
-                return UIStyledButtonBasic(borderColor='red', buttonStateFillColor=Color((255, 102, 0)))
             case _:
-                return UIStyledButtonBasic(borderColor='red', buttonStateFillColor=Color((255, 102, 0)))
+                borderData: UISBorderData = UISBorderData(doBorders=(True, True, True, True), borderColor='red')
+                styledButtonData = UISButtonData(borderData=borderData, doFill=False, fillColor='red')
+
+        return UISButtonRenderer(styledButtonData)
+

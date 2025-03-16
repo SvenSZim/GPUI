@@ -2,7 +2,7 @@ from typing import Optional, override
 
 from ...generic import Rect
 from ...uidrawerinterface import UISurfaceDrawer, UISurface
-from ...uirenderstyle import UIABCStyle, UIStyledObjects
+from ...uirenderstyle import UISObject
 from ..uielementbody import UIABCBody
 
 from .UIABCObject import UIABCObject
@@ -30,7 +30,7 @@ class UIObjectRenderer(UIABCObjectRenderer[UIObject]):
     UIObjectRender is the UIElementRender for all UIObjects.
     """
 
-    def __init__(self, core: UIObject | UIABCBody | Rect, active: bool=True, renderStyleElement: Optional[UIStyledObjects]=None) -> None:
+    def __init__(self, core: UIObject | UIABCBody | Rect, active: bool=True, renderStyleObject: Optional[UISObject]=None) -> None:
         """
         __init__ initializes the UIObjectRender instance
 
@@ -41,7 +41,7 @@ class UIObjectRenderer(UIABCObjectRenderer[UIObject]):
         """
         if not isinstance(core, UIObject):
             core = UIObject(core)
-        super().__init__(core, active, renderStyleElement)
+        super().__init__(core, active, renderStyleObject)
 
 
     @override

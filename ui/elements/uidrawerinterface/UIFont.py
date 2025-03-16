@@ -1,8 +1,6 @@
-
 from abc import ABC, abstractmethod
-from typing import Union
 
-from ..generic import Color
+from ..generic import tColor
 from .UISurface import UISurface
 
 class UIFont(ABC):
@@ -12,7 +10,7 @@ class UIFont(ABC):
     """
 
     @abstractmethod
-    def render(self, text: str, color: Union[str, tuple[int, int, int], Color]) -> UISurface:
+    def render(self, text: str, color: tColor) -> UISurface:
         """
         render creates a UISurface with the given text rendered on top.
 

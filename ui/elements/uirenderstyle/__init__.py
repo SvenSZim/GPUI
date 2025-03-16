@@ -1,5 +1,9 @@
-from .uistyledelements import UIStyledElements, UIStyledObjects, UIStyledTexts, UIStyledButtons
-from .uistyledelements import UIABCStyledElement, UIABCStyledObject, UIABCStyledText, UIABCStyledButton
+from .uistyledprefabs import UIStyledABC
+from .uistyledprefabs import UISObject, UISObjectRenderer
+from .uistyledprefabs import UISText, UISTextRenderer
+from .uistyledprefabs import UISButton, UISButtonRenderer
 
+from .uistyles import UIStyleMOON, UIStyleFIRE
 
-from .uistyles import UIABCStyle, UIStyleMOON, UIStyleFIRE
+from .UIStyle import UIStyle
+from .UIStyleManager import UIStyleManager

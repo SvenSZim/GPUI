@@ -1,12 +1,12 @@
 from abc import ABC
 from typing import Generic, Optional, TypeVar
 
-from ..uirenderstyle import UIStyledElements
+from ..uirenderstyle import UIStyledABC
 from ..UIRenderer import UIRenderer
 from .UIABC import UIABC
 
 Core = TypeVar('Core', bound=UIABC)
-StyleElem = TypeVar('StyleElem', bound=UIStyledElements)
+StyleElem = TypeVar('StyleElem', bound=UIStyledABC)
 
 class UIABCRenderer(Generic[Core, StyleElem], UIRenderer, ABC):
     """

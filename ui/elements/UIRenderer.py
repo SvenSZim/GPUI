@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from .uidrawerinterface import UISurface, UIFont, UISurfaceDrawer
-from .uirenderstyle import UIABCStyle
+from .uirenderstyle import UIStyle
 from .UIFontManager import UIFontManager
 
 
@@ -9,10 +9,10 @@ from .UIFontManager import UIFontManager
 class UIRenderer(ABC):
 
     __drawer: type[UISurfaceDrawer] | None = None
-    __renderstyle: type[UIABCStyle] | None = None
+    __renderstyle: UIStyle | None = None
 
     @staticmethod
-    def init(drawer: type[UISurfaceDrawer], font: type[UIFont], renderstyle: type[UIABCStyle]) -> None:
+    def init(drawer: type[UISurfaceDrawer], font: type[UIFont], renderstyle: UIStyle) -> None:
         UIRenderer.__drawer = drawer
         UIFontManager.setFont(font)
         UIRenderer.__renderstyle = renderstyle
@@ -38,7 +38,7 @@ class UIRenderer(ABC):
 
 
     @abstractmethod
-    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
+    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: UIStyle) -> None:
         """
         renderStyled renders the UIElement with the given style onto the given surface.
 

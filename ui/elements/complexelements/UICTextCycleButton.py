@@ -3,7 +3,7 @@ from typing import Any, Callable
 from ui.responsiveness import InputEvent, InputManager
 
 from ..uidrawerinterface import UIFont
-from ..uirenderstyle import UIStyledObjects, UIStyledTexts
+from ..uirenderstyle import UISObject, UISText
 from ..simpleelements import UIABCRenderer
 from ..simpleelements import UIABCBody
 from ..simpleelements import UIObjectRenderer
@@ -47,15 +47,15 @@ class UICTextCycleButton(UIABCComplex):
 
         core_elements: list[UIABCRenderer] = []
 
-        core_elements.append(UIObjectRenderer(body, renderStyleElement=UIStyledObjects.BASIC_25))
+        core_elements.append(UIObjectRenderer(body, renderStyleObject=UISObject.BORDERONLY))
 
         txt: UIText = UIText(body, contents[0])
         text_core: UIABCTextRenderer
         if isinstance(fontData[0], str):
-            text_core = UIDynamicTextRenderer(txt, fontData[0], fontData[1], renderStyleElement=UIStyledTexts.BASIC_NOBORDER)
+            text_core = UIDynamicTextRenderer(txt, fontData[0], fontData[1], renderStyleText=UISText.NOBORDERS)
             core_elements.append(text_core)
         else:
-            text_core = UIStaticTextRenderer(txt, fontData[0], fontData[1], renderStyleElement=UIStyledTexts.BASIC_NOBORDER)
+            text_core = UIStaticTextRenderer(txt, fontData[0], fontData[1], renderStyleText=UISText.NOBORDERS)
             core_elements.append(text_core)
 
         self.__button_core = UICycleButton(body, numberOfStates=len(contents))

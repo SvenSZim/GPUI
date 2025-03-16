@@ -1,10 +1,10 @@
 from abc import ABC
-from typing import Optional, Union, Generic, TypeVar
+from typing import Optional, Generic, TypeVar
 
 
-from ...generic import Color, Rect
+from ...generic import tColor, Rect
 from ...uidrawerinterface import UIFont, UISurface, UISurfaceDrawer
-from ...uirenderstyle import UIStyledTexts, UIABCStyle
+from ...uirenderstyle import UIStyleManager, UIStyle, UISText
 
 from ..uielementbody import UIABCBody, UIStaticBody
 from ..UIABC import UIABC
@@ -52,16 +52,16 @@ class UIABCText(UIABC[UIABCBody], ABC):
 
 Core = TypeVar('Core', bound=UIABCText)
 
-class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyledTexts], ABC):
+class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UISText], ABC):
     """
     UIABCTextRender is the abstract base class for all UITextRender
     """
-    _fontColor: Union[str, tuple[int, int, int], Color]
+    _fontColor: tColor
     _font: UIFont
 
     def __init__(self, core: Core, 
-                 font: UIFont, fontColor: Union[str, tuple[int, int, int], Color], 
-                 active: bool, renderStyleElement: Optional[UIStyledTexts]) -> None:
+                 font: UIFont, fontColor: tColor,
+                 active: bool, renderStyleText: Optional[UISText]) -> None:
         """
         __init__ initializes the UIDynamicTextRender instance
 
@@ -72,9 +72,9 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyledTexts], ABC):
             font: UIFont = the font used
             fontColor: Color = the color the font should have
             active: bool = the active-state of the UITextElementRenderer (for UIABCRenderer)
-            renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
+            renderStyleText: UIStyledTexts = the render style that should be used when rendering styled
         """
-        super().__init__(core, active, renderStyleElement)
+        super().__init__(core, active, renderStyleText)
         self._font = font
         self._fontColor = fontColor
 
@@ -109,13 +109,13 @@ class UIABCTextRenderer(Generic[Core], UIABCRenderer[Core, UIStyledTexts], ABC):
         surface.blit(textRender, textPosition)
 
 
-    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
+    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: UIStyle) -> None:
         if not self._active:
             return
         
         if self._renderStyleElement is None:
-            renderStyle.getStyledText(UIStyledTexts.BASIC).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getContent(), self._font, self._fontColor))
+            UIStyleManager.getStyledText(UISText.SOLID, renderStyle).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getContent(), self._font, self._fontColor))
         else:
-            renderStyle.getStyledText(self._renderStyleElement).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getContent(), self._font, self._fontColor))
+            UIStyleManager.getStyledText(self._renderStyleElement, renderStyle).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getContent(), self._font, self._fontColor))
 
 

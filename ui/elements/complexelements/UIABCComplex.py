@@ -2,7 +2,7 @@ from abc import ABC
 from typing import override
 
 from ..uidrawerinterface import UISurfaceDrawer, UISurface
-from ..uirenderstyle import UIABCStyle
+from ..uirenderstyle import UIStyle
 from ..simpleelements import UIABCRenderer
 from ..UIRenderer import UIRenderer
 
@@ -27,7 +27,7 @@ class UIABCComplex(UIRenderer, ABC):
         pass
 
     @override
-    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
+    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: UIStyle) -> None:
         """
         renderStyled renders the UIElement with the given style onto the given surface.
 

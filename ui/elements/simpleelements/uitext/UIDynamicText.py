@@ -1,8 +1,8 @@
 from typing import Optional, Union, override
 
-from ...generic import Color
+from ...generic import tColor
 from ...uidrawerinterface import UISurface, UIFont
-from ...uirenderstyle import UIStyledTexts
+from ...uirenderstyle import UISText
 from ...UIFontManager import UIFontManager
 
 from .UIABCText import UIABCTextRenderer
@@ -19,8 +19,8 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
     __fontSize: int
 
     def __init__(self, core: UIText, 
-                       fontName: str, fontColor: Union[str, tuple[int, int, int], Color],
-                       active: bool=True, renderStyleElement: Optional[UIStyledTexts]=None) -> None:
+                       fontName: str, fontColor: tColor,
+                       active: bool=True, renderStyleText: Optional[UISText]=None) -> None:
         """
         __init__ initializes the UIDynamicTextRender instance
 
@@ -29,12 +29,12 @@ class UIDynamicTextRenderer(UIABCTextRenderer):
             fontName: str = the systemfont name of used font
             fontColor: Color = the color the font should have
             active: bool = the active-state of the UIDynamicTextRenderer
-            renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
+            renderStyleText: UIStyledTexts = the render style that should be used when rendering styled
         """
         self.__fontName = fontName
         self.__fontSize = self.__getDynamicFontSize(fontName, core.getSize(), core.getContent())
         font: UIFont = UIFontManager.getFont().SysFont(self.__fontName, self.__fontSize)
-        super().__init__(core, font, fontColor, active, renderStyleElement)
+        super().__init__(core, font, fontColor, active, renderStyleText)
 
 
     def updateFont(self) -> None:

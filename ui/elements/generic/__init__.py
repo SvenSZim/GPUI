@@ -1,2 +1,2 @@
-from .Color import Color
+from .Color import Color, tColor
 from .Rect import Rect

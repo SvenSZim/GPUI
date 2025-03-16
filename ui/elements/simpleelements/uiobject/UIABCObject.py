@@ -3,7 +3,7 @@ from typing import Generic, Optional, TypeVar, override
 
 from ...generic import Rect
 from ...uidrawerinterface import UISurfaceDrawer, UISurface
-from ...uirenderstyle import UIABCStyle, UIStyledObjects
+from ...uirenderstyle import UIStyleManager, UIStyle, UISObject
 from ..uielementbody import UIABCBody, UIStaticBody
 from ..UIABC import UIABC
 from ..UIABCRenderer import UIABCRenderer
@@ -26,11 +26,11 @@ class UIABCObject(UIABC[UIABCBody], ABC):
 
 Core = TypeVar('Core', bound=UIABCObject)
 
-class UIABCObjectRenderer(Generic[Core], UIABCRenderer[Core, UIStyledObjects], ABC):
+class UIABCObjectRenderer(Generic[Core], UIABCRenderer[Core, UISObject], ABC):
     """
     UIABCObjectRender is the abstract base class for all UIObjectRenderer.
     """
-    def __init__(self, core: Core, active: bool=True, renderStyleElement: Optional[UIStyledObjects]=None) -> None:
+    def __init__(self, core: Core, active: bool=True, renderStyleElement: Optional[UISObject]=None) -> None:
         """
         __init__ initializes the values of UIABCObjectRenderer for the UIObjectRenderer
 
@@ -42,13 +42,13 @@ class UIABCObjectRenderer(Generic[Core], UIABCRenderer[Core, UIStyledObjects], A
         super().__init__(core, active, renderStyleElement)
 
     @override
-    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
+    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: UIStyle) -> None:
         if not self._active:
             return
         
         if self._renderStyleElement is None:
-            renderStyle.getStyledObject(UIStyledObjects.BASIC).render(surfaceDrawer, surface, self._core.getRect())
+            UIStyleManager.getStyledObject(UISObject.BORDERONLY, renderStyle).render(surfaceDrawer, surface, self._core.getRect())
         else:
-            renderStyle.getStyledObject(self._renderStyleElement).render(surfaceDrawer, surface, self._core.getRect())
+            UIStyleManager.getStyledObject(self._renderStyleElement, renderStyle).render(surfaceDrawer, surface, self._core.getRect())
 
 

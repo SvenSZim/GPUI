@@ -3,7 +3,7 @@ from typing import Generic, Optional, TypeVar
 
 from ui.responsiveness import EventManager
 from ...generic import Rect
-from ...uirenderstyle import UIStyledButtons
+from ...uirenderstyle import UISButton
 
 from ..UIABC import UIABC
 from ..UIABCRenderer import UIABCRenderer
@@ -92,11 +92,11 @@ class UIABCButton(UIABC[UIABCBody], ABC):
 
 Core = TypeVar('Core', bound=UIABCButton)
 
-class UIABCButtonRenderer(Generic[Core], UIABCRenderer[Core, UIStyledButtons], ABC):
+class UIABCButtonRenderer(Generic[Core], UIABCRenderer[Core, UISButton], ABC):
     """
     UIABCButtonRender is the abstract base class for all UIButtonRender
     """
-    def __init__(self, core: Core, active: bool=True, renderStyleElement: Optional[UIStyledButtons]=None) -> None:
+    def __init__(self, core: Core, active: bool=True, renderStyleElement: Optional[UISButton]=None) -> None:
         """
         __init__ initializes the values of UIABCButtonRenderer for the UIButtonRenderer
 

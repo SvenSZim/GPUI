@@ -1,4 +1,4 @@
-
+from typing import Union
 
 class Color:
     """
@@ -30,3 +30,6 @@ class Color:
                     raise ValueError(f'Color::__init__::{value=}')
         else:
             self.value = value
+
+
+tColor = Union[str, tuple[int, int, int], Color]

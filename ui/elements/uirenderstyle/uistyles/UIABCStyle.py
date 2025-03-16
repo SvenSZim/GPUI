@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-from ..uistyledelements import UIStyledObjects, UIABCStyledObject
-from ..uistyledelements import UIStyledTexts, UIABCStyledText
-from ..uistyledelements import UIStyledButtons, UIABCStyledButton
+from ..uistyledprefabs import UISObject, UISObjectRenderer
+from ..uistyledprefabs import UISText, UISTextRenderer
+from ..uistyledprefabs import UISButton, UISButtonRenderer
 
 
 class UIABCStyle(ABC):
@@ -12,15 +12,15 @@ class UIABCStyle(ABC):
 
     @staticmethod
     @abstractmethod
-    def getStyledObject(styledobject: UIStyledObjects) -> UIABCStyledObject:
+    def getStyledObject(styledobject: UISObject) -> UISObjectRenderer:
         pass
 
     @staticmethod
     @abstractmethod
-    def getStyledText(styledtext: UIStyledTexts) -> UIABCStyledText:
+    def getStyledText(styledtext: UISText) -> UISTextRenderer:
         pass
 
     @staticmethod
     @abstractmethod
-    def getStyledButton(styledbutton: UIStyledButtons) -> UIABCStyledButton:
+    def getStyledButton(styledbutton: UISButton) -> UISButtonRenderer:
         pass

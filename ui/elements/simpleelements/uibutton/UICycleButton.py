@@ -5,7 +5,7 @@ from ui.responsiveness import EventManager
 
 from ...generic import Rect
 from ...uidrawerinterface import UISurfaceDrawer, UISurface
-from ...uirenderstyle import UIABCStyle, UIStyledButtons
+from ...uirenderstyle import UIStyleManager, UIStyle, UISButton
 from ..uielementbody import UIABCBody
 
 from .UIABCButton import UIABCButtonRenderer
@@ -115,7 +115,7 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
     UICycleButtonRender is a UIButtonRender which renders the UICycleButton.
     """
     
-    def __init__(self, core: UICycleButton, active: bool=True, renderStyleElement: Optional[UIStyledButtons]=None) -> None:
+    def __init__(self, core: UICycleButton, active: bool=True, renderStyleElement: Optional[UISButton]=None) -> None:
         """
         __init__ initializes the UICycleButtonRender instance
 
@@ -253,14 +253,14 @@ class UICycleButtonRenderer(UIABCButtonRenderer[UICycleButton]):
 
 
     @override
-    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: type[UIABCStyle]) -> None:
+    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: UIStyle) -> None:
         if not self._active:
             return
         
         if self._renderStyleElement is None:
-            renderStyle.getStyledButton(UIStyledButtons.BASIC).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState()))
+            UIStyleManager.getStyledButton(UISButton.SOLID, renderStyle).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState()))
         else:
-            renderStyle.getStyledButton(self._renderStyleElement).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState()))
+            UIStyleManager.getStyledButton(self._renderStyleElement, renderStyle).render(surfaceDrawer, surface, (self._core.getRect(), self._core.getNumberOfStates(), self._core.getCurrentState()))
 
 
 
