@@ -9,7 +9,8 @@ from .UISText import UISText
 class UISTextPrefabs(UIStyledABCPrefabs[UISText, UITextRenderData]):
 
     __prefabs: dict[UISText, Callable[[UIStyle], UITextRenderData]] = {
-        UISText.INVISIBLE       : lambda style : UITextRenderData(objectData=UISObject.BORDERONLY),
+        UISText.INVISIBLE       : lambda _     : UITextRenderData(objectData=UISObject.BORDERONLY),
+        UISText.NOBORDERS       : lambda style : UITextRenderData(objectData=UISObject.INVISIBLE, textColor=UIStyleManager.getStyleColor(0, style)),
         UISText.BASIC           : lambda style : UITextRenderData(objectData=UISObject.BORDERONLY, textColor=UIStyleManager.getStyleColor(0, style)),
         UISText.BASIC_TB        : lambda style : UITextRenderData(objectData=UISObject.BORDER_TB, textColor=UIStyleManager.getStyleColor(0, style)),
         UISText.DYNAMIC_BASIC   : lambda style : UITextRenderData(objectData=UISObject.BORDER_TB, dynamicText=True, textColor=UIStyleManager.getStyleColor(0, style)),

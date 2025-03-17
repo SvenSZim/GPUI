@@ -1,9 +1,7 @@
 from abc import ABC
 from typing import override
 
-from ..uidrawerinterface import UISurfaceDrawer, UISurface
-from ..uirenderstyle import UIStyle
-from ..simpleelements import UIABCRenderer
+from ..uidrawerinterface import UISurface
 from ..UIRenderer import UIRenderer
 
 class UIABCComplex(UIRenderer, ABC):
@@ -11,9 +9,9 @@ class UIABCComplex(UIRenderer, ABC):
     UIABCComplex is the abstract base class for all complex ui elements
     """
     
-    _simpleelements: list[UIABCRenderer]
+    _simpleelements: list[UIRenderer]
 
-    def __init__(self, simpleelements: list[UIABCRenderer]) -> None:
+    def __init__(self, simpleelements: list[UIRenderer]) -> None:
         """
         __init__ initializes the values of UIABCComplex for the complex ui element.
 
@@ -23,18 +21,12 @@ class UIABCComplex(UIRenderer, ABC):
         self._simpleelements = simpleelements
 
     @override
-    def render(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface) -> None:
-        pass
-
-    @override
-    def renderStyled(self, surfaceDrawer: type[UISurfaceDrawer], surface: UISurface, renderStyle: UIStyle) -> None:
+    def render(self, surface: UISurface) -> None:
         """
-        renderStyled renders the UIElement with the given style onto the given surface.
+        render renders the UIElement with the given style onto the given surface.
 
         Args:
-            surfaceDrawer: UISurfaceDrawer = the drawer to use when drawing on the surface
             surface: UISurface = the surface the UIElement should be drawn on
-            renderStyle: UIStyle = the renderstyle used to render
         """
         for simpleelement in self._simpleelements:
-            simpleelement.renderStyled(surfaceDrawer, surface, renderStyle)
+            simpleelement.render(surface)

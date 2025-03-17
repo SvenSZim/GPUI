@@ -1,7 +1,7 @@
 from typing import override
 
 from ...generic import Rect
-from ..uielementbody import UIABCBody, UIStaticBody
+from ..uibody import UIABCBody, UIStaticBody
 from ..UIABCCore import UIABCCore
 
 class UILineCore(UIABCCore[UIABCBody]):

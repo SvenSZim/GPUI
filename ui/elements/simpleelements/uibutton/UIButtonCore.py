@@ -1,7 +1,7 @@
-from typing import override
+from typing import Any, Callable, override
 from ....responsiveness import EventManager, InputManager, InputEvent
 from ...generic import Rect
-from ..uielementbody import UIABCBody, UIStaticBody
+from ..uibody import UIABCBody, UIStaticBody
 from ..UIABCCore import UIABCCore
 
 class UIButtonCore(UIABCCore[UIABCBody]):
@@ -19,7 +19,7 @@ class UIButtonCore(UIABCCore[UIABCBody]):
         
         self.__buttonActive      = buttonActive
         self.__numberOfStates    = max(2, numberOfStates)
-        self.__currentState      = min(0, max(self.__numberOfStates-1, startState))
+        self.__currentState      = max(0, min(self.__numberOfStates-1, startState))
 
         self.__buttonEvents = [EventManager.createEvent() for _ in range(self.__numberOfStates)]
 
@@ -99,6 +99,36 @@ class UIButtonCore(UIABCCore[UIABCBody]):
         addGlobalTriggerEvent adds a event which immediatly triggers the button.
         """
         return EventManager.subscribeToEvent(event, UIButtonCore.globalTrigger, self)
+    
+    def subscribeToButtonEvent(self, state: int, f: Callable, *args: Any) -> bool:
+        """
+        subscribeToButtonEvent subscribes a Callback to the triggerEvent of the
+        given buttonState of the UICycleButton.
 
+        Args:
+            state: int = the buttonState the Callback should be subscribed to
+            f: Callable = the function that should be subscribed
+            *args: Any = the potential arguments the function needs
+
+        Returns:
+            bool = returns if the subscription was successful
+        """
+        if state >= 0 and state < self.__numberOfStates:
+            return EventManager.subscribeToEvent(self.__buttonEvents[state], f, *args)
+        return False
+
+    def subscribeToButtonClick(self, f: Callable, *args: Any) -> bool:
+        """
+        subscribeToButtonClick subscribes a Callback to the triggerEvent of
+        all buttonStates of the UICycleButton.
+
+        Args:
+            f: Callable = the function that should be subscribed
+            *args: Any = the potential arguments the function needs
+
+        Returns:
+            bool = returns if the subscriptions were successful
+        """
+        return all([EventManager.subscribeToEvent(self.__buttonEvents[x], f, *args) for x in range(self.__numberOfStates)])
 
 

@@ -4,7 +4,7 @@ from ...generic import Rect, Color
 from ...uidrawerinterface import UISurface
 from ...uirenderstyle import UIStyle
 
-from ..uielementbody import UIABCBody
+from ..uibody import UIABCBody
 from ..uiline import UILine
 from ..UIABC import UIABC
 from .UIObjectCore import UIObjectCore

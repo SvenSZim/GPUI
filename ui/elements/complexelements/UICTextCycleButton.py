@@ -1,17 +1,14 @@
 
 from typing import Any, Callable, Optional
-from ui.responsiveness import InputEvent, InputManager
 
-from ..uidrawerinterface import UIFont
-from ..uirenderstyle import UISObject, UISText, UISButton
-from ..simpleelements import UIABCRenderer
-from ..simpleelements import UIABCBody
-from ..simpleelements import UIObjectRenderer
-from ..simpleelements import UIText, UIABCTextRenderer, UIStaticTextRenderer, UIDynamicTextRenderer
-from ..simpleelements import UICycleButton, UICycleButtonRenderer
+from ..generic import Rect
+from ..simpleelements import UIABCBody, UIStaticBody
+from ..simpleelements import UISObject, UISText, UISButton
+from ..simpleelements import UIText, UITextCore, UIButton, UIButtonCore
+from ..UIRenderer import UIRenderer
 from .UIABCComplex import UIABCComplex
 
-def setContent(textobj: UIABCTextRenderer, content: str):
+def setContent(textobj: UIText, content: str):
     """
     setContent sets the content of a UITextElement to a new content.
 
@@ -28,11 +25,9 @@ class UICTextCycleButton(UIABCComplex):
     the text rotates through a list of strings by the press of the button.
     """
 
-    __button_core: UICycleButton
+    __button: UIButton
 
-    def __init__(self, body: UIABCBody, contents: list[str], 
-                 fontData: tuple[UIFont | tuple[str, int] | str, str],
-                 styles: Optional[tuple[UISObject, UISText, UISButton]]=None) -> None:
+    def __init__(self, body: UIABCBody | Rect, contents: list[str], styles: Optional[tuple[UISText, UISButton]]=None) -> None:
         """
         __init__ initializes the UICTextCycleButton object.
 
@@ -46,32 +41,24 @@ class UICTextCycleButton(UIABCComplex):
         """
         if len(contents) == 0:
             contents = ['']
+        if isinstance(body, Rect):
+            body = UIStaticBody(body)
         if styles is None:
-            styles = (UISObject.BORDERONLY, UISText.NOBORDERS, UISButton.INVISIBLE)
+            styles = (UISText.BASIC, UISButton.INVISIBLE)
 
         objectStyle: UISObject
         textStyle: UISText
         buttonStyle: UISButton
-        objectStyle, textStyle, buttonStyle = styles
+        textStyle, buttonStyle = styles
 
-        core_elements: list[UIABCRenderer] = []
-        core_elements.append(UIObjectRenderer(body, renderStyleObject=objectStyle))
+        core_elements: list[UIRenderer] = []
+        text: UIText = UIText(UITextCore(body, contents[0]), renderStyleData=textStyle)
+        core_elements.append(text)
+        self.__button = UIButton(UIButtonCore(body, numberOfStates=len(contents), startState=0), renderStyleData=buttonStyle)
+        core_elements.append(self.__button)
 
-        txt: UIText = UIText(body, contents[0])
-        text_core: UIABCTextRenderer
-        if isinstance(fontData[0], str):
-            text_core = UIDynamicTextRenderer(txt, fontData[0], fontData[1], renderStyleText=textStyle)
-            core_elements.append(text_core)
-        else:
-            text_core = UIStaticTextRenderer(txt, fontData[0], fontData[1], renderStyleText=textStyle)
-            core_elements.append(text_core)
-
-        self.__button_core = UICycleButton(body, numberOfStates=len(contents))
-        core_elements.append(UICycleButtonRenderer(self.__button_core, renderStyleElement=buttonStyle))
-        
-        self.__button_core.addTriggerEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN))
         for x in range(len(contents)):
-            self.__button_core.subscribeToButtonEvent(x, setContent, text_core, contents[(x + 1) % len(contents)])
+            self.__button.subscribeToButtonEvent(x, setContent, text, contents[(x + 1) % len(contents)])
 
         super().__init__(core_elements)
 
@@ -90,7 +77,7 @@ class UICTextCycleButton(UIABCComplex):
         Returns:
             bool = returns if the subscription was successful
         """
-        return self.__button_core.subscribeToButtonEvent(state, f, *args)
+        return self.__button.subscribeToButtonEvent(state, f, *args)
 
 
     def subscribeToButtonClick(self, f: Callable, *args: Any) -> bool:
@@ -105,7 +92,7 @@ class UICTextCycleButton(UIABCComplex):
         Returns:
             bool = returns if the subscriptions were successful
         """
-        return self.__button_core.subscribeToButtonClick(f, *args)
+        return self.__button.subscribeToButtonClick(f, *args)
 
 
 

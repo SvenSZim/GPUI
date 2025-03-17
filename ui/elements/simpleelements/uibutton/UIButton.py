@@ -1,4 +1,4 @@
-from typing import Optional, override
+from typing import Any, Callable, Optional, override
 
 from ...generic import Rect, Color
 from ...uidrawerinterface import UISurface
@@ -35,6 +35,19 @@ class UIButton(UIABC[UIButtonCore, UIButtonRenderData]):
             renderStyleData = UISButtonCreator.createStyledElement(renderStyleData, self._renderstyle)
         
         super().__init__(core, active, renderStyleData)
+
+    def addButtonTriggerEvent(self, event: str) -> bool:
+        return self._core.addTriggerEvent(event)
+
+    def addGlobalButtonTriggerEvent(self, event: str) -> bool:
+        return self._core.addGlobalTriggerEvent(event)
+
+    def subscribeToButtonEvent(self, state: int, f: Callable, *args: Any) -> bool:
+        return self._core.subscribeToButtonEvent(state, f, *args)
+
+    def subscribeToButtonClick(self, f: Callable, *args: Any) -> bool:
+        return self._core.subscribeToButtonClick(f, *args)
+
 
     
     @override

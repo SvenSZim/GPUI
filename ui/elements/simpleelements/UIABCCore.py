@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar
 
+from .uibody import UIABCBody
 
-Body = TypeVar('Body', bound=Any)
+Body = TypeVar('Body', bound=UIABCBody)
 
 class UIABCCore(Generic[Body], ABC):
     """
