@@ -6,6 +6,7 @@ from ui import InputEvent, InputManager
 from ui import UIRenderer, UIStyle
 from ui import UILine, UISLine, UISLineCreateOptions
 from ui import UIObject, UISObject, UISObjectCreateOptions
+from ui import UIText, UITextCore, UISText, UISTextCreateOptions
 
 
 def main():
@@ -32,11 +33,16 @@ def main():
     ob2: UIObject = UIObject(Rect((0,120),(100,100)), renderStyleData=[UISObjectCreateOptions.BORDER_COLOR1, UISObjectCreateOptions.BORDER_RIGHT,
                                                                        UISObjectCreateOptions.BORDER_BOTTOM])
 
+    txt1_core: UITextCore = UITextCore(Rect((0,240),(220,100)), 'Hello World!')
+    txt1: UIText = UIText(txt1_core, renderStyleData=UISText.BASIC)
+
+    txt1_core.setContent('I was here.')
+
     while running:
         InputManager.update()
 
         main_screen.fill('black')
-        UIRenderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2])
+        UIRenderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1])
 
         pg.display.flip()
 

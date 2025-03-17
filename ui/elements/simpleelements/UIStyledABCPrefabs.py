@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
+from ..uirenderstyle import UIStyle
 from .UIStyledABC import UIStyledABC
 from .UIABCRenderData import UIABCRenderData
 
@@ -12,5 +13,5 @@ class UIStyledABCPrefabs(Generic[StyledElement, RenderData], ABC):
 
     @staticmethod
     @abstractmethod
-    def getPrefabRenderData(uistyledid: StyledElement) -> RenderData:
+    def getPrefabRenderData(uistyledid: StyledElement, style: UIStyle) -> RenderData:
         pass

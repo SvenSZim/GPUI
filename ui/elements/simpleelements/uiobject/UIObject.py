@@ -29,14 +29,15 @@ class UIObject(UIABC[UIObjectCore, UIObjectRenderData]):
             active: bool = active-state of the UIObjectRenderer
             renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
         """
+        assert self._renderstyle is not None
+
         if not isinstance(core, UIObjectCore):
             core = UIObjectCore(core)
 
         if isinstance(renderStyleData, UISObject):
-            renderStyleData = UISObjectPrefabs.getPrefabRenderData(renderStyleData)
-            print(f'im here: {renderStyleData}')
+            renderStyleData = UISObjectPrefabs.getPrefabRenderData(renderStyleData, self._renderstyle)
         elif isinstance(renderStyleData, list):
-            renderStyleData = UISObjectCreator.createStyledElement(renderStyleData, UIStyle.MOON)
+            renderStyleData = UISObjectCreator.createStyledElement(renderStyleData, self._renderstyle)
         
         super().__init__(core, active, renderStyleData)
 
@@ -70,10 +71,5 @@ class UIObject(UIABC[UIObjectCore, UIObjectRenderData]):
             UILine(Rect((rect.right, rect.top), (0, rect.height)), renderStyleData=self._renderData.borderData).render(surface)
         if self._renderData.doBorders[3]:
             UILine(Rect((rect.left, rect.bottom), (rect.width, 0)), renderStyleData=self._renderData.borderData).render(surface)
-        
-        # borders:
-        # UISBorderRenderer(self._renderData.borderData).render(surfaceDrawer, surface, self._core.getBody().getRect())
-
-        # TODO: ALT
 
 

@@ -1,5 +1,5 @@
 
-from ..generic import tColor
+from ..generic import Color
 from .uistyles import UIABCStyle, UIStyleMOON, UIStyleFIRE
 from .UIStyle import UIStyle
 
@@ -11,5 +11,5 @@ class UIStyleManager:
                 UIStyle.FIRE: UIStyleFIRE}[style]
     
     @staticmethod
-    def getStyleColor(colorIndex: int, style: UIStyle) -> tColor:
+    def getStyleColor(colorIndex: int, style: UIStyle) -> Color:
         return UIStyleManager.__mapStyle(style).getStyleColor(colorIndex)

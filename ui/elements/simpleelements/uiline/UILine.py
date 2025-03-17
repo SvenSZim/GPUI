@@ -28,14 +28,15 @@ class UILine(UIABC[UILineCore, UILineRenderData]):
             active: bool = active-state of the UILineRenderer
             renderStyleElement: UIStyledTexts = the render style that should be used when rendering styled
         """
+        assert self._renderstyle is not None
+
         if not isinstance(core, UILineCore):
             core = UILineCore(core)
 
         if isinstance(renderStyleData, UISLine):
-            renderStyleData = UISLinePrefabs.getPrefabRenderData(renderStyleData)
-            print(f'im here: {renderStyleData}')
+            renderStyleData = UISLinePrefabs.getPrefabRenderData(renderStyleData, self._renderstyle)
         elif isinstance(renderStyleData, list):
-            renderStyleData = UISLineCreator.createStyledElement(renderStyleData, UIStyle.MOON)
+            renderStyleData = UISLineCreator.createStyledElement(renderStyleData, self._renderstyle)
         
         super().__init__(core, active, renderStyleData)
 
