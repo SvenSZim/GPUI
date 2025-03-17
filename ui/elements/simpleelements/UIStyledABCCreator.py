@@ -12,5 +12,5 @@ class UIStyledABCCreator(Generic[CreateOptions, RenderData], ABC):
 
     @staticmethod
     @abstractmethod
-    def createStyledObject(createOptions: list[CreateOptions], style: UIStyle) -> RenderData:
+    def createStyledElement(createOptions: list[CreateOptions], style: UIStyle) -> RenderData:
         pass

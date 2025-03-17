@@ -5,7 +5,7 @@ from ...uidrawerinterface import UISurface
 from ...uirenderstyle import UIStyle
 
 from ..uielementbody import UIABCBody
-from ..uiline import UILineRenderData
+from ..uiline import UILine
 from ..UIABC import UIABC
 from .UIObjectCore import UIObjectCore
 from .UISObject import UISObject
@@ -36,7 +36,7 @@ class UIObject(UIABC[UIObjectCore, UIObjectRenderData]):
             renderStyleData = UISObjectPrefabs.getPrefabRenderData(renderStyleData)
             print(f'im here: {renderStyleData}')
         elif isinstance(renderStyleData, list):
-            renderStyleData = UISObjectCreator.createStyledObject(renderStyleData, UIStyle.MOON)
+            renderStyleData = UISObjectCreator.createStyledElement(renderStyleData, UIStyle.MOON)
         
         super().__init__(core, active, renderStyleData)
 
@@ -52,27 +52,24 @@ class UIObject(UIABC[UIObjectCore, UIObjectRenderData]):
         assert self._drawer is not None
 
         rect: Rect = self._core.getBody().getRect()
-        fillColor: Optional[Color] = self._renderData.fillColor
+        color: Optional[Color] = self._renderData.fillColor
 
         # check if UIElement should be rendered
         if not self._active:
             return
 
 
-        if fillColor is not None:
-            self._drawer.drawrect(surface, rect, fillColor)
+        if color is not None:
+            self._drawer.drawrect(surface, rect, color)
 
-        # !DEBUG!
-        if self._renderData.borderData.mainColor is not None:
-            if self._renderData.doBorders[0]:
-                self._drawer.drawline(surface, (rect.left, rect.top), (rect.right, rect.top), self._renderData.borderData.mainColor)
-            if self._renderData.doBorders[1]:
-                self._drawer.drawline(surface, (rect.left, rect.top), (rect.left, rect.bottom), self._renderData.borderData.mainColor)
-            if self._renderData.doBorders[2]:
-                self._drawer.drawline(surface, (rect.right, rect.top), (rect.right, rect.bottom), self._renderData.borderData.mainColor)
-            if self._renderData.doBorders[3]:
-                self._drawer.drawline(surface, (rect.left, rect.bottom), (rect.right, rect.bottom), self._renderData.borderData.mainColor)
-
+        if self._renderData.doBorders[0]:
+            UILine(Rect((rect.left, rect.top), (rect.width, 0)), renderStyleData=self._renderData.borderData).render(surface)
+        if self._renderData.doBorders[1]:
+            UILine(Rect((rect.left, rect.top), (0, rect.height)), renderStyleData=self._renderData.borderData).render(surface)
+        if self._renderData.doBorders[2]:
+            UILine(Rect((rect.right, rect.top), (0, rect.height)), renderStyleData=self._renderData.borderData).render(surface)
+        if self._renderData.doBorders[3]:
+            UILine(Rect((rect.left, rect.bottom), (rect.width, 0)), renderStyleData=self._renderData.borderData).render(surface)
         
         # borders:
         # UISBorderRenderer(self._renderData.borderData).render(surfaceDrawer, surface, self._core.getBody().getRect())

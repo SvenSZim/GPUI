@@ -4,6 +4,7 @@ from drawer import PygameDrawer, PygameSurface, PygameFont
 from ui import Rect
 from ui import InputEvent, InputManager
 from ui import UIRenderer, UIStyle
+from ui import UILine, UISLine, UISLineCreateOptions
 from ui import UIObject, UISObject, UISObjectCreateOptions
 
 
@@ -24,6 +25,9 @@ def main():
     screen_size = (1280, 720)
     main_screen = pg.display.set_mode(screen_size)
 
+    l1: UILine = UILine(Rect((120, 120), (100, 100)))
+    l2: UILine = UILine(Rect((120, 220), (100, -100)))
+
     ob1: UIObject = UIObject(Rect((0,0),(100,100)), renderStyleData=UISObject.BASIC)
     ob2: UIObject = UIObject(Rect((0,120),(100,100)), renderStyleData=[UISObjectCreateOptions.BORDER_COLOR1, UISObjectCreateOptions.BORDER_RIGHT,
                                                                        UISObjectCreateOptions.BORDER_BOTTOM])
@@ -32,7 +36,7 @@ def main():
         InputManager.update()
 
         main_screen.fill('black')
-        UIRenderer.renderAll(PygameSurface(main_screen), [ob1, ob2])
+        UIRenderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2])
 
         pg.display.flip()
 

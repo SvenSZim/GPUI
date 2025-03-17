@@ -10,7 +10,7 @@ class UISObjectCreator(UIStyledABCCreator[UISObjectCreateOptions, UIObjectRender
 
     @override
     @staticmethod
-    def createStyledObject(createOptions: list[UISObjectCreateOptions], style: UIStyle) -> UIObjectRenderData:
+    def createStyledElement(createOptions: list[UISObjectCreateOptions], style: UIStyle) -> UIObjectRenderData:
         borderData: UILineRenderData = UILineRenderData()
         objectData: UIObjectRenderData = UIObjectRenderData(borderData=borderData)
 

@@ -11,6 +11,6 @@ bool4 = tuple[bool, bool, bool, bool]
 class UIObjectRenderData(UIABCRenderData):
     borderData  : UILineRenderData
     doBorders   : bool4             = (False, False, False, False) 
-    fillColor   : Optional[Color]  = None
+    fillColor   : Optional[Color]   = None
     doAlt       : bool              = False
-    altColor    : Optional[Color]  = None
+    altColor    : Optional[Color]   = None

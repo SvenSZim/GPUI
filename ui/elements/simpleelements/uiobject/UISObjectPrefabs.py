@@ -1,5 +1,5 @@
-
 from typing import override
+
 from ..uiline import UILineRenderData
 from ..UIStyledABCPrefabs import UIStyledABCPrefabs
 from .UIObjectRenderData import UIObjectRenderData
