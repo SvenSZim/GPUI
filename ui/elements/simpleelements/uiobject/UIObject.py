@@ -50,6 +50,11 @@ class UIObject(UIABC[UIObjectCore, UIObjectRenderData]):
         Args:
             surface: UISurface = the surface the UIObject should be drawn on
         """
+        self.renderFill(surface)
+        self.renderBorders(surface)
+
+    def renderFill(self, surface: UISurface) -> None:
+        
         assert self._drawer is not None
 
         rect: Rect = self._core.getBody().getRect()
@@ -63,6 +68,17 @@ class UIObject(UIABC[UIObjectCore, UIObjectRenderData]):
         if color is not None:
             self._drawer.drawrect(surface, rect, color)
 
+
+    def renderBorders(self, surface: UISurface) -> None:
+        
+        assert self._drawer is not None
+
+        rect: Rect = self._core.getBody().getRect()
+
+        # check if UIElement should be rendered
+        if not self._active:
+            return
+
         if self._renderData.doBorders[0]:
             UILine(Rect((rect.left, rect.top), (rect.width, 0)), renderStyleData=self._renderData.borderData).render(surface)
         if self._renderData.doBorders[1]:
@@ -71,5 +87,4 @@ class UIObject(UIABC[UIObjectCore, UIObjectRenderData]):
             UILine(Rect((rect.right, rect.top), (0, rect.height)), renderStyleData=self._renderData.borderData).render(surface)
         if self._renderData.doBorders[3]:
             UILine(Rect((rect.left, rect.bottom), (rect.width, 0)), renderStyleData=self._renderData.borderData).render(surface)
-
 

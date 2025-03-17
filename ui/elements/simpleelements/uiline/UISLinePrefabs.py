@@ -9,7 +9,7 @@ from .UISLine import UISLine
 class UISLinePrefabs(UIStyledABCPrefabs[UISLine, UILineRenderData]):
 
     __prefabs: dict[UISLine, Callable[[UIStyle], UILineRenderData]] = {
-        UISLine.INVISIBLE   : lambda style : UILineRenderData(),
+        UISLine.INVISIBLE   : lambda _     : UILineRenderData(),
         UISLine.SOLID       : lambda style : UILineRenderData(UIStyleManager.getStyleColor(0, style)),
     }
     

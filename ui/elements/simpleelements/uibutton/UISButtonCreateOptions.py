@@ -1,9 +1,9 @@
 from ..UIStylingABCCreateOptions import UIStylingABCCreateOptions
 
-class UISObjectCreateOptions(UIStylingABCCreateOptions):
+class UISButtonCreateOptions(UIStylingABCCreateOptions):
     
-    #-----------------------------------
 
+    #-----------------------------------
     # border style
     BORDER_NOBORDER     = 0x000
     BORDER_SOLID        = 0x001
@@ -33,3 +33,15 @@ class UISObjectCreateOptions(UIStylingABCCreateOptions):
     # fill color options
     FILL_COLOR1         = 0x121
     FILL_COLOR2         = 0x122
+
+    #-----------------------------------
+
+    # button style
+    BUTTON_NOSTATE      = 0x200
+    BUTTON_STATE1       = 0x201
+    BUTTON_STATE2       = 0x202
+    BUTTON_STATE3       = 0x203
+
+    # button color
+    BUTTON_COLOR1       = 0x221
+    BUTTON_COLOR2       = 0x222

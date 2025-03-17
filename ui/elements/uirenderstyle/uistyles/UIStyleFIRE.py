@@ -4,7 +4,7 @@ from ...generic import Color
 
 from .UIABCStyle import UIABCStyle
 
-colors: list[Color] = ['red', (205, 205, 205), (150, 150, 150)]
+colors: list[Color] = ['red', 'green', (150, 150, 150)]
 
 class UIStyleFIRE(UIABCStyle):
     """

@@ -9,3 +9,4 @@ from .uidrawerinterface import UISurface, UIFont, UISurfaceDrawer
 from .simpleelements import UILine, UILineCore, UISLine, UISLineCreateOptions
 from .simpleelements import UIObject, UIObjectCore, UISObject, UISObjectCreateOptions
 from .simpleelements import UIText, UITextCore, UISText, UISTextCreateOptions
+from .simpleelements import UIButton, UIButtonCore, UISButton, UISButtonCreateOptions
