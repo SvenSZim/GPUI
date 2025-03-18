@@ -8,6 +8,7 @@ from ..UIABCRenderData import UIABCRenderData
 @dataclass
 class UILineRenderData(UIABCRenderData):
     mainColor   : Optional[Color]   = None
-    parital     : float             = 1.0
+    partial     : float             = 1.0
     doAlt       : bool              = False
+    altAbsLen   : Optional[float]   = None
     altColor    : Optional[Color]   = None

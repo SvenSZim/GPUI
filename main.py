@@ -4,7 +4,7 @@ from drawer import PygameDrawer, PygameSurface, PygameFont
 from ui import Rect
 from ui import InputEvent, InputManager
 from ui import UIRenderer, UIStyle
-from ui import UILine
+from ui import UILine, UISLine, UISObjectCreateOptions
 from ui import UIObject, UISObject, UISObjectCreateOptions
 from ui import UIText, UITextCore, UISText
 from ui import UIButton, UIButtonCore, UISButton
@@ -27,13 +27,13 @@ def main():
     screen_size = (1280, 720)
     main_screen = pg.display.set_mode(screen_size)
 
-    l1: UILine = UILine(Rect((120, 120), (100, 100)))
+    l1: UILine = UILine(Rect((120, 120), (100, 100)), renderStyleData=UISLine.DOTTED)
     l2: UILine = UILine(Rect((120, 220), (100, -100)))
 
-    ob1: UIObject = UIObject(Rect((0,0),(100,100)), renderStyleData=UISObject.BASIC)
-    ob2: UIObject = UIObject(Rect((0,120),(100,100)), renderStyleData=[UISObjectCreateOptions.BORDER_COLOR1, UISObjectCreateOptions.BORDER_RIGHT,
-        
+    ob1: UIObject = UIObject(Rect((0,0),(100,100)), renderStyleData=UISObject.BORDER_SHRINKED_DOTTED)
+    ob2: UIObject = UIObject(Rect((0,120),(100,100)), renderStyleData=[UISObjectCreateOptions.BORDER_COLOR2, UISObjectCreateOptions.BORDER_RIGHT,
                                                                        UISObjectCreateOptions.BORDER_BOTTOM])
+
     txt1: UIText = UIText(UITextCore(Rect((0,240),(220,100)), 'Hello World!'), renderStyleData=UISText.DYNAMIC_BASIC)
     
     contents: list[str] = str('Hello World How Are U Doin Today').split()

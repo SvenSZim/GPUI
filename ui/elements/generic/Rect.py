@@ -74,6 +74,15 @@ class Rect:
         self.width, self.height = size
         self.updateRB()
 
+    def getArea(self) -> int:
+        """
+        getArea returns the area of the Rect.
+
+        Returns:
+        int = area of the Rect.
+        """
+        return self.width * self.height
+
     def collidepoint(self, point: tuple[int, int]) -> bool:
         """
         collidepoint checks if a given point is inside the Rect.
@@ -85,4 +94,4 @@ class Rect:
             bool = boolean if the point is inside the Rect or not
         """
         px, py = point
-        return px > self.left and py > self.top and px < self.right and py < self.bottom
+        return px >= self.left and py >= self.top and px <= self.right and py <= self.bottom

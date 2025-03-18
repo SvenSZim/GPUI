@@ -1,8 +1,8 @@
 from typing import Optional, override
+from numpy import sqrt
 
 from ...generic import Rect, Color
 from ...uidrawerinterface import UISurface
-from ...uirenderstyle import UIStyle
 
 from ..uibody import UIABCBody
 from ..UIABC import UIABC
@@ -50,15 +50,47 @@ class UILine(UIABC[UILineCore, UILineRenderData]):
             surface: UISurface = the surface the UILine should be drawn on
         """
         assert self._drawer is not None
-
         rect: Rect = self._core.getBody().getRect()
-        color: Optional[Color] = self._renderData.mainColor
 
         # check if UIElement should be rendered
-        if not self._active:
+        if not self._active or (rect.width == 0 and rect.height == 0):
             return
+        
+        partial: float = self._renderData.partial
+        rect_offset: tuple[int, int] = (int(0.5 * (1 - partial) * rect.width),
+                                        int(0.5 * (1 - partial) * rect.height))
+        rect = Rect((rect.left + rect_offset[0], rect.top + rect_offset[1]), (int(rect.width * partial), int(rect.height * partial)))
 
-        if color is not None:
-            self._drawer.drawline(surface, (rect.left, rect.top), (rect.right, rect.bottom), color)
+        color: Optional[Color] = self._renderData.mainColor
+
+
+        if self._renderData.doAlt:
+            assert self._renderData.altAbsLen is not None
+            stepLength: float = self._renderData.altAbsLen
+            normalizer: float = stepLength/sqrt(rect.width*rect.width + rect.height*rect.height)
+            stepSizeX: float = rect.width*normalizer
+            stepSizeY: float = rect.height*normalizer
+            start_line: Rect = Rect(rect.getPosition(), (int(stepSizeX), int(stepSizeY)))
+            firstColor: bool = True
+            while rect.collidepoint((start_line.right, start_line.bottom)):
+                if firstColor:
+                    if color is not None:
+                        self._drawer.drawline(surface, (start_line.left, start_line.top), (start_line.right, start_line.bottom), color)
+                else:
+                    if self._renderData.altColor is not None:
+                        self._drawer.drawline(surface, (start_line.left, start_line.top), (start_line.right, start_line.bottom), self._renderData.altColor)
+                firstColor = not firstColor
+                start_line = Rect((start_line.right, start_line.bottom),(int(stepSizeX), int(stepSizeY)))
+            if firstColor:
+                if color is not None:
+                    self._drawer.drawline(surface, (start_line.left, start_line.top), (rect.right, rect.bottom), color)
+                else:
+                    if self._renderData.altColor is not None:
+                        self._drawer.drawline(surface, (start_line.left, start_line.top), (rect.right, rect.bottom), self._renderData.altColor)
+
+
+
+        elif color is not None:
+                self._drawer.drawline(surface, (rect.left, rect.top), (rect.right, rect.bottom), color)
 
 
