@@ -12,4 +12,5 @@ from .simpleelements import UIText, UITextCore, UISText, UISTextCreateOptions
 from .simpleelements import UIButton, UIButtonCore, UISButton, UISButtonCreateOptions
 
 
+from .complexelements import UITextCreateRequestInfo, UIButtonCreateRequestInfo
 from .complexelements import UICTextCycleButton

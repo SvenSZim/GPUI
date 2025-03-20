@@ -8,7 +8,7 @@ from ui import UILine, UISLine, UISObjectCreateOptions
 from ui import UIObject, UISObject, UISObjectCreateOptions
 from ui import UIText, UITextCore, UISText
 from ui import UIButton, UIButtonCore, UISButton
-from ui import UICTextCycleButton
+from ui import UICTextCycleButton, UITextCreateRequestInfo
 
 def main():
     pg.init()
@@ -57,8 +57,8 @@ def main():
     btn1.subscribeToButtonClick(updateContentOfTxt1)
     btn1.addGlobalButtonTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
 
-    btn2: UICTextCycleButton = UICTextCycleButton(Rect((120, 0),(220,100)),['WOW', 'This', 'Actually', 'Works'])
-    btn2.subscribeToButtonEvent(2, updateContentOfTxt2)
+    btn2: UICTextCycleButton = UICTextCycleButton(Rect((120, 0),(220,100)),['WOW', 'This', ('Actually', '1'), 'Works'])
+    btn2.subscribeToButtonEvent('1', updateContentOfTxt2)
 
     while running:
         InputManager.update()
