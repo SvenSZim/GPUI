@@ -1,3 +1,4 @@
+from numpy import where
 import pygame as pg
 from drawer import PygameDrawer, PygameSurface, PygameFont
 
@@ -8,7 +9,8 @@ from ui import UILine, UISLine, UISObjectCreateOptions
 from ui import UIObject, UISObject, UISObjectCreateOptions
 from ui import UIText, UITextCore, UISText
 from ui import UIButton, UIButtonCore, UISButton
-from ui import UICTextCycleButton, UITextCreateRequestInfo
+from ui import UICTextCycleButton
+from ui import UICreateInfo
 
 def main():
     pg.init()
@@ -34,7 +36,9 @@ def main():
     ob2: UIObject = UIObject(Rect((0,120),(100,100)), renderStyleData=[UISObjectCreateOptions.BORDER_COLOR2, UISObjectCreateOptions.BORDER_RIGHT,
                                                                        UISObjectCreateOptions.BORDER_BOTTOM])
 
-    txt1: UIText = UIText(UITextCore(Rect((0,240),(220,100)), 'Hello World!'), renderStyleData=UISText.DYNAMIC_BASIC)
+    txt1ci: UICreateInfo = UICreateInfo(UIText, content='Hello World!', renderStyleData=UISText.DYNAMIC_BASIC)
+    txt1: UIText = txt1ci.createElement(Rect((0,240),(220,100)))
+    #txt1: UIText = UIText(UITextCore(Rect((0,240),(220,100)), 'Hello World!'), renderStyleData=UISText.DYNAMIC_BASIC)
     
     contents: list[str] = str('Hello World How Are U Doin Today').split()
     idx: int = 0
@@ -57,14 +61,14 @@ def main():
     btn1.subscribeToButtonClick(updateContentOfTxt1)
     btn1.addGlobalButtonTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
 
-    btn2: UICTextCycleButton = UICTextCycleButton(Rect((120, 0),(220,100)),['WOW', 'This', ('Actually', '1'), 'Works'])
-    btn2.subscribeToButtonEvent('1', updateContentOfTxt2)
+    #btn2: UICTextCycleButton = UICTextCycleButton(Rect((120, 0),(220,100)),['WOW', 'This', ('Actually', '1'), 'Works'])
+    #btn2.subscribeToButtonEvent('1', updateContentOfTxt2)
 
     while running:
         InputManager.update()
 
         main_screen.fill('black')
-        UIRenderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, btn1, btn2])
+        UIRenderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, btn1])
 
         pg.display.flip()
 

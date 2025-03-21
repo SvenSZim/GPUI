@@ -1,13 +1,30 @@
 from abc import ABC, abstractmethod
+from typing import Any, Generic, TypeVar
 
 from .uidrawerinterface import UISurface, UIFont, UISurfaceDrawer
 from .uirenderstyle import UIStyle
 from .UIFontManager import UIFontManager
 
 
+Core = TypeVar('Core', bound=Any)
 
-class UIRenderer(ABC):
+class UIRenderer(Generic[Core], ABC):
 
+    _core: Core # refering UIElement which gets rendered by the Renderer
+    def __init__(self, core: Core) -> None:
+        self._core = core
+
+    @abstractmethod
+    def render(self, surface: UISurface) -> None:
+        """
+        render renders the UIElement onto the given surface
+
+        Args:
+            surface: UISurface = the surface the UIElement should be drawn on
+        """
+        pass
+    
+    # -------------------------- static -------------------------------
     _drawer: type[UISurfaceDrawer] | None = None
     _renderstyle: UIStyle | None = None
 
@@ -27,13 +44,3 @@ class UIRenderer(ABC):
 
         for uior in uiobjectrenderer:
             uior.render(screen)
-    
-    @abstractmethod
-    def render(self, surface: UISurface) -> None:
-        """
-        render renders the UIElement onto the given surface
-
-        Args:
-            surface: UISurface = the surface the UIElement should be drawn on
-        """
-        pass

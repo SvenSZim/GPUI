@@ -3,22 +3,21 @@ from typing import override
 
 from ..uidrawerinterface import UISurface
 from ..UIRenderer import UIRenderer
+from .UIABCComplexCore import UIABCComplexCore
 
-class UIABCComplex(UIRenderer, ABC):
+class UIABCComplex(UIRenderer[UIABCComplexCore], ABC):
     """
     UIABCComplex is the abstract base class for all complex ui elements
     """
     
-    _simpleelements: list[UIRenderer]
-
-    def __init__(self, simpleelements: list[UIRenderer]) -> None:
+    def __init__(self, core: UIABCComplexCore) -> None:
         """
         __init__ initializes the values of UIABCComplex for the complex ui element.
 
         Args:
             simpleelements: list[UIABCRenderer] = list of simple UIElements the element consists of
         """
-        self._simpleelements = simpleelements
+        super().__init__(core)
 
     @override
     def render(self, surface: UISurface) -> None:
@@ -28,5 +27,5 @@ class UIABCComplex(UIRenderer, ABC):
         Args:
             surface: UISurface = the surface the UIElement should be drawn on
         """
-        for simpleelement in self._simpleelements:
+        for simpleelement in self._core.getSimpleElements():
             simpleelement.render(surface)

@@ -79,9 +79,18 @@ class Rect:
         getArea returns the area of the Rect.
 
         Returns:
-        int = area of the Rect.
+            int = area of the Rect.
         """
         return self.width * self.height
+
+    def isZero(self) -> bool:
+        """
+        isZero returns if both width and height of the Rect are zero.
+
+        Returns:
+            bool = if the rects width and height are both zero.
+        """
+        return self.width == 0 and self.height == 0
 
     def collidepoint(self, point: tuple[int, int]) -> bool:
         """

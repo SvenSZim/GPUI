@@ -8,14 +8,13 @@ from .UIABCRenderData import UIABCRenderData
 Core = TypeVar('Core', bound=UIABCCore)
 RenderData = TypeVar('RenderData', bound=UIABCRenderData)
 
-class UIABC(Generic[Core, RenderData], UIRenderer, ABC):
+class UIABC(Generic[Core, RenderData], UIRenderer[Core], ABC):
     """
     UIABCRenderer is the abstract base class for all UIElementRenderers.
     UIElementRenderers consist of the corresponding UIElement and some renderInfo.
     """
     
     _active: bool # boolean if the renderer is active or not
-    _core: Core # refering UIElement which gets rendered by the Renderer
     _renderData: RenderData # used style-element for rendering
 
     def __init__(self, core: Core, active: bool, renderData: RenderData) -> None:
@@ -27,9 +26,10 @@ class UIABC(Generic[Core, RenderData], UIRenderer, ABC):
             active: bool = the start active-state of the UIElementRenderer
             renderStyleElement: StyleElem = the render style that should be used when rendering styled
         """
+        super().__init__(core)
         self._active = active
-        self._core = core
         self._renderData = renderData
+
 
     def isActive(self) -> bool:
         """
