@@ -1,4 +1,3 @@
-from numpy import where
 import pygame as pg
 from drawer import PygameDrawer, PygameSurface, PygameFont
 
@@ -9,7 +8,7 @@ from ui import UILine, UISLine, UISObjectCreateOptions
 from ui import UIObject, UISObject, UISObjectCreateOptions
 from ui import UIText, UITextCore, UISText
 from ui import UIButton, UIButtonCore, UISButton
-from ui import UICTextCycleButton
+from ui import UICTextCycleButton, UICTextCycleButtonCore
 from ui import UICreateInfo
 
 def main():
@@ -61,14 +60,14 @@ def main():
     btn1.subscribeToButtonClick(updateContentOfTxt1)
     btn1.addGlobalButtonTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
 
-    #btn2: UICTextCycleButton = UICTextCycleButton(Rect((120, 0),(220,100)),['WOW', 'This', ('Actually', '1'), 'Works'])
-    #btn2.subscribeToButtonEvent('1', updateContentOfTxt2)
+    btn2: UICTextCycleButton = UICTextCycleButton.constructor(Rect((120, 0),(220,100)),['WOW', 'This', ('Actually', '1'), 'Works'])
+    btn2.subscribeToButtonEvent('1', updateContentOfTxt2)
 
     while running:
         InputManager.update()
 
         main_screen.fill('black')
-        UIRenderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, btn1])
+        UIRenderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, btn1, btn2])
 
         pg.display.flip()
 

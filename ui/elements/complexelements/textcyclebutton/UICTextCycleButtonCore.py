@@ -1,13 +1,11 @@
+from typing import Any, Callable, Union
 
-from dataclasses import dataclass
-from typing import Any, Callable, Optional, Union
-
-from ..generic import Rect
-from ..simpleelements import UIABCBody, UIStaticBody
-from ..simpleelements import UISObject, UISText, UISButton
-from ..simpleelements import UIText, UITextCore, UIButton, UIButtonCore
-from ..UIRenderer import UIRenderer
-from .UIABCComplex import UIABCComplex
+from ...generic import Rect
+from ...simpleelements import UIABCBody, UIStaticBody
+from ...simpleelements import UIText, UITextCore, UISText
+from ...simpleelements import UIButton, UIButtonCore, UISButton
+from ...UIRenderer import UIRenderer
+from ..UIABCComplexCore import UIABCComplexCore
 
 
 def setContent(textobj: UIText, content: str):
@@ -21,24 +19,13 @@ def setContent(textobj: UIText, content: str):
     textobj.updateContent(content)
 
 
-class UICTextCycleButton(UIABCComplex):
-    """
-    UICTextCycleButton is a complex UIElement which consists of a button and a text where
-    the text rotates through a list of strings by the press of the button.
-    """
-
+class UICTextCycleButtonCore(UIABCComplexCore):
+    
     __button: UIButton
     __buttonStates: list[str]
 
     def __init__(self, body: UIABCBody | Rect, contents: list[Union[str, tuple[str, str]]], styles: tuple[UISText, UISButton]=(UISText.BASIC, UISButton.INVISIBLE)) -> None:
-        """
-        __init__ initializes the UICTextCycleButton object.
-
-        Args:
-            body: UIABCBody = the position and size of the UICTextCycleButton object.
-            contents: list[str | tuple[str, str]] = the texts to cycle through. (plus optional alternative id)
-            styles: ...
-        """
+        
         if len(contents) == 0:
             contents = ['']
         if isinstance(body, Rect):
@@ -95,6 +82,3 @@ class UICTextCycleButton(UIABCComplex):
             bool = returns if the subscriptions were successful
         """
         return self.__button.subscribeToButtonClick(f, *args)
-
-
-

@@ -1,4 +1,4 @@
-from typing import Any, Optional, override, Union
+from typing import Optional, override, Union
 from numpy import sqrt
 
 from ...generic import Rect, Color

@@ -1,16 +1,18 @@
 from abc import ABC
-from typing import override
+from typing import Generic, TypeVar, override
 
 from ..uidrawerinterface import UISurface
 from ..UIRenderer import UIRenderer
 from .UIABCComplexCore import UIABCComplexCore
 
-class UIABCComplex(UIRenderer[UIABCComplexCore], ABC):
+Core = TypeVar('Core', bound=UIABCComplexCore)
+
+class UIABCComplex(Generic[Core], UIRenderer[Core], ABC):
     """
     UIABCComplex is the abstract base class for all complex ui elements
     """
     
-    def __init__(self, core: UIABCComplexCore) -> None:
+    def __init__(self, core: Core) -> None:
         """
         __init__ initializes the values of UIABCComplex for the complex ui element.
 
