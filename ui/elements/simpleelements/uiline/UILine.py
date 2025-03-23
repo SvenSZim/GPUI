@@ -1,4 +1,4 @@
-from typing import Optional, override
+from typing import Any, Optional, override, Union
 from numpy import sqrt
 
 from ...generic import Rect, Color
@@ -19,7 +19,7 @@ class UILine(UIABC[UILineCore, UILineRenderData]):
     UILineRender is the UIElementRender for all UILines.
     """
 
-    def __init__(self, core: UILineCore | UIABCBody | Rect, active: bool=True, renderStyleData: UISLine | list[UISLineCreateOptions] | UILineRenderData=UISLine.SOLID) -> None:
+    def __init__(self, core: Union[UILineCore, UIABCBody, Rect], active: bool=True, renderStyleData: Union[UISLine, list[UISLineCreateOptions], UILineRenderData]=UISLine.SOLID) -> None:
         """
         __init__ initializes the UILineRender instance
 
@@ -37,8 +37,13 @@ class UILine(UIABC[UILineCore, UILineRenderData]):
             renderStyleData = UISLinePrefabs.getPrefabRenderData(renderStyleData, self._renderstyle)
         elif isinstance(renderStyleData, list):
             renderStyleData = UISLineCreator.createStyledElement(renderStyleData, self._renderstyle)
-        
+
         super().__init__(core, active, renderStyleData)
+
+    @staticmethod
+    @override
+    def constructor(body: Union[UIABCBody, Rect], active: bool = True, renderStyleData: Union[UISLine, list[UISLineCreateOptions]] = UISLine.SOLID) -> 'UILine':
+        return UILine(UILineCore(body), active=active, renderStyleData=renderStyleData)
 
 
     @override
@@ -55,7 +60,7 @@ class UILine(UIABC[UILineCore, UILineRenderData]):
         # check if UIElement should be rendered
         if not self._active or (rect.width == 0 and rect.height == 0):
             return
-        
+
         partial: float = self._renderData.partial
         rect_offset: tuple[int, int] = (int(0.5 * (1 - partial) * rect.width),
                                         int(0.5 * (1 - partial) * rect.height))

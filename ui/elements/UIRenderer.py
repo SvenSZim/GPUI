@@ -23,7 +23,23 @@ class UIRenderer(Generic[Core], ABC):
             surface: UISurface = the surface the UIElement should be drawn on
         """
         pass
-    
+
+    # --------------------- abstract static ---------------------------
+
+    @staticmethod
+    @abstractmethod
+    def constructor(*args: Any, **kwargs: Any) -> 'UIRenderer':
+        """
+        constructor fully creates the UIElement
+
+        Args:
+            ...: The necessary arguments to create the core and renderer
+
+        Returns:
+            UIRenderer: the created element
+        """
+        pass
+
     # -------------------------- static -------------------------------
     _drawer: type[UISurfaceDrawer] | None = None
     _renderstyle: UIStyle | None = None

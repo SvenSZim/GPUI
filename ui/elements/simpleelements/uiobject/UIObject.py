@@ -1,4 +1,4 @@
-from typing import Optional, override
+from typing import Any, Optional, override, Union
 
 from ...generic import Rect, Color
 from ...uidrawerinterface import UISurface
@@ -20,7 +20,7 @@ class UIObject(UIABC[UIObjectCore, UIObjectRenderData]):
     UIObjectRender is the UIElementRender for all UIObjects.
     """
 
-    def __init__(self, core: UIObjectCore | UIABCBody | Rect, active: bool=True, renderStyleData: UISObject | list[UISObjectCreateOptions] | UIObjectRenderData=UISObject.BASIC) -> None:
+    def __init__(self, core: Union[UIObjectCore, UIABCBody, Rect], active: bool=True, renderStyleData: Union[UISObject, list[UISObjectCreateOptions], UIObjectRenderData]=UISObject.BASIC) -> None:
         """
         __init__ initializes the UIObjectRender instance
 
@@ -38,9 +38,13 @@ class UIObject(UIABC[UIObjectCore, UIObjectRenderData]):
             renderStyleData = UISObjectPrefabs.getPrefabRenderData(renderStyleData, self._renderstyle)
         elif isinstance(renderStyleData, list):
             renderStyleData = UISObjectCreator.createStyledElement(renderStyleData, self._renderstyle)
-        
+
         super().__init__(core, active, renderStyleData)
 
+    @staticmethod
+    @override
+    def constructor(body: Union[UIABCBody, Rect], active: bool = True, renderStyleData: Union[UISObject, list[UISObjectCreateOptions]] = UISObject.BASIC) -> 'UIObject':
+        return UIObject(UIObjectCore(body), active=active, renderStyleData=renderStyleData)
 
     @override
     def render(self, surface: UISurface) -> None:

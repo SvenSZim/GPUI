@@ -1,9 +1,10 @@
-from typing import override
+from typing import Any, override, Union
 
 from ...generic import Rect
 from ...uidrawerinterface import UISurface, UIFont
 from ...UIFontManager import UIFontManager
 
+from ..uibody import UIABCBody
 from ..uiobject import UIObject
 from ..UIABC import UIABC
 from .UITextCore import UITextCore
@@ -19,7 +20,7 @@ class UIText(UIABC[UITextCore, UITextRenderData]):
     UITextRender is the UIElementRender for all UITexts.
     """
 
-    def __init__(self, core: UITextCore, active: bool=True, renderStyleData: UISText | list[UISTextCreateOptions] | UITextRenderData=UISText.BASIC) -> None:
+    def __init__(self, core: UITextCore, active: bool=True, renderStyleData: Union[UISText, list[UISTextCreateOptions], UITextRenderData]=UISText.BASIC) -> None:
         """
         __init__ initializes the UITextRender instance
 
@@ -34,11 +35,15 @@ class UIText(UIABC[UITextCore, UITextRenderData]):
             renderStyleData = UISTextPrefabs.getPrefabRenderData(renderStyleData, self._renderstyle)
         elif isinstance(renderStyleData, list):
             renderStyleData = UISTextCreator.createStyledElement(renderStyleData, self._renderstyle)
-        
+
         super().__init__(core, active, renderStyleData)
         self.updateContent(self._core.getContent())
 
-    
+    @staticmethod
+    @override
+    def constructor(body: Union[UIABCBody, Rect], content: str, active: bool = True, renderStyleData: Union[UISText, list[UISTextCreateOptions]] = UISText.BASIC) -> 'UIText':
+        return UIText(UITextCore(body, content), active=active, renderStyleData=renderStyleData)
+
     def updateContent(self, content: str) -> None:
         self._core.setContent(content)
         if self._renderData.dynamicText:

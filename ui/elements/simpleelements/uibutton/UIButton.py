@@ -1,8 +1,9 @@
-from typing import Any, Callable, Optional, override
+from typing import Any, Callable, Optional, override, Union
 
 from ...generic import Rect, Color
 from ...uidrawerinterface import UISurface
 
+from ..uibody import UIABCBody
 from ..uiobject import UIObject
 from ..UIABC import UIABC
 from .UIButtonCore import UIButtonCore
@@ -18,7 +19,7 @@ class UIButton(UIABC[UIButtonCore, UIButtonRenderData]):
     UIButtonRender is the UIElementRender for all UIButtons.
     """
 
-    def __init__(self, core: UIButtonCore, active: bool=True, renderStyleData: UISButton | list[UISButtonCreateOptions] | UIButtonRenderData=UISButton.BASIC) -> None:
+    def __init__(self, core: UIButtonCore, active: bool=True, renderStyleData: Union[UISButton, list[UISButtonCreateOptions], UIButtonRenderData]=UISButton.BASIC) -> None:
         """
         __init__ initializes the UIButtonRender instance
 
@@ -33,8 +34,14 @@ class UIButton(UIABC[UIButtonCore, UIButtonRenderData]):
             renderStyleData = UISButtonPrefabs.getPrefabRenderData(renderStyleData, self._renderstyle)
         elif isinstance(renderStyleData, list):
             renderStyleData = UISButtonCreator.createStyledElement(renderStyleData, self._renderstyle)
-        
+
         super().__init__(core, active, renderStyleData)
+
+    @staticmethod
+    @override
+    def constructor(body: Union[UIABCBody, Rect], numberOfStates: int = 2, startState: int = 0,
+                    active: bool = True, renderStyleData: Union[UISButton, list[UISButtonCreateOptions]] = UISButton.BASIC) -> 'UIButton':
+        return UIButton(UIButtonCore(body, numberOfStates=numberOfStates, startState=startState), active=active, renderStyleData=renderStyleData)
 
     def addButtonTriggerEvent(self, event: str) -> bool:
         return self._core.addTriggerEvent(event)
@@ -49,7 +56,6 @@ class UIButton(UIABC[UIButtonCore, UIButtonRenderData]):
         return self._core.subscribeToButtonClick(f, *args)
 
 
-    
     @override
     def render(self, surface: UISurface) -> None:
         """
