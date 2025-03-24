@@ -1,9 +1,10 @@
 from abc import ABC
 
 from ..UIRenderer import UIRenderer
+from ..UICore import UICore
 
 
-class UIABCComplexCore(ABC):
+class UIABCComplexCore(UICore, ABC):
 
     _core_elements: list[UIRenderer]
 

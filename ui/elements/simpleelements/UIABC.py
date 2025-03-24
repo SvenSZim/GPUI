@@ -1,20 +1,21 @@
 from abc import ABC
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, override
 
+from ..generic import Rect
 from ..UIRenderer import UIRenderer
+from .uibody import UIABCBody
 from .UIABCCore import UIABCCore
 from .UIABCRenderData import UIABCRenderData
 
 Core = TypeVar('Core', bound=UIABCCore)
 RenderData = TypeVar('RenderData', bound=UIABCRenderData)
 
-class UIABC(Generic[Core, RenderData], UIRenderer[Core], ABC):
+class UIABC(Generic[Core, RenderData], UIRenderer[Core], UIABCBody, ABC):
     """
     UIABCRenderer is the abstract base class for all UIElementRenderers.
     UIElementRenderers consist of the corresponding UIElement and some renderInfo.
     """
     
-    _active: bool # boolean if the renderer is active or not
     _renderData: RenderData # used style-element for rendering
 
     def __init__(self, core: Core, active: bool, renderData: RenderData) -> None:
@@ -26,42 +27,17 @@ class UIABC(Generic[Core, RenderData], UIRenderer[Core], ABC):
             active: bool = the start active-state of the UIElementRenderer
             renderStyleElement: StyleElem = the render style that should be used when rendering styled
         """
-        super().__init__(core)
-        self._active = active
+        UIRenderer.__init__(self, core, active)
+        UIABCBody.__init__(self, self._core.getBody().getRect())
+        
         self._renderData = renderData
 
-
-    def isActive(self) -> bool:
-        """
-        isActive returns the active-state of the Renderer
-
-        Returns:
-            bool = active-state of the Renderer
-        """
-        return self._active
-
-    def toggleActive(self) -> bool:
-        """
-        toggleActive toggles the active-state of the Renderer
-
-        Returns:
-            bool = new active-state of the Renderer
-        """
-        self._active = not self._active
-        return self._active
-
-    def setActive(self, active: bool) -> None:
-        """
-        setActive sets the active-state of the Renderer
-
-        Args:
-            active: bool = new active-state of the Renderer
-        """
-        self._active = active
-
+    @override
     def update(self) -> None:
-        """
-        update updates the positioning and sizing of the refering UIElement
-        """
         self._core.update()
+        self._rect = self._core.getBody().getRect()
 
+    #DEBUG
+    def setWidth(self, newW: int) -> None:
+        self._rect = Rect(self.getPosition(), (newW, self._rect.height))
+        self._core._body._rect = self._rect

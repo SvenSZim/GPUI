@@ -104,3 +104,6 @@ class Rect:
         """
         px, py = point
         return px >= self.left and py >= self.top and px <= self.right and py <= self.bottom
+
+    def __str__(self) -> str:
+        return f'Rect(topleft:{self.getPosition()}, size:{self.getSize()})'

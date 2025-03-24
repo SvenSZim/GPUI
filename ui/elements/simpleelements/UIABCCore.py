@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar
 
+from ..UICore import UICore
 from .uibody import UIABCBody
 
 Body = TypeVar('Body', bound=UIABCBody)
 
-class UIABCCore(Generic[Body], ABC):
+class UIABCCore(Generic[Body], UICore, ABC):
     """
     UIABC is the abstract base class for all UIElements.
     """
@@ -30,8 +31,3 @@ class UIABCCore(Generic[Body], ABC):
             Body = the body of the UIElement
         """
         return self._body
-
-    @abstractmethod
-    def update(self) -> None:
-        pass
-

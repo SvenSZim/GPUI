@@ -82,3 +82,7 @@ class UICTextCycleButtonCore(UIABCComplexCore):
             bool = returns if the subscriptions were successful
         """
         return self.__button.subscribeToButtonClick(f, *args)
+
+    def update(self) -> None:
+        for elem in self._core_elements:
+            elem.update()

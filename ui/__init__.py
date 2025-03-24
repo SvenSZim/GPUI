@@ -6,6 +6,7 @@ from .elements import UIRenderer, UIStyle
 from .elements import UISurface, UIFont, UISurfaceDrawer
 
 
+from .elements import UIStaticBody, UIDynamicBody
 from .elements import UILine, UILineCore, UISLine, UISLineCreateOptions
 from .elements import UIObject, UIObjectCore, UISObject, UISObjectCreateOptions
 from .elements import UIText, UITextCore, UISText, UISTextCreateOptions
