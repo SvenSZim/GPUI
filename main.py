@@ -4,7 +4,7 @@ from drawer import PygameDrawer, PygameSurface, PygameFont
 from ui import Rect
 from ui import InputEvent, InputManager
 from ui import UIRenderer, UIStyle
-from ui import UIDynamicBody
+from ui import UIDynamicBody, UIStaticBody
 from ui import UILine, UISLine, UISObjectCreateOptions
 from ui import UIObject, UISObject, UISObjectCreateOptions
 from ui import UIText, UITextCore, UISText
@@ -53,10 +53,10 @@ def main():
         nonlocal txt1, toggle, ob1
         if toggle:
             txt1.updateContent('Cool')
-            ob1.setWidth(150)
+            ob1.setRect(Rect((0,0), (150, 100)))
         else:
             txt1.updateContent('Not Cool')
-            ob1.setWidth(100)
+            ob1.setRect(Rect((0,0), (100, 100)))
         toggle = not toggle
 
     btn1: UIButton = UIButton(UIButtonCore(Rect((0,360),(100,100)), numberOfStates=6, startState=2), renderStyleData=UISButton.BASIC_FILLING2)

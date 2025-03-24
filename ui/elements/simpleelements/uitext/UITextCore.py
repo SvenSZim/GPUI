@@ -3,7 +3,7 @@ from ...generic import Rect
 from ..uibody import UIABCBody, UIStaticBody
 from ..UIABCCore import UIABCCore
 
-class UITextCore(UIABCCore[UIABCBody]):
+class UITextCore(UIABCCore):
 
     _content: str
 

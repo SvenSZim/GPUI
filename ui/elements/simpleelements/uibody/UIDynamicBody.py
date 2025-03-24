@@ -32,13 +32,13 @@ class UIDynamicBody(UIABCBody):
     
     __relativeObjForSize: tuple[Optional[UIABCBody], Optional[UIABCBody]]
 
+    __rect: Rect
+
 
     def __init__(self, position: tuple[int | float, int | float], size: tuple[int | float, int | float],
                 relativeObjectsForPosition: tuple[Optional[UIABCBody], Optional[UIABCBody]]=(None, None), 
                 relativeObjectsForPositionRelationType: tuple[int, int]=(0, 0),
                 relativeObjectsForSize: tuple[Optional[UIABCBody], Optional[UIABCBody]]=(None, None)) -> None:
-        super().__init__(Rect()) # initialize empty Rect ~ 0,0,0,0
-
         self.__position = position
         self.__size = size
         self.__relativeObjForPos = relativeObjectsForPosition
@@ -46,6 +46,7 @@ class UIDynamicBody(UIABCBody):
 
         self.__relativeObjPosRelationType = (AlignmentType(relativeObjectsForPositionRelationType[0]), AlignmentType(relativeObjectsForPositionRelationType[1]))
 
+        self.__rect = Rect()
         self.update()
 
 
@@ -203,6 +204,9 @@ class UIDynamicBody(UIABCBody):
 
         return (absolutePosX, absolutePosY)
 
+    @override
+    def getRect(self) -> Rect:
+        return self.__rect
 
     @override
     def update(self) -> None:
@@ -213,6 +217,6 @@ class UIDynamicBody(UIABCBody):
         (override because in DynamicBody the calculatePosition function
             depends on the calculateSize -> suboptimal)
         """
-        self._rect.setSize(self._calculateSize())
-        self._rect.setPosition(self._calculatePosition())
+        self.__rect.setSize(self._calculateSize())
+        self.__rect.setPosition(self._calculatePosition())
 

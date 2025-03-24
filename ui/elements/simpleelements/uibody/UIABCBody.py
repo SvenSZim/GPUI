@@ -8,17 +8,7 @@ class UIABCBody(ABC):
     It defines the needed functionality all UIElementBodys should implement.
     """
 
-    _rect: Rect # cached object data
-
-    def __init__(self, rect: Rect) -> None:
-        """
-        __init__ initializes the values of UIABCBody for the UIBodyElement
-
-        Args:
-            rect: Rect = the rect containing the start position and sizing of the UIBodyElement
-        """
-        self._rect = rect
-
+    @abstractmethod
     def getRect(self) -> Rect:
         """
         getRect returns the cached Rect of the UIElementBody
@@ -26,7 +16,7 @@ class UIABCBody(ABC):
         Returns:
             Rect = the cached Rect of the UIElementBody
         """
-        return self._rect
+        pass
 
     def getPosition(self) -> tuple[int, int]:
         """
@@ -35,7 +25,7 @@ class UIABCBody(ABC):
         Returns:
             tuple[int, int] = (posX, posY) ~ the position of the top-left-corner of the UIElementBody
         """
-        return self._rect.getPosition()
+        return self.getRect().getPosition()
 
     def getSize(self) -> tuple[int, int]:
         """
@@ -44,7 +34,7 @@ class UIABCBody(ABC):
         Returns:
             tuple[int, int] = (width, height) ~ the size of the UIElementBody
         """
-        return self._rect.getSize()
+        return self.getRect().getSize()
     
     @abstractmethod
     def update(self) -> None:

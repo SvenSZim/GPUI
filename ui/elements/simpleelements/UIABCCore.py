@@ -1,19 +1,16 @@
-from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from abc import ABC
 
 from ..UICore import UICore
 from .uibody import UIABCBody
 
-Body = TypeVar('Body', bound=UIABCBody)
-
-class UIABCCore(Generic[Body], UICore, ABC):
+class UIABCCore(UICore, ABC):
     """
     UIABC is the abstract base class for all UIElements.
     """
 
-    _body: Body # A UIBody which contains the positioning of the UIElement
+    _body: UIABCBody # A UIBody which contains the positioning of the UIElement
 
-    def __init__(self, body: Body):
+    def __init__(self, body: UIABCBody):
         """
         __init__ initializes the values of UIABC for the UIElement
 
@@ -22,7 +19,7 @@ class UIABCCore(Generic[Body], UICore, ABC):
         """
         self._body = body
 
-    def getBody(self) -> Body:
+    def getBody(self) -> UIABCBody:
         """
         getBody returns the body of the UIElements
         (should only be used to create references between the objects like in DynamicBody!)
@@ -31,3 +28,7 @@ class UIABCCore(Generic[Body], UICore, ABC):
             Body = the body of the UIElement
         """
         return self._body
+
+    #DEBUG
+    def setBody(self, body: UIABCBody) -> None:
+        self._body = body

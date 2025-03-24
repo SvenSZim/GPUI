@@ -3,7 +3,7 @@ from ...generic import Rect
 from ..uibody import UIABCBody, UIStaticBody
 from ..UIABCCore import UIABCCore
 
-class UIObjectCore(UIABCCore[UIABCBody]):
+class UIObjectCore(UIABCCore):
 
     def __init__(self, body: UIABCBody | Rect) -> None:
         if isinstance(body, Rect):

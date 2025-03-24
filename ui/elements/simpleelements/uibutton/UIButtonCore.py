@@ -4,7 +4,7 @@ from ...generic import Rect
 from ..uibody import UIABCBody, UIStaticBody
 from ..UIABCCore import UIABCCore
 
-class UIButtonCore(UIABCCore[UIABCBody]):
+class UIButtonCore(UIABCCore):
 
     __buttonActive: bool
     __buttonEvents: list[str]
