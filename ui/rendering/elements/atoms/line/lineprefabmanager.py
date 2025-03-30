@@ -5,6 +5,10 @@ from .linedata   import LineData
 from .lineprefab import LinePrefab
 
 class LinePrefabManager:
+    """
+    LinePrefabManager is an intern class for storing the maps from
+    the LinePrefab's to the LineData for rendering.
+    """
 
     __prefabs: dict[LinePrefab, Callable[[RenderStyle], LineData]] = {
         LinePrefab.INVISIBLE   : lambda _     : LineData(),
@@ -17,6 +21,15 @@ class LinePrefabManager:
     
     @staticmethod
     def createLineData(prefab: LinePrefab, style: RenderStyle) -> LineData:
+        """
+        createLineData creates a LineData object from a given prefab with a given style.
+
+        Args:
+            prefab (LinePrefab) : the prefab to be used
+            style  (RenderStyle): the style to be used
+
+        Returns (LineData): the RenderData created from the given args
+        """
         if LinePrefabManager.__prefabs.get(prefab):
             return LinePrefabManager.__prefabs[prefab](style)
         raise ValueError(f'LinePrefabManager::{prefab=} does not exist')

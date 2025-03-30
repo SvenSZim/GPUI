@@ -9,3 +9,4 @@ from .rendering import StyleMOON, StyleFIRE
 from .rendering import LayoutManager
 from .rendering import Renderer, CreateInfo
 from .rendering import Line, LineCO, LinePrefab
+from .rendering import Box, BoxCO, BoxPrefab

@@ -7,7 +7,7 @@ from ui import Renderer, RenderStyle
 from ui import CreateInfo
 from ui import LayoutManager
 from ui import Line, LinePrefab, LineCO
-#from ui import Object, ObjectPrefab, ObjectCO
+from ui import Box, BoxPrefab, BoxCO
 #from ui import Text, TextPrefab, TextCO
 #from ui import Button, ButtonPrefab, ButtonCO
 #from ui import TextCycleButton
@@ -30,15 +30,11 @@ def main():
     main_screen = pg.display.set_mode(screen_size)
 
     l1: Line = Line(Rect((120, 120), (100, 100)), renderStyleData=LinePrefab.DOTTED)
-    l2: Line = Line(Rect((120, 120), (300, 100)), renderStyleData=[LineCO.COLOR1, LineCO.DOTTED, LineCO.FLIPPED, LineCO.ALTLENGTH20])
-    l2.align(l1, 1)
-    l2.align(l1, 0, False)
-    l1.align(Rect((0,0),(0,0)), 0)
-    LayoutManager.forceApplyLayout()
+    l2: Line = Line(Rect((120, 120), (100, 100)), renderStyleData=[LineCO.COLOR1, LineCO.DOTTED, LineCO.FLIPPED, LineCO.ALTLENGTH20])
 
-    #ob1: UIObject = UIObject(Rect((0,0),(100,100)), renderStyleData=UISObject.BORDER_SHRINKED_DOTTED)
-    #ob2: UIObject = UIObject(Rect((0,120),(100,100)), renderStyleData=[UISObjectCreateOptions.BORDER_COLOR2, UISObjectCreateOptions.BORDER_RIGHT,
-    #                                                                  UISObjectCreateOptions.BORDER_BOTTOM])
+    ob1: Box = Box(Rect((0,0),(100,100)), renderStyleData=BoxPrefab.BORDER_SHRINKED_DOTTED)
+    ob2: Box = Box(Rect((0,120),(100,100)), renderStyleData=[BoxCO.BORDER_COLOR2, BoxCO.BORDER_RIGHT,
+                                                                      BoxCO.BORDER_BOTTOM])
 
     #txt1ci: UICreateInfo = UICreateInfo(UIText, content='Hello World!', renderStyleData=UISText.DYNAMIC_BASIC)
     #txt1: UIText = txt1ci.createElement(Rect((0,240),(220,100)))
@@ -76,7 +72,7 @@ def main():
         InputManager.update()
 
         main_screen.fill('black')
-        Renderer.renderAll(PygameSurface(main_screen), [l1, l2])#, ob1, ob2, txt1, btn1, btn2])
+        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2])#, txt1, btn1, btn2])
 
         pg.display.flip()
 

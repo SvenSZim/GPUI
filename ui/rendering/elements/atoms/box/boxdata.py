@@ -1,15 +1,20 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from ...generic import Color
-from ..uiline import UISLine, UISLineCreateOptions
-from ..UIABCRenderData import UIABCRenderData
+from ....utility import Color
+from ..atomdata import AtomData
+from ..line import LinePrefab, LineCO
+
 
 bool4 = tuple[bool, bool, bool, bool]
 
 @dataclass
-class UIObjectRenderData(UIABCRenderData):
-    borderData  : UISLine | list[UISLineCreateOptions]
+class BoxData(AtomData):
+    """
+    BoxData is the storage class for all render-information
+    for the atom 'Box'.
+    """
+    borderData  : LinePrefab | list[LineCO]
     doBorders   : bool4             = (False, False, False, False) 
     fillColor   : Optional[Color]   = None
     doAlt       : bool              = False

@@ -1,6 +1,11 @@
-from ..UIStylingABCCreateOptions import UIStylingABCCreateOptions
 
-class UISObjectCreateOptions(UIStylingABCCreateOptions):
+from ..atomcreateoption import AtomCreateOption
+
+class BoxCO(AtomCreateOption):
+    """
+    BoxCO (CreateOption) is the storage class for all possible
+    CreateOptions when creating a object from the atom 'Box'.
+    """
     
     #-----------------------------------
 

@@ -1,7 +1,7 @@
 
-from ....style          import RenderStyle, StyleManager
-from .linecreateoptions import LineCO
-from .linedata          import LineData
+from ....style         import RenderStyle, StyleManager
+from .linecreateoption import LineCO
+from .linedata         import LineData
 
 class LineCreator:
     """

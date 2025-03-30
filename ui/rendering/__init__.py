@@ -10,3 +10,4 @@ from .createinfo import CreateInfo
 
 from .elements import LayoutManager
 from .elements import Line, LineCO, LinePrefab
+from .elements import Box, BoxCO, BoxPrefab

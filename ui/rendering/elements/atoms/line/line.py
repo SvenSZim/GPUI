@@ -7,7 +7,7 @@ from ....display import Surface
 from ..atom             import Atom
 from .linecore          import LineCore
 from .linedata          import LineData
-from .linecreateoptions import LineCO
+from .linecreateoption  import LineCO
 from .linecreator       import LineCreator
 from .lineprefab        import LinePrefab
 from .lineprefabmanager import LinePrefabManager
@@ -15,7 +15,7 @@ from .lineprefabmanager import LinePrefabManager
 
 class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
     """
-    Line is a simple ui-atom-elements for drawing a line.
+    Line is a simple ui-atom-element for drawing a line.
     """
 
     def __init__(self, core: LineCore | Rect, active: bool=True, renderStyleData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID) -> None:
