@@ -9,22 +9,6 @@ class BoxCO(AtomCreateOption):
     
     #-----------------------------------
 
-    # border style
-    BORDER_NOBORDER     = 0x000
-    BORDER_SOLID        = 0x001
-    
-    # border enabled
-    BORDER_TOP          = 0x011
-    BORDER_LEFT         = 0x012
-    BORDER_RIGHT        = 0x013
-    BORDER_BOTTOM       = 0x014
-
-    # border color options
-    BORDER_COLOR1       = 0x021
-    BORDER_COLOR2       = 0x022
-
-    #-----------------------------------
-
     # fill style
     FILL_NOFILL         = 0x100
     FILL_SOLID          = 0x101

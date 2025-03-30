@@ -1,6 +1,5 @@
 
 from ....style        import RenderStyle, StyleManager
-from ..line           import LineCO
 from .boxcreateoption import BoxCO
 from .boxdata         import BoxData
 
@@ -21,29 +20,10 @@ class BoxCreator:
 
         Returns (BoxData): the RenderData created from the given args
         """
-        borderData: list[LineCO] = []
-        objectData: BoxData = BoxData(borderData=borderData)
+        objectData: BoxData = BoxData()
 
         for createOption in createOptions:
             match createOption:
-                case BoxCO.BORDER_NOBORDER:
-                    borderData.append(LineCO.TRANSPARENT)
-                case BoxCO.BORDER_SOLID:
-                    borderData.append(LineCO.SOLID)
-                case BoxCO.BORDER_TOP:
-                    objectData.doBorders = (True, objectData.doBorders[1], objectData.doBorders[2], objectData.doBorders[3])
-                case BoxCO.BORDER_LEFT:
-                    objectData.doBorders = (objectData.doBorders[0], True, objectData.doBorders[2], objectData.doBorders[3])
-                case BoxCO.BORDER_RIGHT:
-                    objectData.doBorders = (objectData.doBorders[0], objectData.doBorders[1], True, objectData.doBorders[3])
-                case BoxCO.BORDER_BOTTOM:
-                    objectData.doBorders = (objectData.doBorders[0], objectData.doBorders[1], objectData.doBorders[2], True)
-
-                case BoxCO.BORDER_COLOR1:
-                    borderData.append(LineCO.COLOR1)
-                case BoxCO.BORDER_COLOR2:
-                    borderData.append(LineCO.COLOR2)
-                
                 case BoxCO.FILL_NOFILL:
                     objectData.fillColor = None
                 case BoxCO.FILL_SOLID:
@@ -65,5 +45,4 @@ class BoxCreator:
                 case BoxCO.FILL_COLOR2:
                     objectData.fillColor = StyleManager.getStyleColor(1, style)
         
-        objectData.borderData = borderData
         return objectData

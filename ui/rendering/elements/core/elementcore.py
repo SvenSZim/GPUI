@@ -53,43 +53,46 @@ class ElementCore(iRect, ABC):
         """
         return self._body
 
-    def align(self, other: 'ElementCore | iRect', axis: int, keepSize: bool=True) -> None:
+    def align(self, other: 'ElementCore | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """
         align creates a LayoutRequest to align the axis of the core element with the given one.
 
         Args:
             other    (ElementCore or Rect)                       : the reference to align against
             axis     (int ~ 0: Left, 1: Right, 2: Top, 3: Bottom): the axis to align
+            offset   (int)                                       : offset between the align
             keepSize (bool)                                      : boolean if the connection should keep the size
         """
         if isinstance(other, ElementCore):
             other = other.getBody()
         match axis:
             case 0:
-                LayoutManager.addConnection((True, False), self._body, other, (0.0, 0.0), (0.0, 0.0), keepSizeFix=keepSize)
+                LayoutManager.addConnection((True, False), self._body, other, (0.0, 0.0), (0.0, 0.0), offset=offset, keepSizeFix=keepSize)
             case 1:
-                LayoutManager.addConnection((True, False), self._body, other, (1.0, 0.0), (1.0, 0.0), keepSizeFix=keepSize)
+                LayoutManager.addConnection((True, False), self._body, other, (1.0, 0.0), (1.0, 0.0), offset=offset, keepSizeFix=keepSize)
             case 2:
-                LayoutManager.addConnection((False, True), self._body, other, (0.0, 0.0), (0.0, 0.0), keepSizeFix=keepSize)
+                LayoutManager.addConnection((False, True), self._body, other, (0.0, 0.0), (0.0, 0.0), offset=offset, keepSizeFix=keepSize)
             case 3:
-                LayoutManager.addConnection((False, True), self._body, other, (0.0, 1.0), (0.0, 1.0), keepSizeFix=keepSize)
+                LayoutManager.addConnection((False, True), self._body, other, (0.0, 1.0), (0.0, 1.0), offset=offset, keepSizeFix=keepSize)
 
-    def alignnextto(self, other: 'ElementCore | iRect', where: int, keepSize: bool=True) -> None:
+    def alignnextto(self, other: 'ElementCore | iRect', where: int, offset: int=0, keepSize: bool=True) -> None:
         """
         alignnextto creates a LayoutRequest to align the core element next to a reference object.
 
         Args:
-            other (ElementCore or Rect)                              : the reference to align against
-            where (int ~ 0: to the Left, 1: Right, 2: Top, 3: Bottom): the position where to place the core
+            other    (ElementCore or Rect)                              : the reference to align against
+            where    (int ~ 0: to the Left, 1: Right, 2: Top, 3: Bottom): the position where to place the core
+            offset   (int)                                              : offset between the align
+            keepSize (bool)                                             : boolean if the connection should keep the size
         """
         if isinstance(other, ElementCore):
             other = other.getBody()
         match where:
             case 0:
-                LayoutManager.addConnection((True, False), self._body, other, (1.0, 0.0), (0.0, 0.0), keepSize)
+                LayoutManager.addConnection((True, False), self._body, other, (1.0, 0.0), (0.0, 0.0), offset=offset, keepSizeFix=keepSize)
             case 1:
-                LayoutManager.addConnection((True, False), self._body, other, (0.0, 0.0), (1.0, 0.0), keepSize)
+                LayoutManager.addConnection((True, False), self._body, other, (0.0, 0.0), (1.0, 0.0), offset=offset, keepSizeFix=keepSize)
             case 2:
-                LayoutManager.addConnection((False, True), self._body, other, (0.0, 1.0), (0.0, 0.0), keepSize)
+                LayoutManager.addConnection((False, True), self._body, other, (0.0, 1.0), (0.0, 0.0), offset=offset, keepSizeFix=keepSize)
             case 3:
-                LayoutManager.addConnection((False, True), self._body, other, (0.0, 0.0), (0.0, 1.0), keepSize)
+                LayoutManager.addConnection((False, True), self._body, other, (0.0, 0.0), (0.0, 1.0), offset=offset, keepSizeFix=keepSize)

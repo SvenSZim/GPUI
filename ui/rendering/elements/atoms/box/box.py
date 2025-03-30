@@ -4,7 +4,6 @@ from ....utility import Rect
 from ....display import Surface
 
 from ..atom            import Atom
-from ..line            import Line
 from .boxcore          import BoxCore
 from .boxdata          import BoxData
 from .boxcreateoption  import BoxCO
@@ -17,10 +16,8 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
     Box is a simple ui-atom-element for drawing a box.
     """
 
-    def __init__(self, core: BoxCore | Rect, active: bool=True, renderStyleData: BoxPrefab | list[BoxCO] | BoxData=BoxPrefab.SOLID) -> None:
+    def __init__(self, rect: Rect, active: bool=True, renderStyleData: BoxPrefab | list[BoxCO] | BoxData=BoxPrefab.BASIC) -> None:
         assert self._renderstyle is not None
-        if not isinstance(core, BoxCore):
-            core = BoxCore(core)
 
         if isinstance(renderStyleData, list):
             renderStyleData = BoxCreator.createBoxData(renderStyleData, self._renderstyle)
@@ -28,12 +25,12 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
             renderStyleData = BoxPrefabManager.createBoxData(renderStyleData, self._renderstyle)
 
         assert isinstance(renderStyleData, BoxData)
-        super().__init__(core, active, renderStyleData)
+        super().__init__(BoxCore(rect), active, renderStyleData)
 
     @staticmethod
     @override
-    def constructor(core: BoxCore | Rect, active: bool=True, renderStyleData: BoxPrefab | list[BoxCO] | BoxData=BoxPrefab.SOLID) -> 'Box':
-        return Box(core, active=active, renderStyleData=renderStyleData)
+    def constructor(rect: Rect, active: bool=True, renderStyleData: BoxPrefab | list[BoxCO] | BoxData=BoxPrefab.BASIC) -> 'Box':
+        return Box(rect, active=active, renderStyleData=renderStyleData)
 
     @staticmethod
     @override
@@ -78,13 +75,3 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
         # render fill color
         if self._renderData.fillColor is not None:
             self._drawer.drawrect(surface, rect, self._renderData.fillColor)
-        
-        # render borders
-        if self._renderData.doBorders[0]:
-            Line(Rect((rect.left, rect.top), (rect.width, 0)), renderStyleData=self._renderData.borderData).render(surface)
-        if self._renderData.doBorders[1]:
-            Line(Rect((rect.left, rect.top), (0, rect.height)), renderStyleData=self._renderData.borderData).render(surface)
-        if self._renderData.doBorders[2]:
-            Line(Rect((rect.right, rect.top), (0, rect.height)), renderStyleData=self._renderData.borderData).render(surface)
-        if self._renderData.doBorders[3]:
-            Line(Rect((rect.left, rect.bottom), (rect.width, 0)), renderStyleData=self._renderData.borderData).render(surface)

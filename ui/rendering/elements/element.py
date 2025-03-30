@@ -50,26 +50,30 @@ class Element(Generic[Core], Renderer, iRect, ABC):
         """
         return self._core
     
-    def align(self, other: 'Element | Core | iRect', axis: int, keepSize: bool=True) -> None:
+    def align(self, other: 'Element | Core | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """
         align creates a LayoutRequest to align the axis of the core element with the given one.
 
         Args:
-            other (ElementCore or Rect)                       : the reference to align against
-            axis  (int ~ 0: Left, 1: Right, 2: Top, 3: Bottom): the axis to align
+            other    (Element or Core or Rect)                   : the reference to align against
+            axis     (int ~ 0: Left, 1: Right, 2: Top, 3: Bottom): the axis to align
+            offset   (int)                                       : offset between the align
+            keepSize (bool)                                      : boolean if the connection should keep the size
         """
         if isinstance(other, Element):
             other = other.getCore()
-        self._core.align(other, axis, keepSize)
+        self._core.align(other, axis, offset, keepSize)
 
-    def alignnextto(self, other: 'Element | Core | iRect', where: int, keepSize: bool=True) -> None:
+    def alignnextto(self, other: 'Element | Core | iRect', where: int, offset: int=0, keepSize: bool=True) -> None:
         """
         alignnextto creates a LayoutRequest to align the core element next to a reference object.
 
         Args:
-            other (ElementCore or Rect)                              : the reference to align against
-            where (int ~ 0: to the Left, 1: Right, 2: Top, 3: Bottom): the position where to place the core
+            other    (Element or Core or Rect)                          : the reference to align against
+            where    (int ~ 0: to the Left, 1: Right, 2: Top, 3: Bottom): the position where to place the core
+            offset   (int)                                              : offset between the align
+            keepSize (bool)                                             : boolean if the connection should keep the size
         """
         if isinstance(other, Element):
             other = other.getCore()
-        self._core.alignnextto(other, where, keepSize)
+        self._core.alignnextto(other, where, offset, keepSize)

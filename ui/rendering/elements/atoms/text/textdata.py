@@ -1,13 +1,16 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from ...generic import Color
-from ..uiobject import UISObject, UISObjectCreateOptions
-from ..UIABCRenderData import UIABCRenderData
+from ....utility import Color
+from ..atomdata import AtomData
+
 
 @dataclass
-class UITextRenderData(UIABCRenderData):
-    objectData  : UISObject | list[UISObjectCreateOptions]
+class TextData(AtomData):
+    """
+    TextData is the storage class for all render-information
+    for the atom 'Text'.
+    """
     dynamicText : bool              = False
     textColor   : Optional[Color]   = None
     sysFontName : str               = 'Arial'

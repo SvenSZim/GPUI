@@ -1,21 +1,18 @@
-from typing import Any, Callable, override
-from ....responsiveness import EventManager, InputManager, InputEvent
-from ...generic import Rect
-from ..uibody import UIABCBody, UIStaticBody
-from ..UIABCCore import UIABCCore
+from typing import Any, Callable
 
-class UIButtonCore(UIABCCore):
+from .....interaction import EventManager, InputManager, InputEvent
+from ....utility import Rect
+from ..atomcore import AtomCore
+
+class ButtonCore(AtomCore):
 
     __buttonActive: bool
     __buttonEvents: list[str]
     __numberOfStates: int
     __currentState: int
 
-    def __init__(self, body: UIABCBody | Rect, numberOfStates: int=2, startState: int=0, buttonActive: bool=True) -> None:
-        if isinstance(body, Rect):
-            body = UIStaticBody(body)
-        super().__init__(body)
-        self.update()
+    def __init__(self, rect: Rect, numberOfStates: int=2, startState: int=0, buttonActive: bool=True) -> None:
+        super().__init__(rect)
         
         self.__buttonActive      = buttonActive
         self.__numberOfStates    = max(2, numberOfStates)
@@ -23,13 +20,9 @@ class UIButtonCore(UIABCCore):
 
         self.__buttonEvents = [EventManager.createEvent() for _ in range(self.__numberOfStates)]
 
-        EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN), UIButtonCore.activeTrigger, self)
+        EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.MOUSEBUTTONDOWN), ButtonCore.activeTrigger, self)
 
 
-    @override
-    def update(self) -> None:
-        self._body.update()
-    
     def getNumberOfButtonStates(self) -> int:
         return self.__numberOfStates
 
@@ -38,35 +31,35 @@ class UIButtonCore(UIABCCore):
     
     def getButtonActive(self) -> bool:
         """
-        getButtonActive returns the active-state of the UIButton
+        getButtonActive returns the active-state of the Button
 
         Returns:
-            bool = active-state of the UIButton
+            bool = active-state of the Button
         """
         return self.__buttonActive
 
     def toggleButtonActive(self) -> bool:
         """
-        toggleButtonActive toggles the active-state of the UIButton
+        toggleButtonActive toggles the active-state of the Button
 
         Returns:
-            bool = new active-state of the UIButton
+            bool = new active-state of the Button
         """
         self.__buttonActive = not self.__buttonActive
         return self.__buttonActive
 
     def setButtonActive(self, buttonActive: bool) -> None:
         """
-        setButtonActive sets the active-state of the UIButton
+        setButtonActive sets the active-state of the Button
 
         Args:
-            buttonActive: bool = new active-state of the UIButton
+            buttonActive: bool = new active-state of the Button
         """
         self.__buttonActive = buttonActive
     
     def __trigger(self) -> None:
         """
-        trigger gets called when the UIButton is triggered.
+        trigger gets called when the Button is triggered.
         """
         EventManager.triggerEvent(self.__buttonEvents[self.__currentState])
         self.__currentState = (self.__currentState + 1) % self.__numberOfStates
@@ -98,7 +91,7 @@ class UIButtonCore(UIABCCore):
         """
         addGlobalTriggerEvent adds a event which immediatly triggers the button.
         """
-        return EventManager.subscribeToEvent(event, UIButtonCore.globalTrigger, self)
+        return EventManager.subscribeToEvent(event, ButtonCore.globalTrigger, self)
     
     def subscribeToButtonEvent(self, state: int, f: Callable, *args: Any) -> bool:
         """

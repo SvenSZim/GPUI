@@ -18,10 +18,8 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
     Line is a simple ui-atom-element for drawing a line.
     """
 
-    def __init__(self, core: LineCore | Rect, active: bool=True, renderStyleData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID) -> None:
+    def __init__(self, rect: Rect, active: bool=True, renderStyleData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID) -> None:
         assert self._renderstyle is not None
-        if not isinstance(core, LineCore):
-            core = LineCore(core)
 
         if isinstance(renderStyleData, list):
             renderStyleData = LineCreator.createLineData(renderStyleData, self._renderstyle)
@@ -29,12 +27,12 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
             renderStyleData = LinePrefabManager.createLineData(renderStyleData, self._renderstyle)
 
         assert isinstance(renderStyleData, LineData)
-        super().__init__(core, active, renderStyleData)
+        super().__init__(LineCore(rect), active, renderStyleData)
 
     @staticmethod
     @override
-    def constructor(core: LineCore | Rect, active: bool=True, renderStyleData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID) -> 'Line':
-        return Line(core, active=active, renderStyleData=renderStyleData)
+    def constructor(rect: Rect, active: bool=True, renderStyleData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID) -> 'Line':
+        return Line(rect, active=active, renderStyleData=renderStyleData)
 
     @staticmethod
     @override
