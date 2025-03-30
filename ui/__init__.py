@@ -1,17 +1,11 @@
-from .responsiveness import EventManager, InputEvent, InputManager
+from .interaction import InputManager, InputEvent
 
+from .rendering import Color, tColor, Rect
+from .rendering import Font, Surface, SurfaceDrawer
 
-from .elements import Color, tColor, Rect
-from .elements import UIRenderer, UIStyle
-from .elements import UISurface, UIFont, UISurfaceDrawer
+from .rendering import RenderStyle, StyleManager
+from .rendering import StyleMOON, StyleFIRE
 
-
-from .elements import UIStaticBody, UIDynamicBody
-from .elements import UILine, UILineCore, UISLine, UISLineCreateOptions
-from .elements import UIObject, UIObjectCore, UISObject, UISObjectCreateOptions
-from .elements import UIText, UITextCore, UISText, UISTextCreateOptions
-from .elements import UIButton, UIButtonCore, UISButton, UISButtonCreateOptions
-from .elements import UICreateInfo
-
-from .elements import UICTextCycleButton, UICTextCycleButtonCore
-
+from .rendering import LayoutManager
+from .rendering import Renderer, CreateInfo
+from .rendering import Line, LineCO, LinePrefab

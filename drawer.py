@@ -1,10 +1,10 @@
 import pygame as pg
 
 from typing import override
-from ui import UISurface, UIFont, UISurfaceDrawer, Color, tColor, Rect
+from ui import Surface, Font, SurfaceDrawer, Color, tColor, Rect
 
 
-class PygameSurface(UISurface):
+class PygameSurface(Surface):
     surface: pg.Surface
     def __init__(self, surface: pg.Surface) -> None:
         self.surface = surface
@@ -14,34 +14,34 @@ class PygameSurface(UISurface):
         return self.surface.get_size()
 
     @override
-    def blit(self, surface: 'UISurface', position: tuple[int, int]) -> None:
+    def blit(self, surface: 'Surface', position: tuple[int, int]) -> None:
         """
         Combines the two surfaces
         """
         if isinstance(surface, PygameSurface):
             self.surface.blit(surface.surface, position)
 
-class PygameFont(UIFont):
+class PygameFont(Font):
     font: pg.font.Font
 
     def __init__(self, font: pg.font.Font) -> None:
         self.font = font
 
     @override
-    def render(self, text: str, color: Color) -> UISurface:
+    def render(self, text: str, color: Color) -> Surface:
         if isinstance(color, tColor):
             color = color.value
         return PygameSurface(self.font.render(text, True, pg.Color(color)))
 
     @override
     @staticmethod
-    def SysFont(name: str, fontsize: int) -> 'UIFont':
+    def SysFont(name: str, fontsize: int) -> 'Font':
         return PygameFont(pg.font.SysFont(name, fontsize))
 
-class PygameDrawer(UISurfaceDrawer):
+class PygameDrawer(SurfaceDrawer):
     @override
     @staticmethod
-    def drawline(surface: UISurface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Color) -> None:
+    def drawline(surface: Surface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Color) -> None:
         if isinstance(color, tColor):
             color = color.value
         if isinstance(surface, PygameSurface):
@@ -50,7 +50,7 @@ class PygameDrawer(UISurfaceDrawer):
 
     @override
     @staticmethod
-    def drawrect(surface: UISurface, rect: Rect, color: Color, fill: bool = True) -> None:
+    def drawrect(surface: Surface, rect: Rect, color: Color, fill: bool = True) -> None:
         if isinstance(color, tColor):
             color = color.value
         if isinstance(surface, PygameSurface):
