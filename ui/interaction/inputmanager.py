@@ -5,15 +5,23 @@ import pygame as pg
 from .eventmanager import EventManager
 
 class InputEvent(Enum):
+    # ---------- digital-events ----------
     QUIT = 0
 
     MOUSEBUTTONDOWN = 100
     MOUSEBUTTONUP = 101
 
+    LEFTDOWN = 104
+    LEFTUP = 105
+
     A_DOWN = 200
+    
+    # ---------- analog-events ----------
+    LEFTHELD = 1100
 
 class InputManager:
     events: dict[InputEvent, str] = {}
+    currentDown: set[InputEvent] = set()
 
     @staticmethod
     def init() -> None:
@@ -34,8 +42,18 @@ class InputManager:
                         EventManager.triggerEvent(InputManager.events[InputEvent.A_DOWN])
                 case pg.MOUSEBUTTONDOWN:
                     EventManager.triggerEvent(InputManager.events[InputEvent.MOUSEBUTTONDOWN])
+                    if InputEvent.LEFTHELD not in InputManager.currentDown and pg.mouse.get_pressed()[0]:
+                        EventManager.triggerEvent(InputManager.events[InputEvent.LEFTDOWN])
+                        InputManager.currentDown.add(InputEvent.LEFTHELD)
+
                 case pg.MOUSEBUTTONUP:
                     EventManager.triggerEvent(InputManager.events[InputEvent.MOUSEBUTTONUP])
+                    if InputEvent.LEFTHELD in InputManager.currentDown and not pg.mouse.get_pressed()[0]:
+                        EventManager.triggerEvent(InputManager.events[InputEvent.LEFTUP])
+                        InputManager.currentDown.remove(InputEvent.LEFTHELD)
+
+        for event in InputManager.currentDown:
+            EventManager.triggerEvent(InputManager.events[event])
 
     @staticmethod
     def getEvent(event: InputEvent) -> str:

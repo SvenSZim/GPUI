@@ -1,0 +1,18 @@
+DONE:
+  Atomic Elements:
+    - line
+    - box
+    - text
+    - button
+
+TODO:
+  Additional Atomic Elements:
+    - button -> toggle (done)
+    - new button (more of a click-and-done) (should also be usable for slider)
+    - image?
+
+  Composite Elements:
+    - categorize:
+      1. Addons (Bordered, Background, -> combine to 'Framed', Stack/Group, Bar)
+      2. Interactables (Checkbox, Slider, TextCycle, CheckboxGroup (+limitations), Dropdown, TextInput?, DraggableRect?)
+     [3.] Popups (Hovered, Notification, Modal)

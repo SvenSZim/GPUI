@@ -6,10 +6,10 @@ from ..atomdata import AtomData
 
 
 @dataclass
-class ButtonData(AtomData):
+class ToggleData(AtomData):
     """
-    ButtonData is the storage class for all render-information
-    for the atom 'Button'.
+    ToggleData is the storage class for all render-information
+    for the atom 'Toggle'.
     """
     stateDispStyle  : int             = 0
     stateDispColor  : Optional[Color] = None
