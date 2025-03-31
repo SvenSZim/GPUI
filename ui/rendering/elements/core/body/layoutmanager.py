@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ....utility import Rect, iRect
+from .....utility import iRect
 from .body import Body
 
 Point = tuple[float, float]
@@ -22,6 +22,8 @@ class LayoutManager:
     LayoutManager is a 'static' class for managing the layout composition
     of the UI. It references all Body objects and applys layout-actions to them.
     """
+
+    # #################### CLASS-METHODS ####################
 
     __l_bodys: list[Body] = []
     __l_joints: list[Joint] = []

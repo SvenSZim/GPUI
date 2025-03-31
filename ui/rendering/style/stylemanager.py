@@ -1,5 +1,5 @@
 
-from ..utility import Color
+from ...utility import Color
 from .styles import ABCStyle, StyleMOON, StyleFIRE
 from .renderstyle import RenderStyle
 

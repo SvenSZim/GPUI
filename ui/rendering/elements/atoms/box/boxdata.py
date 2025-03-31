@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from ....utility import Color
+from .....utility import Color
 from ..atomdata import AtomData
 
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ...utility import Color
+from ....utility import Color
 
 
 class ABCStyle(ABC):

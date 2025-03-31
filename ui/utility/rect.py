@@ -17,6 +17,8 @@ class Rect(iRect):
     width: int
     height: int
 
+    # -------------------- creations --------------------
+
     def __init__(self, topleft: tuple[int, int] = (0, 0), 
                  size: tuple[int, int] = (0, 0)) -> None:
         """
@@ -28,15 +30,10 @@ class Rect(iRect):
         """
         self.left, self.top = topleft
         self.width, self.height = size
-        self.updateRB()
-
-    def updateRB(self) -> None:
-        """
-        updateRB updates the right and bottom coordinate of the Rect
-        depending on the left, width, top and height coordinates.
-        """
         self.right = self.left + self.width
         self.bottom = self.top + self.height
+
+    # -------------------- iRect-implementation --------------------
 
     @override
     def getPosition(self) -> tuple[int, int]:
@@ -56,6 +53,8 @@ class Rect(iRect):
             tuple[int, int] = (width, height) ~ size of the Rect.
         """
         return (self.width, self.height)
+
+    # -------------------- additional-getter --------------------
 
     def isZero(self) -> bool:
         """

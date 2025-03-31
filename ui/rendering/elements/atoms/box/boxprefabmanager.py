@@ -11,6 +11,8 @@ class BoxPrefabManager:
     the BoxPrefab's to the BoxData for rendering.
     """
 
+    # #################### CLASS-METHODS ####################
+
     __prefabs: dict[BoxPrefab, Callable[[RenderStyle], BoxData]] = {
         BoxPrefab.INVISIBLE     : lambda _     : BoxData(),
         BoxPrefab.BASIC         : lambda style : BoxData(fillColor=StyleManager.getStyleColor(0, style)),

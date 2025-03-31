@@ -1,23 +1,20 @@
 from abc import ABC, abstractmethod
 from typing import Any, TypeVar
 
-from .display import Font, FontManager, Surface, SurfaceDrawer
+from ..display import Font, FontManager, Surface, SurfaceDrawer
 from .style import RenderStyle
 
 RendererCls = TypeVar('RendererCls', bound='Renderer')
 
 class Renderer(ABC):
 
-    # -------------------------- static -------------------------------
-
-    _drawer: type[SurfaceDrawer] | None = None
-    _renderstyle: RenderStyle | None = None
-
-    # ------------------------- abstract ------------------------------
+    # -------------------- creation --------------------
 
     _active: bool   # boolean if the renderer is active or not
     def __init__(self, active: bool = True) -> None:
         self._active = active
+
+    # -------------------- active-state --------------------
 
     def isActive(self) -> bool:
         """
@@ -45,6 +42,8 @@ class Renderer(ABC):
         """
         self._active = active
 
+    # -------------------- abstract-methods --------------------
+
     @abstractmethod
     def render(self, surface: Surface) -> None:
         """
@@ -55,7 +54,7 @@ class Renderer(ABC):
         """
         pass
 
-    # --------------------- abstract static ---------------------------
+    # -------------------- abstract-static-methods --------------------
 
     @staticmethod
     @abstractmethod
@@ -70,7 +69,10 @@ class Renderer(ABC):
         """
         pass
 
-    # -------------------------- static -------------------------------
+    # #################### CLASS-METHODS ####################
+
+    _drawer: type[SurfaceDrawer] | None = None
+    _renderstyle: RenderStyle | None = None
 
     @staticmethod
     def init(drawer: type[SurfaceDrawer], font: type[Font], renderstyle: RenderStyle) -> None:

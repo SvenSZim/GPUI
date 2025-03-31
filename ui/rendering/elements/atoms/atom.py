@@ -18,6 +18,8 @@ class Atom(Generic[Core, RenderData, CreateOption, Prefab], Element[Core], ABC):
     """
     Atom is the abstract base class for all ui-atom-elements.
     """
+
+    # -------------------- creation --------------------
     
     _renderData: RenderData
 

@@ -1,5 +1,5 @@
 
-from ....utility import Rect
+from .....utility import Rect
 from ..atomcore import AtomCore
 
 class LineCore(AtomCore):

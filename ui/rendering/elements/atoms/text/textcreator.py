@@ -8,6 +8,8 @@ class TextCreator:
     TextCreator is a intern class for creating RenderInfomation from TextCreateOptions.
     """
 
+    # #################### CLASS-METHODS ####################
+
     @staticmethod
     def createTextData(createOptions: list[TextCO], style: RenderStyle) -> TextData:
         """

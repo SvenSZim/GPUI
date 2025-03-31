@@ -4,10 +4,11 @@ DONE:
     - box
     - text
     - button
+    - button -> toggle
+    - buttons/toggle are not really 'atoms' because they dont get 'rendered' -> maybe move to interaction?
 
 TODO:
   Additional Atomic Elements:
-    - button -> toggle (done)
     - new button (more of a click-and-done) (should also be usable for slider)
     - image?
 

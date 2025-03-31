@@ -6,6 +6,8 @@ class iRect(ABC):
     (elements that contain positional and sizing information similar to rectangles)
     """
 
+    # -------------------- base-methods --------------------
+
     @abstractmethod
     def getSize(self) -> tuple[int, int]:
         """
@@ -23,6 +25,8 @@ class iRect(ABC):
         Returns (tuple[int, int]) ~ (x-pos, y-pos): position of the element
         """
         pass
+
+    # -------------------- additional-getter --------------------
 
     def getWidth(self) -> int:
         """

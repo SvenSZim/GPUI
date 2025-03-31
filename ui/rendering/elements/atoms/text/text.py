@@ -1,7 +1,7 @@
 from typing import override
 
-from ....utility import Rect
-from ....display import Surface, Font, FontManager
+from .....utility import Rect
+from .....display import Surface, Font, FontManager
 
 from ..atom             import Atom
 from .textcore          import TextCore
@@ -16,6 +16,8 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
     """
     Text is a simple ui-atom-element for drawing a text.
     """
+
+    # -------------------- creation --------------------
 
     def __init__(self, rect: Rect, content: str, active: bool=True, renderStyleData: TextPrefab | list[TextCO] | TextData=TextPrefab.BASIC) -> None:
         assert self._renderstyle is not None
@@ -61,12 +63,14 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
         """
         return Text(Rect(), '', renderStyleData=prefab)
 
+    # -------------------- content-modification --------------------
 
     def updateContent(self, content: str) -> None:
         self._core.setContent(content)
         if self._renderData.dynamicText:
             self._renderData.fontSize = getDynamicFontSize(self._renderData.sysFontName, self._core.getBody().getRect().getSize(), content)
 
+    # -------------------- rendering --------------------
 
     @override
     def render(self, surface: Surface) -> None:
@@ -74,7 +78,7 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
         render renders the UIText onto the given surface
 
         Args:
-            surface: Surface = the surface the UIText should be drawn on
+            surface (Surface): the surface the UIText should be drawn on
         """
         assert self._drawer is not None
 
@@ -92,6 +96,9 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
             text_position: tuple[int, int] = (int(rect.getPosition()[0] + (rect.getSize()[0] - text_size[0]) / 2),
                                                   int(rect.getPosition()[1] + (rect.getSize()[1] - text_size[1]) / 2))
             surface.blit(text_render, text_position)
+
+
+# -------------------------------------------------- helpers --------------------------------------------------
 
 def getDynamicFontSize(font_name: str, box_size: tuple[int, int], text: str) -> int:
     """

@@ -1,8 +1,8 @@
 from typing import override
 from numpy import sqrt
 
-from ....utility import Rect
-from ....display import Surface
+from .....utility import Rect
+from .....display import Surface
 
 from ..atom             import Atom
 from .linecore          import LineCore
@@ -17,6 +17,8 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
     """
     Line is a simple ui-atom-element for drawing a line.
     """
+
+    # -------------------- creation --------------------
 
     def __init__(self, rect: Rect, active: bool=True, renderStyleData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID) -> None:
         assert self._renderstyle is not None
@@ -59,6 +61,8 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
         Returns (this class): instance of the created atom
         """
         return Line(Rect(), renderStyleData=prefab)
+
+    # -------------------- rendering --------------------
 
     @override
     def render(self, surface: Surface) -> None:

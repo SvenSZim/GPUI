@@ -10,6 +10,8 @@ class LinePrefabManager:
     the LinePrefab's to the LineData for rendering.
     """
 
+    # #################### CLASS-METHODS ####################
+
     __prefabs: dict[LinePrefab, Callable[[RenderStyle], LineData]] = {
         LinePrefab.INVISIBLE   : lambda _     : LineData(),
         LinePrefab.SOLID       : lambda style : LineData(StyleManager.getStyleColor(0, style)),

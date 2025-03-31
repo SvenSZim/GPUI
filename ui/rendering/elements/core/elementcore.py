@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import override
 
-from ...utility import Rect, iRect
+from ....utility import Rect, iRect
 from .body import Body, BodyManager, LayoutManager
 
 class ElementCore(iRect, ABC):
@@ -14,9 +14,13 @@ class ElementCore(iRect, ABC):
 
     _body: Body
 
+    # -------------------- creation --------------------
+
     def __init__(self, rect: Rect) -> None:
         self._body = BodyManager.createBody()
         self._body.setRect(rect)
+
+    # -------------------- iRect-implementation --------------------
 
     @override
     def getSize(self) -> tuple[int, int]:
@@ -36,6 +40,8 @@ class ElementCore(iRect, ABC):
         """
         return self._body.getPosition()
 
+    # -------------------- additional-getter --------------------
+
     def getRect(self) -> Rect:
         """
         getRect returns the position and size of the element stored in a Rect object
@@ -52,6 +58,8 @@ class ElementCore(iRect, ABC):
         Returns (Body): the stored body element
         """
         return self._body
+
+    # -------------------- positional-setter --------------------
 
     def align(self, other: 'ElementCore | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """

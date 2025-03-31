@@ -9,6 +9,8 @@ class BoxCreator:
     BoxCreator is a intern class for creating RenderInfomation from BoxCreateOptions.
     """
 
+    # #################### CLASS-METHODS ####################
+
     @staticmethod
     def createBoxData(createOptions: list[BoxCO], style: RenderStyle) -> BoxData:
         """

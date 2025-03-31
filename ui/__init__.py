@@ -1,7 +1,9 @@
-from .interaction import InputManager, InputEvent
+from .interaction import EventManager
+from .interaction import InputEvent, InputManager
+from .interaction import Togglable
 
-from .rendering import Color, tColor, Rect
-from .rendering import Font, Surface, SurfaceDrawer
+from .utility   import Color, tColor, Rect
+from .display   import Font, Surface, SurfaceDrawer
 
 from .rendering import RenderStyle, StyleManager
 from .rendering import StyleMOON, StyleFIRE
@@ -11,4 +13,3 @@ from .rendering import Renderer, CreateInfo
 from .rendering import Line, LineCO, LinePrefab
 from .rendering import Box, BoxCO, BoxPrefab
 from .rendering import Text, TextCO, TextPrefab
-from .rendering import Toggle, ToggleCO, TogglePrefab

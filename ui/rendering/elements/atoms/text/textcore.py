@@ -1,5 +1,5 @@
 
-from ....utility import Rect
+from .....utility import Rect
 from ..atomcore import AtomCore
 
 class TextCore(AtomCore):
@@ -8,9 +8,13 @@ class TextCore(AtomCore):
     """
     _content: str
 
+    # -------------------- creation --------------------
+
     def __init__(self, rect: Rect, content: str) -> None:
         super().__init__(rect)
         self._content = content
+
+    # -------------------- content --------------------
     
     def getContent(self) -> str:
         """

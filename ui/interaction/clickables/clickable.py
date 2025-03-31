@@ -1,8 +1,9 @@
 from abc import ABC
 from typing import Any, Callable
 
-from ...interaction import EventManager, InputManager
-from ..utility      import iRect, Rect
+from ...utility     import iRect, Rect
+from ..event        import EventManager
+from ..inputmanager import InputManager, InputEvent
 
 class Clickable(iRect, ABC):
 
@@ -12,6 +13,8 @@ class Clickable(iRect, ABC):
     def __init__(self, clickableActive: bool=True) -> None:
         self._clickableActive = clickableActive
         self._onclick = EventManager.createEvent()
+
+        EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.LEFTDOWN), self.activeTrigger)
 
     # -------------------- active-state --------------------
 

@@ -8,6 +8,8 @@ class LineCreator:
     LineCreator is a intern class for creating RenderInfomation from LineCreateOptions.
     """
 
+    # #################### CLASS-METHODS ####################
+
     @staticmethod
     def createLineData(createOptions: list[LineCO], style: RenderStyle) -> LineData:
         """

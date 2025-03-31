@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Callable
 import pygame as pg
 
-from .eventmanager import EventManager
+from .event import EventManager
 
 class InputEvent(Enum):
     # ---------- digital-events ----------

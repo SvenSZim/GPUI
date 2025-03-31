@@ -9,7 +9,7 @@ from ui import LayoutManager
 from ui import Line, LinePrefab, LineCO
 from ui import Box, BoxPrefab, BoxCO
 from ui import Text, TextPrefab, TextCO
-from ui import Toggle, TogglePrefab, ToggleCO
+#from ui import BoxCycleToggle
 #from ui import TextCycleToggle
 
 def main():
@@ -52,33 +52,32 @@ def main():
     
     txt1.alignnextto(ob2, 3, offset=20)
     
-    # ------------------------- button ------------------------
-    contents: list[str] = str('Hello World How Are U Doin Today').split()
-    idx: int = 0
-    def updateContentOfTxt1():
-       nonlocal contents, txt1, idx
-       txt1.updateContent(contents[idx])
-       idx += 1
-       idx %= len(contents)
-
-    toggle: bool = True
-    def moveLayout():
-        nonlocal toggle, ob1
-        if toggle:
-            ob1.align(Rect((0, 200),(0,0)), 2)
-        else:
-            ob1.align(Rect(), 2)
-        LayoutManager.forceApplyLayout()
-        toggle = not toggle
-
-    btn1: Toggle = Toggle(Rect((0,0),(100, 230)), numberOfStates=6, startState=2, renderStyleData=TogglePrefab.BASIC_ALT)
-    btn1.subscribeToClick(updateContentOfTxt1)
-    btn1.subscribeToToggleState(3, moveLayout)
-    btn1.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
-
-    btn1.alignnextto(txt1, 3, offset=20)
-
     # ----------------------- composite-elements ----------------------
+    #contents: list[str] = str('Hello World How Are U Doin Today').split()
+    #idx: int = 0
+    #def updateContentOfTxt1():
+    #   nonlocal contents, txt1, idx
+    #   txt1.updateContent(contents[idx])
+    #   idx += 1
+    #   idx %= len(contents)
+
+    #toggle: bool = True
+    #def moveLayout():
+    #    nonlocal toggle, ob1
+    #    if toggle:
+    #       ob1.align(Rect((0, 200),(0,0)), 2)
+    #    else:
+    #       ob1.align(Rect(), 2)
+    #    LayoutManager.forceApplyLayout()
+    #    toggle = not toggle
+
+    #btn1: Toggle = Toggle(Rect((0,0),(100, 230)), numberOfStates=6, startState=2, renderStyleData=TogglePrefab.BASIC_ALT)
+    #btn1.subscribeToClick(updateContentOfTxt1)
+    #btn1.subscribeToToggleState(3, moveLayout)
+    #btn1.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
+
+    #btn1.alignnextto(txt1, 3, offset=20)
+
     #db: UIDynamicBody = UIDynamicBody((20, 0), (220, 100), relativeObjectsForPosition=(ob1, ob1), relativeObjectsForPositionRelationType=(0, 1))
     #btn2: UICTextCycleToggle = UICTextCycleToggle.constructor(db,['WOW', 'This', ('Actually', '1'), 'Works'])
     #btn2.subscribeToToggleEvent('1', updateContentOfTxt2)
@@ -92,7 +91,7 @@ def main():
         InputManager.update()
 
         main_screen.fill('black')
-        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, btn1])#, btn2])
+        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1])#, btn1])#, btn2])
 
         pg.display.flip()
 

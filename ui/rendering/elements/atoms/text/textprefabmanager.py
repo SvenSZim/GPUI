@@ -9,6 +9,9 @@ class TextPrefabManager:
     TextPrefabManager is an intern class for storing the maps from
     the TextPrefab's to the TextData for rendering.
     """
+
+    # #################### CLASS-METHODS ####################
+
     __prefabs: dict[TextPrefab, Callable[[RenderStyle], TextData]] = {
         TextPrefab.BASIC           : lambda style : TextData(textColor=StyleManager.getStyleColor(0, style)),
         TextPrefab.DYNAMIC_BASIC   : lambda style : TextData(dynamicText=True, textColor=StyleManager.getStyleColor(0, style)),

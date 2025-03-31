@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import override
 
-from ....utility import Rect, iRect
+from .....utility import Rect, iRect
 
 @dataclass
 class GlobalFix:
@@ -85,6 +85,8 @@ class Body(iRect):
     __fixedXPoints: FixedPoints
     __fixedYPoints: FixedPoints
 
+    # -------------------- creation --------------------
+
     def __init__(self, rect: Rect=Rect()) -> None:
         """
         Body objects should only be created by the BodyManager!!!
@@ -94,6 +96,8 @@ class Body(iRect):
 
         self.__fixedXPoints = FixedPoints(LocalFix(1.0, rect.width), GlobalFix(0.0, rect.left))
         self.__fixedYPoints = FixedPoints(LocalFix(1.0, rect.height), GlobalFix(0.0, rect.top))
+
+    # -------------------- iRect-implementation --------------------
 
     @override
     def getSize(self) -> tuple[int, int]:
@@ -112,6 +116,8 @@ class Body(iRect):
         Returns (tuple[int, int]) ~ (x-pos, y-pos): position of the element
         """
         return (self.__fixedXPoints.getDimension()[0], self.__fixedYPoints.getDimension()[0])
+
+    # -------------------- additional-getter --------------------
 
     def getRect(self) -> Rect:
         """
@@ -134,6 +140,8 @@ class Body(iRect):
         self.__fixedXPoints.setFixPoint(LocalFix(1.0, rect.width))
         self.__fixedYPoints.setFixPoint(GlobalFix(0.0, rect.top))
         self.__fixedYPoints.setFixPoint(LocalFix(1.0, rect.height))
+
+    # -------------------- positional-setter --------------------
 
     def applyConnection(self, other: iRect, connectionDimension: tuple[bool, bool],
                         myFixPoint: Point, otherFixPoint: Point, offset: int | tuple[int, int],

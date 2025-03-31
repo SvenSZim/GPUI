@@ -1,6 +1,6 @@
 from typing import override
 
-from ...utility import Color
+from ....utility import Color
 
 from .abcstyle import ABCStyle
 

@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Generic, TypeVar, override
 
-from ..utility import Rect, iRect
+from ...utility import Rect, iRect
 from ..renderer import Renderer
 from .core import ElementCore
 
@@ -11,9 +11,13 @@ class Element(Generic[Core], Renderer, iRect, ABC):
 
     _core: Core     # refering UI-Element which gets rendered by the Renderer
 
+    # -------------------- creation --------------------
+
     def __init__(self, core: Core, active: bool=True) -> None:
         super().__init__(active)
         self._core = core
+
+    # -------------------- iRect-implementation -------------------- 
 
     @override
     def getSize(self) -> tuple[int, int]:
@@ -33,6 +37,8 @@ class Element(Generic[Core], Renderer, iRect, ABC):
         """
         return self._core.getPosition()
 
+    # -------------------- additional-getter --------------------
+
     def getRect(self) -> Rect:
         """
         getRect returns the position and size of the element stored in a Rect object
@@ -49,6 +55,8 @@ class Element(Generic[Core], Renderer, iRect, ABC):
         Returns (Core): the stored core of the element
         """
         return self._core
+
+    # -------------------- positional-setter --------------------
     
     def align(self, other: 'Element | Core | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """

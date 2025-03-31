@@ -1,7 +1,7 @@
 from typing import override
 
-from ....utility import Rect
-from ....display import Surface
+from .....utility import Rect
+from .....display import Surface
 
 from ..atom            import Atom
 from .boxcore          import BoxCore
@@ -15,6 +15,8 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
     """
     Box is a simple ui-atom-element for drawing a box.
     """
+
+    # -------------------- creation --------------------
 
     def __init__(self, rect: Rect, active: bool=True, renderStyleData: BoxPrefab | list[BoxCO] | BoxData=BoxPrefab.BASIC) -> None:
         assert self._renderstyle is not None
@@ -57,6 +59,8 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
         Returns (this class): instance of the created atom
         """
         return Box(Rect(), renderStyleData=prefab)
+
+    # -------------------- rendering --------------------
 
     @override
     def render(self, surface: Surface) -> None:
