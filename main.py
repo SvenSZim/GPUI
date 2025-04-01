@@ -2,7 +2,7 @@ import pygame as pg
 from drawer import PygameDrawer, PygameSurface, PygameFont
 
 from ui import Rect
-from ui import InputEvent, InputManager
+from ui import InputEvent, InputManager, EventManager
 from ui import Renderer, RenderStyle
 from ui import CreateInfo
 from ui import LayoutManager
@@ -26,7 +26,7 @@ def main():
         nonlocal running
         running = False
 
-    InputManager.subscribeToEvent(InputEvent.QUIT, quit)
+    InputManager.quickSubscribe(InputEvent.QUIT, quit)
     
     screen_size = (1280, 720)
     main_screen = pg.display.set_mode(screen_size)
@@ -39,18 +39,12 @@ def main():
     ob1: Box = Box(Rect((0,0),(100,100)), renderStyleData=BoxPrefab.BASIC)
     ob2: Box = Box(Rect((0,0),(100,100)), renderStyleData=[BoxCO.FILL_COLOR2])
 
-    ob2.alignnextto(ob1, 3, offset=20)
-    l1.align(ob2, 2)
-    l2.align(ob2, 2)
-    l1.alignnextto(ob2, 1, offset=20)
-    l2.alignnextto(ob2, 1, offset=20)
 
     # ------------------------- text ------------------------
     txt1ci: CreateInfo = CreateInfo(Text, content='Hello World!', renderStyleData=TextPrefab.DYNAMIC_BASIC)
     txt1: Text = txt1ci.createElement(Rect((0,0),(220,100)))
     #txt1: Text = Text(Rect((0,240),(220,100)), 'Hello World!', renderStyleData=TextPrefab.DYNAMIC_BASIC)
     
-    txt1.alignnextto(ob2, 3, offset=20)
     
     # ----------------------- composite-elements ----------------------
     #contents: list[str] = str('Hello World How Are U Doin Today').split()
@@ -61,15 +55,6 @@ def main():
     #   idx += 1
     #   idx %= len(contents)
 
-    #toggle: bool = True
-    #def moveLayout():
-    #    nonlocal toggle, ob1
-    #    if toggle:
-    #       ob1.align(Rect((0, 200),(0,0)), 2)
-    #    else:
-    #       ob1.align(Rect(), 2)
-    #    LayoutManager.forceApplyLayout()
-    #    toggle = not toggle
 
     #btn1: Toggle = Toggle(Rect((0,0),(100, 230)), numberOfStates=6, startState=2, renderStyleData=TogglePrefab.BASIC_ALT)
     #btn1.subscribeToClick(updateContentOfTxt1)
@@ -83,6 +68,29 @@ def main():
     #btn2.subscribeToToggleEvent('1', updateContentOfTxt2)
     #btn2.subscribeToToggleEvent('1', UIRenderer.updateAll)
 
+
+    # ------------------------- layout ------------------------
+    ob2.alignnextto(ob1, 3, offset=20)
+    l1.align(ob2, 2)
+    l2.align(ob2, 2)
+    l1.alignnextto(ob2, 1, offset=20)
+    l2.alignnextto(ob2, 1, offset=20)
+    txt1.alignnextto(ob2, 3, offset=20)
+    
+    movecallbackid: str = ''
+    toggle: bool = True
+    def moveLayout():
+        nonlocal toggle, ob1, movecallbackid
+        if toggle:
+            ob1.align(Rect((0, 200),(0,0)), 2)
+        else:
+            ob1.align(Rect(), 2)
+            EventManager.unsubscribeToEvent(InputManager.getEvent(InputEvent.M_DOWN), movecallbackid)
+        LayoutManager.forceApplyLayout()
+        toggle = not toggle
+    
+    movecallbackid: str = EventManager.createCallback(moveLayout)
+    InputManager.subscribeToEvent(InputEvent.M_DOWN, movecallbackid)
 
     # ------------------------- render ------------------------
     LayoutManager.forceApplyLayout()

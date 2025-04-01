@@ -15,8 +15,10 @@ class InputEvent(Enum):
     LEFTUP = 105
 
     A_DOWN = 200
+    M_DOWN = 220
     
     # ---------- analog-events ----------
+    UPDATE = 1000
     LEFTHELD = 1100
 
 class InputManager:
@@ -40,6 +42,8 @@ class InputManager:
                         EventManager.triggerEvent(InputManager.events[InputEvent.QUIT])
                     if pg.key.get_pressed()[pg.K_a]:
                         EventManager.triggerEvent(InputManager.events[InputEvent.A_DOWN])
+                    if pg.key.get_pressed()[pg.K_m]:
+                        EventManager.triggerEvent(InputManager.events[InputEvent.M_DOWN])
                 case pg.MOUSEBUTTONDOWN:
                     EventManager.triggerEvent(InputManager.events[InputEvent.MOUSEBUTTONDOWN])
                     if InputEvent.LEFTHELD not in InputManager.currentDown and pg.mouse.get_pressed()[0]:
@@ -55,6 +59,8 @@ class InputManager:
         for event in InputManager.currentDown:
             EventManager.triggerEvent(InputManager.events[event])
 
+        EventManager.triggerEvent(InputManager.events[InputEvent.UPDATE])
+
     @staticmethod
     def getEvent(event: InputEvent) -> str:
         if InputManager.events.get(event):
@@ -62,9 +68,15 @@ class InputManager:
         return ''
 
     @staticmethod
-    def subscribeToEvent(event: InputEvent, f: Callable, *args: Any) -> bool:
+    def subscribeToEvent(event: InputEvent, callback: str) -> bool:
         if InputManager.events.get(event):
-            return EventManager.subscribeToEvent(InputManager.events[event], f, *args)
+            return EventManager.subscribeToEvent(InputManager.events[event], callback)
+        return False
+
+    @staticmethod
+    def quickSubscribe(event: InputEvent, f: Callable, *args: Any) -> bool:
+        if InputManager.events.get(event):
+            return EventManager.quickSubscribe(InputManager.events[event], f, *args)[1]
         return False
 
     @staticmethod

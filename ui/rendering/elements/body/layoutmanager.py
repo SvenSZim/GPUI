@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .....utility import iRect
+from ....utility import iRect
 from .body import Body
 
 Point = tuple[float, float]

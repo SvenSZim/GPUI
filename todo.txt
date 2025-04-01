@@ -13,6 +13,7 @@ TODO:
     - image?
 
   Composite Elements:
+   [-] if compsite elements require some behavior maybe implement a module with interfaces, elements can/should implement
     - categorize:
       1. Addons (Bordered, Background, -> combine to 'Framed', Stack/Group, Bar)
       2. Interactables (Checkbox, Slider, TextCycle, CheckboxGroup (+limitations), Dropdown, TextInput?, DraggableRect?)

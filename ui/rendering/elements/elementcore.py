@@ -1,8 +1,8 @@
 from abc import ABC
 from typing import override
 
-from ....utility import Rect, iRect
-from .body import Body, BodyManager, LayoutManager
+from ...utility import Rect, iRect
+from .body      import Body, BodyManager, LayoutManager
 
 class ElementCore(iRect, ABC):
     """

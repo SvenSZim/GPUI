@@ -1,7 +1,7 @@
 from abc import ABC
 
-from ....utility import Rect
-from ..core import ElementCore
+from ....utility  import Rect
+from ..elementcore import ElementCore
 
 class AtomCore(ElementCore, ABC):
     """

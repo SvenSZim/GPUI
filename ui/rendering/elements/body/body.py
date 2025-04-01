@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import override
 
-from .....utility import Rect, iRect
+from ....utility import Rect, iRect
 
 @dataclass
 class GlobalFix:

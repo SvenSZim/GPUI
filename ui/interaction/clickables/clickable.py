@@ -14,7 +14,7 @@ class Clickable(iRect, ABC):
         self._clickableActive = clickableActive
         self._onclick = EventManager.createEvent()
 
-        EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.LEFTDOWN), self.activeTrigger)
+        EventManager.quickSubscribe(InputManager.getEvent(InputEvent.LEFTDOWN), self.activeTrigger)
 
     # -------------------- active-state --------------------
 
@@ -73,27 +73,26 @@ class Clickable(iRect, ABC):
         """
         addTriggerEvent adds a event which activates the activeTrigger.
         """
-        return EventManager.subscribeToEvent(event, self.activeTrigger)
+        return EventManager.quickSubscribe(event, self.activeTrigger)[1]
     
     def addGlobalTriggerEvent(self, event: str) -> bool:
         """
         addGlobalTriggerEvent adds a event which immediatly triggers the toggle.
         """
-        return EventManager.subscribeToEvent(event, self.passiveTrigger)
+        return EventManager.quickSubscribe(event, self.passiveTrigger)[1]
     
     # -------------------- subscriptions --------------------
 
-    def subscribeToClick(self, f: Callable, *args: Any) -> bool:
+    def subscribeToClick(self, callback: str) -> bool:
         """
         subscribeToClick subscribes a Callback to the Event of the object
         getting clicked.
 
         Args:
-            f (Callable): the function that should be subscribed
-            *args (Any): the potential arguments the function needs
+            callback (str): the id of the callback to subscribe to the click
 
         Returns (bool): returns if the subscription was successful
         """
-        return EventManager.subscribeToEvent(self._onclick, f, *args)
+        return EventManager.subscribeToEvent(self._onclick, callback)
 
 

@@ -40,19 +40,18 @@ class Togglable(Clickable, ABC):
         EventManager.triggerEvent(self._onclick)
         self.__onStateTrigger()
 
-    def subscribeToToggleState(self, state: int, f: Callable, *args: Any) -> bool:
+    def subscribeToToggleState(self, state: int, callback: str) -> bool:
         """
         subscribeToToggleState subscribes a Callback to the triggerEvent of the
         given toggleState of the Toggle.
 
         Args:
-            state (int): the toggleState the Callback should be subscribed to
-            f (Callable): the function that should be subscribed
-            *args (Any): the potential arguments the function needs
+            state    (int): the toggleState the Callback should be subscribed to
+            callback (str): the id of the callback to subscribe to toggleState
 
         Returns (bool): returns if the subscription was successful
         """
         if state >= 0 and state < self._numberOfStates:
-            return EventManager.subscribeToEvent(self.__toggleEvents[state], f, *args)
+            return EventManager.subscribeToEvent(self.__toggleEvents[state], callback)
         return False
 

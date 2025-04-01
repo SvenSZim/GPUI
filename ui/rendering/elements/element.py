@@ -1,21 +1,25 @@
 from abc import ABC
 from typing import Generic, TypeVar, override
 
-from ...utility import Rect, iRect
-from ..renderer import Renderer
-from .core import ElementCore
+from ...utility   import Rect, iRect
+from ..renderer   import Renderer
+from .elementcore import ElementCore
+from .elementdata import ElementData
 
 Core = TypeVar('Core', bound=ElementCore) 
+Data = TypeVar('Data', bound=ElementData)
 
-class Element(Generic[Core], Renderer, iRect, ABC):
+class Element(Generic[Core, Data], Renderer, iRect, ABC):
 
-    _core: Core     # refering UI-Element which gets rendered by the Renderer
+    _core: Core         # refering UI-Element which gets rendered by the Renderer
+    _renderData: Data   # needed data for rendering the element onto the screen
 
     # -------------------- creation --------------------
 
-    def __init__(self, core: Core, active: bool=True) -> None:
+    def __init__(self, core: Core, renderData: Data, active: bool=True) -> None:
         super().__init__(active)
         self._core = core
+        self._renderData = renderData
 
     # -------------------- iRect-implementation -------------------- 
 
