@@ -3,6 +3,7 @@ from typing import override
 from .....utility import Rect
 from .....display import Surface, Font, FontManager
 
+from ....createinfo     import CreateInfo
 from ..atom             import Atom
 from .textcore          import TextCore
 from .textdata          import TextData
@@ -19,49 +20,44 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, content: str, active: bool=True, renderStyleData: TextPrefab | list[TextCO] | TextData=TextPrefab.BASIC) -> None:
+    def __init__(self, rect: Rect, content: str, renderData: TextPrefab | list[TextCO] | TextData=TextPrefab.BASIC, active: bool=True) -> None:
         assert self._renderstyle is not None
         
-        if isinstance(renderStyleData, list):
-            renderStyleData = TextCreator.createTextData(renderStyleData, self._renderstyle)
-        elif isinstance(renderStyleData, TextPrefab):
-            renderStyleData = TextPrefabManager.createTextData(renderStyleData, self._renderstyle)
+        if isinstance(renderData, list):
+            renderData = TextCreator.createTextData(renderData, self._renderstyle)
+        elif isinstance(renderData, TextPrefab):
+            renderData = TextPrefabManager.createTextData(renderData, self._renderstyle)
 
 
-        assert isinstance(renderStyleData, TextData)
-        super().__init__(TextCore(rect, content), active, renderStyleData)
+        assert isinstance(renderData, TextData)
+        super().__init__(TextCore(rect, content), renderData, active)
         self.updateContent(self._core.getContent())
 
     @staticmethod
     @override
-    def constructor(rect: Rect, content: str, active: bool=True, renderStyleData: TextPrefab | list[TextCO] | TextData=TextPrefab.BASIC) -> 'Text':
-        return Text(rect, content, active=active, renderStyleData=renderStyleData)
-
-    @staticmethod
-    @override
-    def fromCreateOptions(createOptions: list[TextCO]) -> 'Text':
+    def fromCreateOptions(createOptions: list[TextCO]) -> CreateInfo['Text']:
         """
         fromCreateOptions creates the atom-element from createoptions.
 
         Args:
             createoptions (list[CreateOption]): the list of create-options to be used for creating
 
-        Returns (this class): instance of the created atom
+        Returns (creator for this class): createinfo for this class
         """
-        return Text(Rect(), '', renderStyleData=createOptions)
+        return CreateInfo(Text, renderData=createOptions)
 
     @staticmethod
     @override
-    def fromPrefab(prefab: TextPrefab) -> 'Text':
+    def fromPrefab(prefab: TextPrefab) -> CreateInfo['Text']:
         """
         fromPrefab creates the atom-element from a prefab.
 
         Args:
             prefab (Prefab): the prefab to be created
 
-        Returns (this class): instance of the created atom
+        Returns (creator for this class): createinfo for this class
         """
-        return Text(Rect(), '', renderStyleData=prefab)
+        return CreateInfo(Text, renderData=prefab)
 
     # -------------------- content-modification --------------------
 

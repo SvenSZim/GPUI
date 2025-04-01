@@ -14,38 +14,12 @@ RenderData   = TypeVar('RenderData'  , bound=AtomData        )
 CreateOption = TypeVar('CreateOption', bound=AtomCreateOption)
 Prefab       = TypeVar('Prefab'      , bound=AtomPrefab      )
 
-class Atom(Generic[Core, RenderData, CreateOption, Prefab], Element[Core, RenderData], ABC):
+class Atom(Generic[Core, RenderData, CreateOption, Prefab], Element[Core, RenderData, CreateOption, Prefab], ABC):
     """
     Atom is the abstract base class for all ui-atom-elements.
     """
 
     # -------------------- creation --------------------
     
-    def __init__(self, core: Core, active: bool, renderData: RenderData) -> None:
+    def __init__(self, core: Core, renderData: RenderData, active: bool) -> None:
         super().__init__(core, renderData, active)
-
-    @staticmethod
-    @abstractmethod
-    def fromCreateOptions(createOptions: list[CreateOption]) -> AtomCls:
-        """
-        fromCreateOptions creates the atom-element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (this class): instance of the created atom
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def fromPrefab(prefab: Prefab) -> AtomCls:
-        """
-        fromPrefab creates the atom-element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (this class): instance of the created atom
-        """
-        pass

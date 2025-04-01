@@ -32,18 +32,18 @@ def main():
     main_screen = pg.display.set_mode(screen_size)
 
     # ------------------------- line ------------------------
-    l1: Line = Line(Rect((0, 0), (100, 100)), renderStyleData=LinePrefab.DOTTED)
-    l2: Line = Line(Rect((0, 0), (100, 100)), renderStyleData=[LineCO.COLOR1, LineCO.DOTTED, LineCO.FLIPPED, LineCO.ALTLENGTH20])
+    l1: Line = Line(Rect((0, 0), (100, 100)), renderData=LinePrefab.DOTTED)
+    l2: Line = Line(Rect((0, 0), (100, 100)), renderData=[LineCO.COLOR1, LineCO.DOTTED, LineCO.FLIPPED, LineCO.ALTLENGTH20])
 
     # ------------------------- box ------------------------
-    ob1: Box = Box(Rect((0,0),(100,100)), renderStyleData=BoxPrefab.BASIC)
-    ob2: Box = Box(Rect((0,0),(100,100)), renderStyleData=[BoxCO.FILL_COLOR2])
+    ob1: Box = Box(Rect((0,0),(100,100)), renderData=BoxPrefab.BASIC)
+    ob2: Box = Box(Rect((0,0),(100,100)), renderData=[BoxCO.FILL_COLOR2])
 
 
     # ------------------------- text ------------------------
-    txt1ci: CreateInfo = CreateInfo(Text, content='Hello World!', renderStyleData=TextPrefab.DYNAMIC_BASIC)
-    txt1: Text = txt1ci.createElement(Rect((0,0),(220,100)))
-    #txt1: Text = Text(Rect((0,240),(220,100)), 'Hello World!', renderStyleData=TextPrefab.DYNAMIC_BASIC)
+    txt1ci: CreateInfo = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC)
+    txt1: Text = txt1ci.createElement(Rect((0,0),(220,100)), content='Hello World!')
+    #txt1: Text = Text(Rect((0,240),(220,100)), 'Hello World!', renderData=TextPrefab.DYNAMIC_BASIC)
     
     
     # ----------------------- composite-elements ----------------------
@@ -56,7 +56,7 @@ def main():
     #   idx %= len(contents)
 
 
-    #btn1: Toggle = Toggle(Rect((0,0),(100, 230)), numberOfStates=6, startState=2, renderStyleData=TogglePrefab.BASIC_ALT)
+    #btn1: Toggle = Toggle(Rect((0,0),(100, 230)), numberOfStates=6, startState=2, renderData=TogglePrefab.BASIC_ALT)
     #btn1.subscribeToClick(updateContentOfTxt1)
     #btn1.subscribeToToggleState(3, moveLayout)
     #btn1.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))

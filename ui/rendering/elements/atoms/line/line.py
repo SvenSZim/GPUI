@@ -4,6 +4,7 @@ from numpy import sqrt
 from .....utility import Rect
 from .....display import Surface
 
+from ....createinfo     import CreateInfo
 from ..atom             import Atom
 from .linecore          import LineCore
 from .linedata          import LineData
@@ -20,47 +21,42 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, active: bool=True, renderStyleData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID) -> None:
+    def __init__(self, rect: Rect, renderData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID, active: bool=True) -> None:
         assert self._renderstyle is not None
 
-        if isinstance(renderStyleData, list):
-            renderStyleData = LineCreator.createLineData(renderStyleData, self._renderstyle)
-        elif isinstance(renderStyleData, LinePrefab):
-            renderStyleData = LinePrefabManager.createLineData(renderStyleData, self._renderstyle)
+        if isinstance(renderData, list):
+            renderData = LineCreator.createLineData(renderData, self._renderstyle)
+        elif isinstance(renderData, LinePrefab):
+            renderData = LinePrefabManager.createLineData(renderData, self._renderstyle)
 
-        assert isinstance(renderStyleData, LineData)
-        super().__init__(LineCore(rect), active, renderStyleData)
-
-    @staticmethod
-    @override
-    def constructor(rect: Rect, active: bool=True, renderStyleData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID) -> 'Line':
-        return Line(rect, active=active, renderStyleData=renderStyleData)
+        assert isinstance(renderData, LineData)
+        super().__init__(LineCore(rect), renderData, active)
 
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[LineCO]) -> 'Line':
+    def fromCreateOptions(createOptions: list[LineCO]) -> CreateInfo['Line']:
         """
         fromCreateOptions creates the atom-element from createoptions.
 
         Args:
             createoptions (list[CreateOption]): the list of create-options to be used for creating
 
-        Returns (this class): instance of the created atom
+        Returns (creator for this class): createinfo for this class
         """
-        return Line(Rect(), renderStyleData=createOptions)
+        return CreateInfo(Line, renderData=createOptions)
 
     @staticmethod
     @override
-    def fromPrefab(prefab: LinePrefab) -> 'Line':
+    def fromPrefab(prefab: LinePrefab) -> CreateInfo['Line']:
         """
         fromPrefab creates the atom-element from a prefab.
 
         Args:
             prefab (Prefab): the prefab to be created
 
-        Returns (this class): instance of the created atom
+        Returns (creator for this class): createinfo for this class
         """
-        return Line(Rect(), renderStyleData=prefab)
+        return CreateInfo(Line, renderData=prefab)
 
     # -------------------- rendering --------------------
 

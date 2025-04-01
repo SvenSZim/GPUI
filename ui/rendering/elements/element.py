@@ -1,15 +1,22 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, override
 
-from ...utility   import Rect, iRect
-from ..renderer   import Renderer
-from .elementcore import ElementCore
-from .elementdata import ElementData
+from ...utility           import Rect, iRect
+from ..renderer           import Renderer
+from ..createinfo         import CreateInfo
+from .elementcore         import ElementCore
+from .elementdata         import ElementData
+from .elementcreateoption import ElementCreateOption
+from .elementprefab       import ElementPrefab
 
-Core = TypeVar('Core', bound=ElementCore) 
-Data = TypeVar('Data', bound=ElementData)
+ElementCls = TypeVar('ElementCls', bound='Element')
 
-class Element(Generic[Core, Data], Renderer, iRect, ABC):
+Core         = TypeVar('Core'        , bound=ElementCore        ) 
+Data         = TypeVar('Data'        , bound=ElementData        )
+CreateOption = TypeVar('CreateOption', bound=ElementCreateOption)
+Prefab       = TypeVar('Prefab'      , bound=ElementPrefab      )
+
+class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, iRect, ABC):
 
     _core: Core         # refering UI-Element which gets rendered by the Renderer
     _renderData: Data   # needed data for rendering the element onto the screen
@@ -20,6 +27,32 @@ class Element(Generic[Core, Data], Renderer, iRect, ABC):
         super().__init__(active)
         self._core = core
         self._renderData = renderData
+
+    @staticmethod
+    @abstractmethod
+    def fromCreateOptions(createOptions: list[CreateOption]) -> CreateInfo[ElementCls]:
+        """
+        fromCreateOptions creates the element from createoptions.
+
+        Args:
+            createoptions (list[CreateOption]): the list of create-options to be used for creating
+
+        Returns (creator for this class): createinfo for this class
+        """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def fromPrefab(prefab: Prefab) -> CreateInfo[ElementCls]:
+        """
+        fromPrefab creates the element from a prefab.
+
+        Args:
+            prefab (Prefab): the prefab to be created
+
+        Returns (creator for this class): createinfo for this class
+        """
+        pass
 
     # -------------------- iRect-implementation -------------------- 
 

@@ -54,21 +54,6 @@ class Renderer(ABC):
         """
         pass
 
-    # -------------------- abstract-static-methods --------------------
-
-    @staticmethod
-    @abstractmethod
-    def constructor(*args: Any, **kwargs: Any) -> RendererCls:
-        """
-        constructor fully creates the UI-Element
-
-        Args:
-            ...: The necessary arguments to create the core and renderer
-
-        Returns (Renderer): the created element
-        """
-        pass
-
     # #################### CLASS-METHODS ####################
 
     _drawer: type[SurfaceDrawer] | None = None

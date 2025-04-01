@@ -3,6 +3,7 @@ from typing import override
 from .....utility import Rect
 from .....display import Surface
 
+from ....createinfo    import CreateInfo
 from ..atom            import Atom
 from .boxcore          import BoxCore
 from .boxdata          import BoxData
@@ -18,47 +19,42 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, active: bool=True, renderStyleData: BoxPrefab | list[BoxCO] | BoxData=BoxPrefab.BASIC) -> None:
+    def __init__(self, rect: Rect, renderData: BoxPrefab | list[BoxCO] | BoxData=BoxPrefab.BASIC, active: bool=True) -> None:
         assert self._renderstyle is not None
 
-        if isinstance(renderStyleData, list):
-            renderStyleData = BoxCreator.createBoxData(renderStyleData, self._renderstyle)
-        elif isinstance(renderStyleData, BoxPrefab):
-            renderStyleData = BoxPrefabManager.createBoxData(renderStyleData, self._renderstyle)
+        if isinstance(renderData, list):
+            renderData = BoxCreator.createBoxData(renderData, self._renderstyle)
+        elif isinstance(renderData, BoxPrefab):
+            renderData = BoxPrefabManager.createBoxData(renderData, self._renderstyle)
 
-        assert isinstance(renderStyleData, BoxData)
-        super().__init__(BoxCore(rect), active, renderStyleData)
-
-    @staticmethod
-    @override
-    def constructor(rect: Rect, active: bool=True, renderStyleData: BoxPrefab | list[BoxCO] | BoxData=BoxPrefab.BASIC) -> 'Box':
-        return Box(rect, active=active, renderStyleData=renderStyleData)
+        assert isinstance(renderData, BoxData)
+        super().__init__(BoxCore(rect), renderData, active)
 
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[BoxCO]) -> 'Box':
+    def fromCreateOptions(createOptions: list[BoxCO]) -> CreateInfo['Box']:
         """
         fromCreateOptions creates the atom-element from createoptions.
 
         Args:
             createoptions (list[CreateOption]): the list of create-options to be used for creating
 
-        Returns (this class): instance of the created atom
+        Returns (creator for this class): createinfo for this class
         """
-        return Box(Rect(), renderStyleData=createOptions)
+        return CreateInfo(Box, renderData=createOptions)
 
     @staticmethod
     @override
-    def fromPrefab(prefab: BoxPrefab) -> 'Box':
+    def fromPrefab(prefab: BoxPrefab) -> CreateInfo['Box']:
         """
         fromPrefab creates the atom-element from a prefab.
 
         Args:
             prefab (Prefab): the prefab to be created
 
-        Returns (this class): instance of the created atom
+        Returns (creator for this class): createinfo for this class
         """
-        return Box(Rect(), renderStyleData=prefab)
+        return CreateInfo(Box, renderData=prefab)
 
     # -------------------- rendering --------------------
 
