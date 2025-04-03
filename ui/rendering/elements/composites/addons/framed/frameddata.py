@@ -1,28 +1,50 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, override
 
-from ......utility import Color
-from ..addondata import AddonData
-
-none4 = (None, None, None, None)
-bool4 = tuple[bool, bool, bool, bool]
-float4 = tuple[float, float, float, float]
-opfloat4 = tuple[Optional[float], Optional[float], Optional[float], Optional[float]]
-color4 = tuple[Optional[Color], Optional[Color], Optional[Color], Optional[Color]]
+from .....createinfo import CreateInfo
+from .....style      import RenderStyle
+from ....atoms       import AtomCreateOption, Line, LineData, LineCO, Box, BoxData, BoxCO
+from ..addondata     import AddonData
+from .framedcreateoption import FramedCO
+from .framedprefab   import FramedPrefab
 
 @dataclass
-class FramedData(AddonData):
+class FramedData(AddonData[FramedCO, FramedPrefab]):
     """
     FramedData is the storage class for all render-information
     for the addon 'Framed'.
     """
-    borderColors    : color4            = none4
-    borderParials   : float4            = (1.0, 1.0, 1.0, 1.0)
-    borderDoAlts    : bool4             = (False, False, False, False)
-    borderAltAbsLens: opfloat4          = none4
-    borderAltColors : color4            = none4
+    fillData : Optional[CreateInfo[Box]] = None
+    borderData: Optional[tuple[CreateInfo[Line], CreateInfo[Line], CreateInfo[Line], CreateInfo[Line]]] = None
 
+    createActiveBorder: list[bool] = field(default_factory=lambda:[True, True, True, True])
+    createFillData: BoxData = field(default_factory=BoxData)
+    createBorderData: tuple[LineData, LineData, LineData, LineData] = field(default_factory=lambda:(LineData(), LineData(), LineData(), LineData()))
 
-    fillColor       : Optional[Color]   = None
-    fillDoAlt       : bool              = False
-    fillAltColor    : Optional[Color]   = None
+    @override
+    def __add__(self, extraData: tuple[FramedCO | AtomCreateOption, RenderStyle]) -> 'FramedData':
+        createOption: FramedCO | AtomCreateOption = extraData[0]
+        style: RenderStyle = extraData[1]
+        if createOption.value < 0x1000:
+            for active, data in zip(self.createActiveBorder, self.createBorderData):
+                if active:
+                    data += (LineCO(createOption.value), style)
+        elif createOption.value < 0x2000:
+            self.createFillData += (BoxCO(createOption.value), style)
+        elif createOption.value == 0x8000:
+            self.fillData = CreateInfo(Box, renderData=self.createFillData)
+            self.borderData = (CreateInfo(Line, renderData=self.createBorderData[0]),
+                               CreateInfo(Line, renderData=self.createBorderData[1]),
+                               CreateInfo(Line, renderData=self.createBorderData[2]),
+                               CreateInfo(Line, renderData=self.createBorderData[3]))
+        elif 0x8000 < createOption.value < 0x8800:
+            self.createActiveBorder[0] = bool(createOption.value & 1)
+            self.createActiveBorder[1] = bool(createOption.value & 2)
+            self.createActiveBorder[2] = bool(createOption.value & 4)
+            self.createActiveBorder[3] = bool(createOption.value & 8)
+
+        return self
+
+    @override
+    def __mul__(self, extraData: tuple[FramedPrefab, RenderStyle]) -> 'FramedData':
+        return self

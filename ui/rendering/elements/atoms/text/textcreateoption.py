@@ -7,16 +7,16 @@ class TextCO(AtomCreateOption):
     CreateOptions when creating a object from the atom 'Text'.
     """
 
-    #-----------------------------------
+    # text value range 0x2000 - 0x2FFF
 
     # text style
-    NOTEXT         = 0x200
-    SOLID          = 0x201
+    NOTEXT         = 0x2000
+    SOLID          = 0x2001
 
     # text size
-    STATIC         = 0x210
-    DYNAMIC        = 0x211
+    STATIC         = 0x2010
+    DYNAMIC        = 0x2011
 
     # text color
-    COLOR1         = 0x221
-    COLOR2         = 0x222
+    COLOR1         = 0x2021
+    COLOR2         = 0x2022

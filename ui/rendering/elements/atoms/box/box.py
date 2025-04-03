@@ -8,9 +8,7 @@ from ..atom            import Atom
 from .boxcore          import BoxCore
 from .boxdata          import BoxData
 from .boxcreateoption  import BoxCO
-from .boxcreator       import BoxCreator
 from .boxprefab        import BoxPrefab
-from .boxprefabmanager import BoxPrefabManager
 
 class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
     """
@@ -23,9 +21,12 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
         assert self._renderstyle is not None
 
         if isinstance(renderData, list):
-            renderData = BoxCreator.createBoxData(renderData, self._renderstyle)
+            myData: BoxData = BoxData()
+            for createOption in renderData:
+                myData += (createOption, self._renderstyle)
+            renderData = myData
         elif isinstance(renderData, BoxPrefab):
-            renderData = BoxPrefabManager.createBoxData(renderData, self._renderstyle)
+            renderData = BoxData() * (renderData, self._renderstyle)
 
         assert isinstance(renderData, BoxData)
         super().__init__(BoxCore(rect), renderData, active)

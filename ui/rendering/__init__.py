@@ -9,3 +9,5 @@ from .elements import LayoutManager
 from .elements import Line, LineCO, LinePrefab
 from .elements import Box, BoxCO, BoxPrefab
 from .elements import Text, TextCO, TextPrefab
+
+from .elements import Framed, FramedCO, FramedPrefab

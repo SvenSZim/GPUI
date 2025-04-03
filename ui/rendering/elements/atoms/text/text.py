@@ -8,9 +8,7 @@ from ..atom             import Atom
 from .textcore          import TextCore
 from .textdata          import TextData
 from .textcreateoption  import TextCO
-from .textcreator       import TextCreator
 from .textprefab        import TextPrefab
-from .textprefabmanager import TextPrefabManager
 
 
 class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
@@ -24,9 +22,12 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
         assert self._renderstyle is not None
         
         if isinstance(renderData, list):
-            renderData = TextCreator.createTextData(renderData, self._renderstyle)
+            myData: TextData = TextData()
+            for createOption in renderData:
+                myData += (createOption, self._renderstyle)
+            renderData = myData
         elif isinstance(renderData, TextPrefab):
-            renderData = TextPrefabManager.createTextData(renderData, self._renderstyle)
+            renderData = TextData() * (renderData, self._renderstyle)
 
 
         assert isinstance(renderData, TextData)

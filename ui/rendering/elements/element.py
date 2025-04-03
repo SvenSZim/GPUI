@@ -50,7 +50,7 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, iRect, ABC):
         Args:
             prefab (Prefab): the prefab to be created
 
-        Returns (creator for this class): createinfo for this class
+        Returns (creator for this class): instance of the created element
         """
         pass
 

@@ -9,6 +9,8 @@ from ui import LayoutManager
 from ui import Line, LinePrefab, LineCO
 from ui import Box, BoxPrefab, BoxCO
 from ui import Text, TextPrefab, TextCO
+
+from ui import Framed, FramedCO, FramedPrefab
 #from ui import BoxCycleToggle
 #from ui import TextCycleToggle
 
@@ -47,6 +49,8 @@ def main():
     
     
     # ----------------------- composite-elements ----------------------
+    txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect((0,0),(100, 100)), content='WRAPPED :)')
+    f1: Framed = Framed(txt2, renderData=[BoxCO.FILL_COLOR2, LineCO.COLOR1, LineCO.DOTTED, LineCO.ALTLENGTH20, FramedCO.CREATE])
     #contents: list[str] = str('Hello World How Are U Doin Today').split()
     #idx: int = 0
     #def updateContentOfTxt1():
@@ -76,6 +80,7 @@ def main():
     l1.alignnextto(ob2, 1, offset=20)
     l2.alignnextto(ob2, 1, offset=20)
     txt1.alignnextto(ob2, 3, offset=20)
+    f1.alignnextto(txt1, 3, offset=20)
     
     movecallbackid: str = ''
     toggle: bool = True
@@ -99,7 +104,7 @@ def main():
         InputManager.update()
 
         main_screen.fill('black')
-        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1])#, btn1])#, btn2])
+        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, f1])#, btn1])#, btn2])
 
         pg.display.flip()
 

@@ -9,9 +9,7 @@ from ..atom             import Atom
 from .linecore          import LineCore
 from .linedata          import LineData
 from .linecreateoption  import LineCO
-from .linecreator       import LineCreator
 from .lineprefab        import LinePrefab
-from .lineprefabmanager import LinePrefabManager
 
 
 class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
@@ -25,9 +23,12 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
         assert self._renderstyle is not None
 
         if isinstance(renderData, list):
-            renderData = LineCreator.createLineData(renderData, self._renderstyle)
+            myData: LineData = LineData()
+            for createOption in renderData:
+                myData += (createOption, self._renderstyle)
+            renderData = myData
         elif isinstance(renderData, LinePrefab):
-            renderData = LinePrefabManager.createLineData(renderData, self._renderstyle)
+            renderData = LineData() * (renderData, self._renderstyle)
 
         assert isinstance(renderData, LineData)
         super().__init__(LineCore(rect), renderData, active)
