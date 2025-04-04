@@ -1,4 +1,5 @@
 from typing import override
+from numpy  import sqrt
 
 from .....utility import Rect
 from .....display import Surface
@@ -6,7 +7,7 @@ from .....display import Surface
 from ....createinfo    import CreateInfo
 from ..atom            import Atom
 from .boxcore          import BoxCore
-from .boxdata          import BoxData
+from .boxdata          import BoxData, AltMode
 from .boxcreateoption  import BoxCO
 from .boxprefab        import BoxPrefab
 
@@ -72,7 +73,55 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
         
         if not self._active or (rect.width == 0 and rect.height == 0):
             return
+
+        if rect.width < 0:
+            rect = Rect((rect.left + rect.width, rect.top), (-rect.width, rect.height))
+        if rect.height < 0:
+            rect = Rect((rect.left, rect.top + rect.height), (rect.width, -rect.height))
         
-        # render fill color
-        if self._renderData.fillColor is not None:
-            self._drawer.drawrect(surface, rect, self._renderData.fillColor)
+        match self._renderData.altMode:
+            case AltMode.CHECKERBOARD:
+                assert self._renderData.altAbsLen is not None
+                stepLength: float = self._renderData.altAbsLen
+                start_rect: Rect = Rect(rect.getPosition(), (int(stepLength), int(stepLength)))
+                rowStartFirstColor: bool = True
+                while start_rect.bottom < rect.bottom:
+                    firstColor: bool = rowStartFirstColor
+                    while start_rect.right < rect.right:
+                        if firstColor:
+                            if self._renderData.mainColor is not None:
+                                self._drawer.drawrect(surface, start_rect, self._renderData.mainColor)
+                        else:
+                            if self._renderData.altColor is not None:
+                                self._drawer.drawrect(surface, start_rect, self._renderData.altColor)
+                        firstColor = not firstColor
+                        start_rect = Rect((start_rect.right, start_rect.top), (int(stepLength), int(stepLength)))
+                    if firstColor:
+                        if self._renderData.mainColor is not None:
+                            self._drawer.drawrect(surface, Rect((start_rect.left, start_rect.top), (rect.right - start_rect.left, int(stepLength))), self._renderData.mainColor)
+                    else:
+                        if self._renderData.altColor is not None:
+                            self._drawer.drawrect(surface, Rect((start_rect.left, start_rect.top), (rect.right - start_rect.left, int(stepLength))), self._renderData.altColor)
+                    rowStartFirstColor = not rowStartFirstColor
+                    start_rect = Rect((rect.left, start_rect.bottom), (int(stepLength), int(stepLength)))
+                missing_height: int = rect.bottom - start_rect.top
+                start_rect = Rect(start_rect.getPosition(), (int(stepLength), missing_height))
+                while start_rect.right < rect.right:
+                    if rowStartFirstColor:
+                        if self._renderData.mainColor is not None:
+                            self._drawer.drawrect(surface, start_rect, self._renderData.mainColor)
+                    else:
+                        if self._renderData.altColor is not None:
+                            self._drawer.drawrect(surface, start_rect, self._renderData.altColor)
+                    rowStartFirstColor = not rowStartFirstColor
+                    start_rect = Rect((start_rect.right, start_rect.top), (int(stepLength), missing_height))
+                if rowStartFirstColor:
+                    if self._renderData.mainColor is not None:
+                        self._drawer.drawrect(surface, Rect((start_rect.left, start_rect.top), (rect.right - start_rect.left, missing_height)), self._renderData.mainColor)
+                else:
+                    if self._renderData.altColor is not None:
+                        self._drawer.drawrect(surface, Rect((start_rect.left, start_rect.top), (rect.right - start_rect.left, missing_height)), self._renderData.altColor)
+
+            case _:
+                if self._renderData.mainColor is not None:
+                    self._drawer.drawrect(surface, rect, self._renderData.mainColor)

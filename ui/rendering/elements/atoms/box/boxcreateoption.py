@@ -12,13 +12,24 @@ class BoxCO(AtomCreateOption):
     # fill style
     FILL_NOFILL         = 0x1000
     FILL_SOLID          = 0x1001
-
-    # fill enabled
-    FILL_TOPLEFT        = 0x1011
-    FILL_TOPRIGHT       = 0x1012
-    FILL_BOTTOMLEFT     = 0x1013
-    FILL_BOTTOMRIGHT    = 0x1014
+    FILL_ALT            = 0x1003
 
     # fill color options
     FILL_COLOR1         = 0x1021
     FILL_COLOR2         = 0x1022
+    
+    # alt mode
+    ALTDEFAULT          = 0x1030
+    ALTSTRIPED_V        = 0x1031
+    ALTSTRIPED_H        = 0x1032
+    ALTSTRIPED_D        = 0x1033
+    ALTSTRIPED_DR       = 0x1034
+    ALTCHECKERBOARD     = 0x1035
+
+    # alt length
+    ALTLENGTH10         = 0x1045
+    ALTLENGTH20         = 0x1046
+
+    # alt color
+    ALTCOLOR1           = 0x104a
+    ALTCOLOR2           = 0x104b

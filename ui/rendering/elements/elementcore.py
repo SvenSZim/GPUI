@@ -4,6 +4,8 @@ from typing import override
 from ...utility import Rect, iRect
 from .body      import Body, BodyManager, LayoutManager
 
+Point = tuple[float, float]
+
 class ElementCore(iRect, ABC):
     """
     ElementCore is a abstract base class for all ui element cores.
@@ -61,9 +63,9 @@ class ElementCore(iRect, ABC):
 
     # -------------------- positional-setter --------------------
 
-    def align(self, other: 'ElementCore | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
+    def alignaxis(self, other: 'ElementCore | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """
-        align creates a LayoutRequest to align the axis of the core element with the given one.
+        alignaxis creates a LayoutRequest to align the axis of the core element with the given one.
 
         Args:
             other    (ElementCore or Rect)                       : the reference to align against
@@ -82,6 +84,19 @@ class ElementCore(iRect, ABC):
                 LayoutManager.addConnection((False, True), self._body, other, (0.0, 0.0), (0.0, 0.0), offset=offset, keepSizeFix=keepSize)
             case 3:
                 LayoutManager.addConnection((False, True), self._body, other, (0.0, 1.0), (0.0, 1.0), offset=offset, keepSizeFix=keepSize)
+
+    def alignpoint(self, other: 'ElementCore | iRect', myPoint: Point, otherPoint: Point) -> None:
+        """
+        pointalign creates a LayoutRequest to align two relative points of elements fixed onto one another.
+
+        Args:
+            other:      (Element or Core or Rect)   : the reference to align against
+            myPoint:    (Point)                     : the relative position on this element to align
+            otherPoint: (Point)                     : the relative position on the other element to align against
+        """
+        if isinstance(other, ElementCore):
+            other = other.getBody()
+        LayoutManager.addConnection((True, True), self._body, other, myPoint, otherPoint)
 
     def alignnextto(self, other: 'ElementCore | iRect', where: int, offset: int=0, keepSize: bool=True) -> None:
         """

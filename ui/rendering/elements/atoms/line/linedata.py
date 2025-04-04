@@ -32,6 +32,7 @@ class LineData(AtomData[LineCO, LinePrefab]):
             match createOption:
                 case LineCO.TRANSPARENT:
                     self.mainColor = None
+                    self.altColor = None
                 case LineCO.SOLID:
                     self.doAlt = False
                     if self.mainColor is None:

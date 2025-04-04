@@ -20,6 +20,7 @@ class LineCO(AtomCreateOption):
     FLIPPED      = 0x0009
     
     # color options
+    COLOR0       = 0x0010
     COLOR1       = 0x0011
     COLOR2       = 0x0012
 
@@ -40,6 +41,7 @@ class LineCO(AtomCreateOption):
     ALTLENGTH20  = 0x0036
 
     # alt color
-    ALTCOLOR1    = 0x003a
-    ALTCOLOR2    = 0x003b
+    ALTCOLOR0    = 0x003a
+    ALTCOLOR1    = 0x003b
+    ALTCOLOR2    = 0x003c
 

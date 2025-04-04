@@ -9,6 +9,9 @@ from .elementdata         import ElementData
 from .elementcreateoption import ElementCreateOption
 from .elementprefab       import ElementPrefab
 
+Point = tuple[float, float]
+
+
 ElementCls = TypeVar('ElementCls', bound='Element')
 
 Core         = TypeVar('Core'        , bound=ElementCore        ) 
@@ -95,9 +98,9 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, iRect, ABC):
 
     # -------------------- positional-setter --------------------
     
-    def align(self, other: 'Element | Core | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
+    def alignaxis(self, other: 'Element | Core | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """
-        align creates a LayoutRequest to align the axis of the core element with the given one.
+        alignaxis creates a LayoutRequest to align the axis of the core element with the given one.
 
         Args:
             other    (Element or Core or Rect)                   : the reference to align against
@@ -107,7 +110,20 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, iRect, ABC):
         """
         if isinstance(other, Element):
             other = other.getCore()
-        self._core.align(other, axis, offset, keepSize)
+        self._core.alignaxis(other, axis, offset, keepSize)
+
+    def alignpoint(self, other: 'Element | Core | iRect', myPoint: Point, otherPoint: Point) -> None:
+        """
+        pointalign creates a LayoutRequest to align two relative points of elements fixed onto one another.
+
+        Args:
+            other:      (Element or Core or Rect)   : the reference to align against
+            myPoint:    (Point)                     : the relative position on this element to align
+            otherPoint: (Point)                     : the relative position on the other element to align against
+        """
+        if isinstance(other, Element):
+            other = other.getCore()
+        self._core.alignpoint(other, myPoint, otherPoint)
 
     def alignnextto(self, other: 'Element | Core | iRect', where: int, offset: int=0, keepSize: bool=True) -> None:
         """

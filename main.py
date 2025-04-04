@@ -39,7 +39,7 @@ def main():
 
     # ------------------------- box ------------------------
     ob1: Box = Box(Rect((0,0),(100,100)), renderData=BoxPrefab.BASIC)
-    ob2: Box = Box(Rect((0,0),(100,100)), renderData=[BoxCO.FILL_COLOR2])
+    ob2: Box = Box(Rect((0,0),(100,100)), renderData=[BoxCO.FILL_COLOR2, BoxCO.ALTCHECKERBOARD, BoxCO.ALTLENGTH20])
 
 
     # ------------------------- text ------------------------
@@ -49,8 +49,8 @@ def main():
     
     
     # ----------------------- composite-elements ----------------------
-    txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect((0,0),(100, 100)), content='WRAPPED :)')
-    f1: Framed = Framed(txt2, renderData=[BoxCO.FILL_COLOR2, LineCO.COLOR1, LineCO.DOTTED, LineCO.ALTLENGTH20, FramedCO.CREATE])
+    txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect((0,0),(165, 105)), content='WRAPPED :)')
+    f1: Framed = Framed(txt2, renderData=[BoxCO.FILL_COLOR2, LineCO.COLOR1, FramedCO.USEBORDER_RB, LineCO.DOTTED, FramedCO.USEBORDER_R, LineCO.ALTLENGTH20])
     #contents: list[str] = str('Hello World How Are U Doin Today').split()
     #idx: int = 0
     #def updateContentOfTxt1():
@@ -75,21 +75,21 @@ def main():
 
     # ------------------------- layout ------------------------
     ob2.alignnextto(ob1, 3, offset=20)
-    l1.align(ob2, 2)
-    l2.align(ob2, 2)
+    l1.alignaxis(ob2, 2)
+    l2.alignaxis(ob2, 2)
     l1.alignnextto(ob2, 1, offset=20)
     l2.alignnextto(ob2, 1, offset=20)
     txt1.alignnextto(ob2, 3, offset=20)
     f1.alignnextto(txt1, 3, offset=20)
-    
+
     movecallbackid: str = ''
     toggle: bool = True
     def moveLayout():
         nonlocal toggle, ob1, movecallbackid
         if toggle:
-            ob1.align(Rect((0, 200),(0,0)), 2)
+            ob1.alignaxis(Rect((0, 200),(0,0)), 2)
         else:
-            ob1.align(Rect(), 2)
+            ob1.alignaxis(Rect(), 2)
             EventManager.unsubscribeToEvent(InputManager.getEvent(InputEvent.M_DOWN), movecallbackid)
         LayoutManager.forceApplyLayout()
         toggle = not toggle
