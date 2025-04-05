@@ -1,10 +1,9 @@
 
 from ......utility      import Rect
 from ......interaction  import Holdable
-from ....element        import Element
 from ..interactablecore import InteractableCore
 
-class ButtonCore(InteractableCore[Element], Holdable):
+class ButtonCore(InteractableCore, Holdable):
     """
     ButtonCore is the core object of the interactable 'Button'.
     """

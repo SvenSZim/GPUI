@@ -1,12 +1,12 @@
 from abc import ABC
 from typing import Generic, TypeVar
 
-from ...elementdata import ElementData
+from ..compositiondata  import CompositionData
 from .addoncreateoption import AddonCreateOption
-from .addonprefab import AddonPrefab
+from .addonprefab       import AddonPrefab
 
 CreateOption = TypeVar('CreateOption', bound=AddonCreateOption)
 Prefab = TypeVar('Prefab', bound=AddonPrefab)
 
-class AddonData(Generic[CreateOption, Prefab], ElementData[CreateOption, Prefab], ABC):
+class AddonData(Generic[CreateOption, Prefab], CompositionData[CreateOption, Prefab], ABC):
     pass

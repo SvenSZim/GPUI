@@ -1,7 +1,7 @@
 
-from ...elementcreateoption import ElementCreateOption
+from ..compositioncreateoption import CompositionCreateOption
 
-class AddonCreateOption(ElementCreateOption):
+class AddonCreateOption(CompositionCreateOption):
     """
     AddonCreateOption is the abstract base class for all
     the create options of Addons.

@@ -1,7 +1,7 @@
 
-from ...elementprefab import ElementPrefab
+from ..compositionprefab import CompositionPrefab
 
-class AddonPrefab(ElementPrefab):
+class AddonPrefab(CompositionPrefab):
     """
     AddonPrefab is the abstract base class for all prefabs of addons.
     """

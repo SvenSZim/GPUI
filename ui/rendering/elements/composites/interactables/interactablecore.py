@@ -1,13 +1,9 @@
-from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Union
+from abc import ABC
 
 from .....utility   import Rect
-from ...element     import Element
-from ...elementcore import ElementCore
+from ..compositioncore  import CompositionCore
 
-Inner = TypeVar('Inner', bound=Union[Element, list[Element]])
-
-class InteractableCore(Generic[Inner], ElementCore, ABC):
+class InteractableCore(CompositionCore, ABC):
 
     def __init__(self, rect: Rect) -> None:
         super().__init__(rect)

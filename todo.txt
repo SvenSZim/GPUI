@@ -9,6 +9,7 @@ DONE:
     - framed
     - new button (more of a click-and-done) (should also be usable for slider) = holdable
     - checkbox
+    - group
 
 TODO:
   Additional Atomic Elements:
@@ -17,6 +18,6 @@ TODO:
   Composite Elements:
    [-] if compsite elements require some behavior maybe implement a module with interfaces, elements can/should implement
     - categorize:
-      1. Addons (Stack/Group, Bar)
+      1. Addons (Stack, Bar)
       2. Interactables (Slider, TextCycle, CheckboxGroup (+limitations), Dropdown, TextInput?, DraggableRect?)
      [3.] Popups (Hovered, Notification, Modal)

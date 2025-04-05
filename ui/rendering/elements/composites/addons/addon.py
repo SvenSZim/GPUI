@@ -1,7 +1,8 @@
 from abc import ABC
 from typing import Generic, TypeVar, Union
 
-from ...element         import Element
+from ...element     import Element
+from ..composition      import Composition
 from .addoncore         import AddonCore
 from .addondata         import AddonData
 from .addoncreateoption import AddonCreateOption
@@ -14,7 +15,7 @@ Data         = TypeVar('Data'        , bound=AddonData        )
 CreateOption = TypeVar('CreateOption', bound=AddonCreateOption)
 Prefab       = TypeVar('Prefab'      , bound=AddonPrefab      )
 
-class Addon(Generic[Inner, Core, Data, CreateOption, Prefab], Element[Core, Data, CreateOption, Prefab], ABC):
+class Addon(Generic[Inner, Core, Data, CreateOption, Prefab], Composition[Core, Data, CreateOption, Prefab], ABC):
 
     def __init__(self, core: Core, renderData: Data, active: bool = True) -> None:
         super().__init__(core, renderData, active)

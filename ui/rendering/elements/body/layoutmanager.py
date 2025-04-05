@@ -90,54 +90,64 @@ class LayoutManager:
                                 offset=offset, fixedGlobal=fixedGlobal, keepSizeFix=keepSizeFix)
         LayoutManager.__l_joints.append(newJoint)
         
-
     @staticmethod
     def applyLayout() -> None:
         """
         applyLayout updates the layout by applying the stored connections.
         """
-        for joint in LayoutManager.__l_joints:
-            dim: tuple[bool, bool] = joint.dimension
-            start: tuple[int, Point] = joint.start
-            end: tuple[int | iRect, Point] = joint.end
-            startBody: Body = LayoutManager.__l_bodys[start[0]]
+        class Node:
+            id: int
+            children: list['Node']
+            def __init__(self, id: int) -> None:
+                self.id = id
+                self.children = []
+                self.parents = []
+            def getDepth(self, depths: dict[int, int], called: set[int] = set()) -> int:
+                if self.id in called and self.id not in depths:
+                    raise RecursionError("Layout references itself!")
+                called.add(self.id)
+                if self.id in depths:
+                    return depths[self.id]
+                if len(self.children) == 0:
+                    depths[self.id] = 0
+                    return 0
+                m = max([child.getDepth(depths) for child in self.children]) + 1
+                depths[self.id] = m
+                return m
+            @staticmethod
+            def getDepths(nodes: list['Node']) -> list[int]:
+                depths: dict[int, int] = {}
+                for node in nodes:
+                    node.getDepth(depths)
+                return [depths[i] for i in range(len(nodes))]
 
-            endBody: iRect
-            if isinstance(end[0], iRect):
-                endBody = end[0]
-            else:
-                endBody = LayoutManager.__l_bodys[end[0]]
+        mybods: list[Node] = [Node(i) for i in range(len(LayoutManager.__l_bodys))]
 
-            startBody.applyConnection(endBody, dim, start[1], end[1], joint.offset, joint.fixedGlobal, joint.keepSizeFix)
-
-    @staticmethod
-    def forceApplyLayout() -> None:
-        """
-        forceApplyLayout applies the layout as many times as it takes to fully
-        achieve all relation connections.
-        """
-        mybods: list[None | int] = [None for _ in range(len(LayoutManager.__l_bodys))]
-
-        def calculateDepth(s: None | int) -> int:
-            if s is None:
-                return 0
-            nonlocal mybods
-            if mybods[s] is None or s < 0:
-                return 0
-            return 1 + calculateDepth(mybods[s])
-        
         for j in LayoutManager.__l_joints:
             si: int = j.start[0]
             ee: int | iRect = j.end[0]
-            if not isinstance(ee, int):
-                ee = -1
-            en: int = calculateDepth(ee)
-            if calculateDepth(si) < en + 1:
-                mybods[si] = ee
+            if isinstance(ee, int):
+                mybods[si].children.append(mybods[ee])
 
-        neededit: int = max([calculateDepth(x) for x in range(len(mybods))])
-        print("#Updates:",neededit)
-        for _ in range(neededit):
-            LayoutManager.applyLayout()
+        depths: list[int] = Node.getDepths(mybods)
+        maxDepth: int = max(depths)
+        depthgrouped: dict[int, set[int]] = {x: {i for i in range(len(LayoutManager.__l_bodys)) if depths[i] == x} for x in range(maxDepth + 1)}
+        
+        for x in range(maxDepth + 1):
+            depth: set[int] = depthgrouped[x]
+            for joint in LayoutManager.__l_joints:
+                if joint.start[0] in depth:
+                    dim: tuple[bool, bool] = joint.dimension
+                    start: tuple[int, Point] = joint.start
+                    end: tuple[int | iRect, Point] = joint.end
+                    startBody: Body = LayoutManager.__l_bodys[start[0]]
+
+                    endBody: iRect
+                    if isinstance(end[0], iRect):
+                        endBody = end[0]
+                    else:
+                        endBody = LayoutManager.__l_bodys[end[0]]
+
+                    startBody.applyConnection(endBody, dim, start[1], end[1], joint.offset, joint.fixedGlobal, joint.keepSizeFix)
 
 

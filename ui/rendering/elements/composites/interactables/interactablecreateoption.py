@@ -1,7 +1,7 @@
 
-from ...elementcreateoption import ElementCreateOption
+from ..compositioncreateoption import CompositionCreateOption
 
-class InteractableCreateOption(ElementCreateOption):
+class InteractableCreateOption(CompositionCreateOption):
     """
     InteractableCreateOption is the abstract base class for all
     the create options of Interactables.

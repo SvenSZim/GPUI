@@ -18,7 +18,7 @@ class Grouped(Addon[list[Element], GroupedCore, GroupedData, GroupedCO, GroupedP
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, *inner: Element, alignVertical: bool=True, offset: int=0,
+    def __init__(self, rect: Rect, *inner: Element | tuple[Element, float], alignVertical: bool=True, offset: int=0,
                  renderData: GroupedPrefab | list[GroupedCO | AtomCreateOption] | GroupedData=GroupedPrefab.BASIC, active: bool = True) -> None:
         assert self._renderstyle is not None
 

@@ -1,7 +1,7 @@
 
-from ...elementprefab import ElementPrefab
+from ..compositionprefab import CompositionPrefab
 
-class InteractablePrefab(ElementPrefab):
+class InteractablePrefab(CompositionPrefab):
     """
     InteractablePrefab is the abstract base class for all prefabs of interactables.
     """

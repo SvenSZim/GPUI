@@ -7,8 +7,6 @@ from .atomdata         import AtomData
 from .atomcreateoption import AtomCreateOption
 from .atomprefab       import AtomPrefab
 
-AtomCls = TypeVar('AtomCls', bound='Atom')
-
 Core         = TypeVar('Core'        , bound=AtomCore        )
 RenderData   = TypeVar('RenderData'  , bound=AtomData        )
 CreateOption = TypeVar('CreateOption', bound=AtomCreateOption)

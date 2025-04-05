@@ -2,10 +2,9 @@
 from typing import Any, Callable
 from ......utility      import Rect
 from ......interaction  import Togglable
-from ....element        import Element
 from ..interactablecore import InteractableCore
 
-class CheckboxCore(InteractableCore[Element], Togglable):
+class CheckboxCore(InteractableCore, Togglable):
     """
     CheckboxCore is the core object of the interactable 'Checkbox'.
     """

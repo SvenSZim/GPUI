@@ -62,23 +62,18 @@ class ElementCore(iRect, ABC):
         return self._body
 
     # -------------------- positional-setter --------------------
-    
-    def _scaleUpdate(self, rect: Rect) -> None:
-        pass
 
     def setWidth(self, width: int) -> None:
         """
         setWidth sets the width of the element.
         """
         LayoutManager.addConnection((True, False), self._body, Rect(), (1.0, 0.0), (1.0, 0.0), offset=width, fixedGlobal=False, keepSizeFix=False)
-        self._scaleUpdate(Rect(size=(width, self.getHeight())))
     
     def setHeight(self, height: int) -> None:
         """
         setHeight sets the height of the element.
         """
         LayoutManager.addConnection((False, True), self._body, Rect(), (0.0, 1.0), (0.0, 1.0), offset=height, fixedGlobal=False, keepSizeFix=False)
-        self._scaleUpdate(Rect(size=(self.getWidth(), height)))
 
     def alignaxis(self, other: 'ElementCore | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """

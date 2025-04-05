@@ -62,7 +62,8 @@ def main():
     cb1: Checkbox = Checkbox(Rect(size=(100,100)), renderData=[CheckboxCO.USECROSS, LineCO.COLOR1])
     f3: Framed = Framed(cb1, renderData=[LineCO.COLOR1])
 
-    g1: Grouped = Grouped(Rect(size=(340, 100)), ob1, f2, f3, alignVertical=False, offset=20)
+    g1: Grouped = Grouped(Rect(size=(340, 100)), ob1, (f2, 0.2), (f3, 0.5), alignVertical=False, offset=20)
+    f4: Framed = Framed(g1, offset=5, renderData=[LineCO.COLOR1, FramedCO.USEBORDER_LR, LineCO.DOTTED])
     #contents: list[str] = str('Hello World How Are U Doin Today').split()
     #idx: int = 0
     #def updateContentOfTxt1():
@@ -86,7 +87,7 @@ def main():
 
 
     # ------------------------- layout ------------------------
-    g1.alignpoint(Rect(), offset=20)
+    f4.alignpoint(Rect(), offset=20)
     ob2.alignpoint(g1, otherPoint=(0,1), offset=(0,20))
     l1.alignpoint(ob2, otherPoint=(1,0), offset=(20,0))
     l2.alignpoint(ob2, otherPoint=(1,0), offset=(20,0))
@@ -95,7 +96,7 @@ def main():
     #f2.alignpoint(ob1, otherPoint=(1,0), offset=(20,0))
     #f3.alignpoint(f2, otherPoint=(1,0), offset=(20,0))
 
-    LayoutManager.forceApplyLayout()
+    LayoutManager.applyLayout()
     # ------------------------- action ------------------------
 
     def flashbang():
@@ -105,14 +106,14 @@ def main():
     b1.quickSubscribeToHold(flashbang)
 
     def stretch():
-        nonlocal l1
-        g1.setWidth(540)
-        LayoutManager.forceApplyLayout()
+        nonlocal f4
+        f4.setWidth(540)
+        LayoutManager.applyLayout()
 
     def shrink():
-        nonlocal l1
-        g1.setWidth(340)
-        LayoutManager.forceApplyLayout()
+        nonlocal f4
+        f4.setWidth(340)
+        LayoutManager.applyLayout()
 
     cb1.quickSubscribeToSelect(stretch)
     cb1.quickSubscribeToDeselect(shrink)
@@ -123,7 +124,7 @@ def main():
         InputManager.update()
 
         main_screen.fill(background_color)
-        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob2, txt1, f1, g1])#, btn1])#, btn2])
+        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob2, txt1, f1, f4])#, btn1])#, btn2])
 
         pg.display.flip()
         background_color = 'black'
@@ -135,5 +136,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
