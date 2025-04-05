@@ -14,3 +14,5 @@ from .elements import Framed, FramedCO, FramedPrefab
 from .elements import Grouped, GroupedCO, GroupedPrefab
 from .elements import Button, ButtonCO, ButtonPrefab
 from .elements import Checkbox, CheckboxCO, CheckboxPrefab
+from .elements import Slider, SliderCO, SliderPrefab
+from .elements import TextCycle, TextCycleCO, TextCyclePrefab

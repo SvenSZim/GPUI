@@ -32,7 +32,6 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
             renderData = ButtonData() * (renderData, self._renderstyle)
 
         super().__init__(ButtonCore(rect, buttonActive), renderData, active)
-        assert self._renderData.fillData is not None or self._renderData.borderData is not None
 
         self.__fillBox   = self._renderData.fillData.createElement(rect)
         self.__fillCross = (self._renderData.crossData[0].createElement(rect),

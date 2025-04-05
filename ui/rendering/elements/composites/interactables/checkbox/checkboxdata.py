@@ -33,7 +33,7 @@ class CheckboxData(InteractableData[CheckboxCO, CheckboxPrefab]):
         elif createOption.value < 0x2000:
             if self.createActive[0]:
                 self.createFillData.append(BoxCO(createOption.value))
-        elif createOption.value == 0x10100:
+        elif createOption.value == 0x10200:
             self.createCrossData[1].append(LineCO.FLIPPED)
             self.fillData = CreateInfo(Box, renderData=BoxPrefab.INVISIBLE)
             self.crossData = (CreateInfo(Line, renderData=LinePrefab.INVISIBLE),

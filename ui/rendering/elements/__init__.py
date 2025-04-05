@@ -9,3 +9,5 @@ from .composites import Grouped, GroupedCO, GroupedPrefab
 
 from .composites import Button, ButtonCO, ButtonPrefab
 from .composites import Checkbox, CheckboxCO, CheckboxPrefab
+from .composites import Slider, SliderCO, SliderPrefab
+from .composites import TextCycle, TextCycleCO, TextCyclePrefab

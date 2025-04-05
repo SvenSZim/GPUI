@@ -17,3 +17,5 @@ from .rendering import Framed, FramedCO, FramedPrefab
 from .rendering import Grouped, GroupedCO, GroupedPrefab
 from .rendering import Button, ButtonCO, ButtonPrefab
 from .rendering import Checkbox, CheckboxCO, CheckboxPrefab
+from .rendering import Slider, SliderCO, SliderPrefab
+from .rendering import TextCycle, TextCycleCO, TextCyclePrefab

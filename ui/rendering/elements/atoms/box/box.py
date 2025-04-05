@@ -1,5 +1,4 @@
 from typing import override
-from numpy  import sqrt
 
 from .....utility import Rect
 from .....display import Surface

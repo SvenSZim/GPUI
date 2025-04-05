@@ -10,12 +10,12 @@ from ui import Line, LinePrefab, LineCO
 from ui import Box, BoxPrefab, BoxCO
 from ui import Text, TextPrefab, TextCO
 
-from ui import Framed, FramedCO, FramedPrefab
+from ui import Framed, FramedCO
 from ui import Grouped
-from ui import Button, ButtonCO, ButtonPrefab
-from ui import Checkbox, CheckboxCO, CheckboxPrefab
-#from ui import BoxCycleToggle
-#from ui import TextCycleToggle
+from ui import Button, ButtonCO
+from ui import Checkbox, CheckboxCO
+from ui import Slider, SliderCO
+from ui import TextCycle
 
 def main():
     pg.init()
@@ -53,7 +53,7 @@ def main():
     
     
     # ----------------------- composite-elements ----------------------
-    txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect(size=(152, 92)), content='WRAPPED :)')
+    txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect(size=(144, 84)), content='WRAPPED :)')
     f1: Framed = Framed(txt2, offset=8, renderData=[BoxCO.COLOR2, LineCO.COLOR1, FramedCO.USEBORDER_RB, LineCO.DOTTED, FramedCO.USEBORDER_R, LineCO.ALTLENGTH20])
 
     b1: Button = Button(Rect(size=(100,100)), renderData=[BoxCO.COLOR2, BoxCO.PARTIAL_80])
@@ -64,27 +64,13 @@ def main():
 
     g1: Grouped = Grouped(Rect(size=(340, 100)), ob1, (f2, 0.2), (f3, 0.5), alignVertical=False, offset=20)
     f4: Framed = Framed(g1, offset=5, renderData=[LineCO.COLOR1, FramedCO.USEBORDER_LR, LineCO.DOTTED])
-    #contents: list[str] = str('Hello World How Are U Doin Today').split()
-    #idx: int = 0
-    #def updateContentOfTxt1():
-    #   nonlocal contents, txt1, idx
-    #   txt1.updateContent(contents[idx])
-    #   idx += 1
-    #   idx %= len(contents)
+    
+    s1: Slider = Slider(Rect(size=(440,80)), renderData=[BoxCO.COLOR1])
+    f5: Framed = Framed(s1, offset=10, renderData=[LineCO.COLOR1])
 
-
-    #btn1: Toggle = Toggle(Rect((0,0),(100, 230)), numberOfStates=6, startState=2, renderData=TogglePrefab.BASIC_ALT)
-    #btn1.subscribeToClick(updateContentOfTxt1)
-    #btn1.subscribeToToggleState(3, moveLayout)
-    #btn1.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.A_DOWN))
-
-    #btn1.alignnextto(txt1, 3, offset=20)
-
-    #db: UIDynamicBody = UIDynamicBody((20, 0), (220, 100), relativeObjectsForPosition=(ob1, ob1), relativeObjectsForPositionRelationType=(0, 1))
-    #btn2: UICTextCycleToggle = UICTextCycleToggle.constructor(db,['WOW', 'This', ('Actually', '1'), 'Works'])
-    #btn2.subscribeToToggleEvent('1', updateContentOfTxt2)
-    #btn2.subscribeToToggleEvent('1', UIRenderer.updateAll)
-
+    tc1: TextCycle = TextCycle(Rect(size=(200, 80)), contents=str("State1 State2 State3 State4 STATEABCDEFGHIJKL").split(),
+                               renderData=[TextCO.COLOR1, TextCO.DYNAMIC])
+    f6: Framed = Framed(tc1, offset=10, renderData=[LineCO.COLOR1])
 
     # ------------------------- layout ------------------------
     f4.alignpoint(Rect(), offset=20)
@@ -93,8 +79,8 @@ def main():
     l2.alignpoint(ob2, otherPoint=(1,0), offset=(20,0))
     txt1.alignpoint(ob2, otherPoint=(0,1), offset=(0,20))
     f1.alignpoint(txt1, otherPoint=(0,1), offset=(0,20))
-    #f2.alignpoint(ob1, otherPoint=(1,0), offset=(20,0))
-    #f3.alignpoint(f2, otherPoint=(1,0), offset=(20,0))
+    f5.alignpoint(f1, otherPoint=(1,0), offset=(20,0))
+    f6.alignpoint(l2, otherPoint=(1,0), offset=(20,0))
 
     LayoutManager.applyLayout()
     # ------------------------- action ------------------------
@@ -102,8 +88,13 @@ def main():
     def flashbang():
         nonlocal background_color
         background_color = 'darkred'
+    
+    def getSliderValue():
+        nonlocal txt2, s1
+        txt2.updateContent(str(round(s1.getSliderState(), 2)))
 
     b1.quickSubscribeToHold(flashbang)
+    b1.quickSubscribeToClick(getSliderValue)
 
     def stretch():
         nonlocal f4
@@ -115,8 +106,21 @@ def main():
         f4.setWidth(340)
         LayoutManager.applyLayout()
 
+
     cb1.quickSubscribeToSelect(stretch)
     cb1.quickSubscribeToDeselect(shrink)
+
+    toggle: bool = False
+    def layoutMove():
+        nonlocal toggle, f4
+        if toggle:
+            f4.alignpoint(Rect(), offset=20)
+        else:
+            f4.alignpoint(Rect(), offset=(200, 40))
+        toggle = not toggle
+        LayoutManager.applyLayout()
+
+    tc1.quickSubscribeToState(3, layoutMove)
 
     # ------------------------- render ------------------------
 
@@ -124,7 +128,7 @@ def main():
         InputManager.update()
 
         main_screen.fill(background_color)
-        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob2, txt1, f1, f4])#, btn1])#, btn2])
+        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob2, txt1, f1, f4, f5, f6])#, btn1])#, btn2])
 
         pg.display.flip()
         background_color = 'black'

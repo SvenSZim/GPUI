@@ -32,7 +32,6 @@ class Checkbox(Interactable[CheckboxCore, CheckboxData, CheckboxCO, CheckboxPref
             renderData = CheckboxData() * (renderData, self._renderstyle)
 
         super().__init__(CheckboxCore(rect, startState, checkboxActive), renderData, active)
-        assert self._renderData.fillData is not None or self._renderData.borderData is not None
 
         self.__fillBox   = self._renderData.fillData.createElement(rect)
         self.__fillCross = (self._renderData.crossData[0].createElement(rect),

@@ -68,12 +68,14 @@ class ElementCore(iRect, ABC):
         setWidth sets the width of the element.
         """
         LayoutManager.addConnection((True, False), self._body, Rect(), (1.0, 0.0), (1.0, 0.0), offset=width, fixedGlobal=False, keepSizeFix=False)
+        self.getBody().applyConnection(Rect(), (True, False), (1.0, 0.0), (1.0, 0.0), offset=width, fixedGlobal=(False, False), keepSizeFix=(False, False))
     
     def setHeight(self, height: int) -> None:
         """
         setHeight sets the height of the element.
         """
         LayoutManager.addConnection((False, True), self._body, Rect(), (0.0, 1.0), (0.0, 1.0), offset=height, fixedGlobal=False, keepSizeFix=False)
+        self.getBody().applyConnection(Rect(), (False, True), (0.0, 1.0), (0.0, 1.0), offset=height, fixedGlobal=(False, False), keepSizeFix=(False, False))
 
     def alignaxis(self, other: 'ElementCore | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """

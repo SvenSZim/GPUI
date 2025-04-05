@@ -7,11 +7,11 @@ class CheckboxCO(InteractableCreateOption):
     CreateOptions when creating a object from the addon 'Checkbox'.
     """
 
-    # value range 0x10100 - 0x101ff
+    # value range 0x10200 - 0x102ff
 
-    CREATE              = 0x10100
+    CREATE              = 0x10200
 
-    USEBOX              = 0x10101
-    USECROSS            = 0x10102
-    USECROSS_TL         = 0x10103
-    USECROSS_TR         = 0x10104
+    USEBOX              = 0x10201
+    USECROSS            = 0x10202
+    USECROSS_TL         = 0x10203
+    USECROSS_TR         = 0x10204
