@@ -85,7 +85,7 @@ class ElementCore(iRect, ABC):
             case 3:
                 LayoutManager.addConnection((False, True), self._body, other, (0.0, 1.0), (0.0, 1.0), offset=offset, keepSizeFix=keepSize)
 
-    def alignpoint(self, other: 'ElementCore | iRect', myPoint: Point, otherPoint: Point) -> None:
+    def alignpoint(self, other: 'ElementCore | iRect', myPoint: Point=(0.0,0.0), otherPoint: Point=(0.0,0.0), offset: int | tuple[int, int]=0) -> None:
         """
         pointalign creates a LayoutRequest to align two relative points of elements fixed onto one another.
 
@@ -96,7 +96,7 @@ class ElementCore(iRect, ABC):
         """
         if isinstance(other, ElementCore):
             other = other.getBody()
-        LayoutManager.addConnection((True, True), self._body, other, myPoint, otherPoint)
+        LayoutManager.addConnection((True, True), self._body, other, myPoint, otherPoint, offset=offset)
 
     def alignnextto(self, other: 'ElementCore | iRect', where: int, offset: int=0, keepSize: bool=True) -> None:
         """

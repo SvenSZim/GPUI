@@ -57,6 +57,8 @@ class LineData(AtomData[LineCO, LinePrefab]):
                 case LineCO.FLIPPED:
                     self.flip = True
                 
+                case LineCO.COLOR0:
+                    self.mainColor = None
                 case LineCO.COLOR1:
                     self.mainColor = StyleManager.getStyleColor(0, style)
                 case LineCO.COLOR2:
@@ -70,6 +72,8 @@ class LineData(AtomData[LineCO, LinePrefab]):
                 case LineCO.ALTLENGTH20:
                     self.altAbsLen = 20.0
 
+                case LineCO.ALTCOLOR0:
+                    self.altColor = None
                 case LineCO.ALTCOLOR1:
                     self.altColor = StyleManager.getStyleColor(0, style)
                 case LineCO.ALTCOLOR2:

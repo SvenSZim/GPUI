@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Any, Callable, override
+from typing import override
 
 from ..event        import EventManager
 from .clickable     import Clickable

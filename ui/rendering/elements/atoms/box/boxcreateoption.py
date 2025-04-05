@@ -15,8 +15,9 @@ class BoxCO(AtomCreateOption):
     FILL_ALT            = 0x1003
 
     # fill color options
-    FILL_COLOR1         = 0x1021
-    FILL_COLOR2         = 0x1022
+    COLOR0              = 0x1020
+    COLOR1              = 0x1021
+    COLOR2              = 0x1022
     
     # alt mode
     ALTDEFAULT          = 0x1030
@@ -31,5 +32,6 @@ class BoxCO(AtomCreateOption):
     ALTLENGTH20         = 0x1046
 
     # alt color
-    ALTCOLOR1           = 0x104a
-    ALTCOLOR2           = 0x104b
+    ALTCOLOR0           = 0x104a
+    ALTCOLOR1           = 0x104b
+    ALTCOLOR2           = 0x104c

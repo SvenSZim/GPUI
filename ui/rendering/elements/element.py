@@ -112,7 +112,7 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, iRect, ABC):
             other = other.getCore()
         self._core.alignaxis(other, axis, offset, keepSize)
 
-    def alignpoint(self, other: 'Element | Core | iRect', myPoint: Point, otherPoint: Point) -> None:
+    def alignpoint(self, other: 'Element | Core | iRect', myPoint: Point=(0.0,0.0), otherPoint: Point=(0.0,0.0), offset: int | tuple[int, int] = 0) -> None:
         """
         pointalign creates a LayoutRequest to align two relative points of elements fixed onto one another.
 
@@ -123,7 +123,7 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, iRect, ABC):
         """
         if isinstance(other, Element):
             other = other.getCore()
-        self._core.alignpoint(other, myPoint, otherPoint)
+        self._core.alignpoint(other, myPoint, otherPoint, offset=offset)
 
     def alignnextto(self, other: 'Element | Core | iRect', where: int, offset: int=0, keepSize: bool=True) -> None:
         """

@@ -19,7 +19,7 @@ class Framed(Addon[Element, FramedCore, FramedData, FramedCO, FramedPrefab]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, inner: Element, renderData: FramedPrefab | list[FramedCO | AtomCreateOption] | FramedData=FramedPrefab.BASIC, active: bool = True) -> None:
+    def __init__(self, inner: Element, offset: int=0, renderData: FramedPrefab | list[FramedCO | AtomCreateOption] | FramedData=FramedPrefab.BASIC, active: bool = True) -> None:
         assert self._renderstyle is not None
 
         if isinstance(renderData, list):
@@ -31,17 +31,17 @@ class Framed(Addon[Element, FramedCore, FramedData, FramedCO, FramedPrefab]):
         elif isinstance(renderData, FramedPrefab):
             renderData = FramedData() * (renderData, self._renderstyle)
 
-        super().__init__(inner, renderData, active)
-        assert self._renderData.fillData is not None and self._renderData.borderData is not None
+        super().__init__(FramedCore(inner, offset=offset), renderData, active)
+        
         self.__background = self._renderData.fillData.createElement(self.getRect())
         self.__borders = (self._renderData.borderData[0].createElement(Rect(self.getPosition(), (0,self.getHeight()))),
                           self._renderData.borderData[1].createElement(Rect(self.getPosition(), (0,self.getHeight()))),
                           self._renderData.borderData[2].createElement(Rect(self.getPosition(), (self.getWidth(),0))),
                           self._renderData.borderData[3].createElement(Rect(self.getPosition(), (self.getWidth(),0))))
-        self.__background.alignpoint(self, (0,0), (0,0))
-        self.__borders[0].alignpoint(self, (0,0), (0,0))
+        self.__background.alignpoint(self)
+        self.__borders[0].alignpoint(self)
         self.__borders[1].alignpoint(self, (0,0), (1,0))
-        self.__borders[2].alignpoint(self, (0,0), (0,0))
+        self.__borders[2].alignpoint(self)
         self.__borders[3].alignpoint(self, (0,0), (0,1))
     
     @staticmethod
@@ -69,11 +69,6 @@ class Framed(Addon[Element, FramedCore, FramedData, FramedCO, FramedPrefab]):
         Returns (creator for this class): createinfo for this class
         """
         return CreateInfo(Framed, renderData=prefab)
-
-    @staticmethod
-    @override
-    def _coreFromInner(inner: Element) -> FramedCore:
-        return FramedCore(inner)
 
     # -------------------- rendering --------------------
 

@@ -15,3 +15,4 @@ from .rendering import Box, BoxCO, BoxPrefab
 from .rendering import Text, TextCO, TextPrefab
 
 from .rendering import Framed, FramedCO, FramedPrefab
+from .rendering import Checkbox, CheckboxCO, CheckboxPrefab

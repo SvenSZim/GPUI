@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Generic, TypeVar, Union
 
 from ...element         import Element
@@ -16,11 +16,5 @@ Prefab       = TypeVar('Prefab'      , bound=AddonPrefab      )
 
 class Addon(Generic[Inner, Core, Data, CreateOption, Prefab], Element[Core, Data, CreateOption, Prefab], ABC):
 
-    def __init__(self, inner: Inner, renderData: Data, active: bool = True) -> None:
-        core: Core = self._coreFromInner(inner)
+    def __init__(self, core: Core, renderData: Data, active: bool = True) -> None:
         super().__init__(core, renderData, active)
-
-    @staticmethod
-    @abstractmethod
-    def _coreFromInner(inner: Inner) -> Core:
-        pass

@@ -55,15 +55,20 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
                         if self.altAbsLen is None:
                             self.altAbsLen = 10.0
                 
-                case BoxCO.FILL_COLOR1:
+                case BoxCO.COLOR0:
+                    self.mainColor = None
+                case BoxCO.COLOR1:
                     self.mainColor = StyleManager.getStyleColor(0, style)
-                case BoxCO.FILL_COLOR2:
+                case BoxCO.COLOR2:
                     self.mainColor = StyleManager.getStyleColor(1, style)
 
                 case BoxCO.ALTLENGTH10:
                     self.altAbsLen = 10.0
                 case BoxCO.ALTLENGTH20:
                     self.altAbsLen = 20.0
+
+                case BoxCO.ALTCOLOR0:
+                    self.altColor = None
                 case BoxCO.ALTCOLOR1:
                     self.altColor = StyleManager.getStyleColor(0, style)
                 case BoxCO.ALTCOLOR2:

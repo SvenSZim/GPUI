@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
-from typing import Optional, override
+from typing import override
 
 from .....createinfo import CreateInfo
 from .....style      import RenderStyle
-from ....atoms       import AtomCreateOption, Line, LineData, LineCO, Box, BoxData, BoxCO
+from ....atoms       import AtomCreateOption, Line, LineCO, LinePrefab, Box, BoxCO, BoxPrefab
 from ..addondata     import AddonData
 from .framedcreateoption import FramedCO
 from .framedprefab   import FramedPrefab
@@ -14,23 +14,24 @@ class FramedData(AddonData[FramedCO, FramedPrefab]):
     FramedData is the storage class for all render-information
     for the addon 'Framed'.
     """
-    fillData : Optional[CreateInfo[Box]] = None
-    borderData: Optional[tuple[CreateInfo[Line], CreateInfo[Line], CreateInfo[Line], CreateInfo[Line]]] = None
-
-    createActiveBorder: list[bool] = field(default_factory=lambda:[True, True, True, True])
-    createFillData: BoxData = field(default_factory=BoxData)
-    createBorderData: tuple[LineData, LineData, LineData, LineData] = field(default_factory=lambda:(LineData(), LineData(), LineData(), LineData()))
+    fillData          : CreateInfo[Box]                                                               = field(default_factory=lambda: CreateInfo(Box, BoxPrefab.INVISIBLE))
+    borderData        : tuple[CreateInfo[Line], CreateInfo[Line], CreateInfo[Line], CreateInfo[Line]] = field(default_factory=lambda:(CreateInfo(Line, LinePrefab.INVISIBLE),
+                                                                                                                                      CreateInfo(Line, LinePrefab.INVISIBLE),
+                                                                                                                                      CreateInfo(Line, LinePrefab.INVISIBLE),
+                                                                                                                                      CreateInfo(Line, LinePrefab.INVISIBLE)))
+    createActiveBorder: list[bool]                                                    = field(default_factory=lambda:[True, True, True, True])
+    createFillData    : list[BoxCO]                                                   = field(default_factory=lambda:[])
+    createBorderData  : tuple[list[LineCO], list[LineCO], list[LineCO], list[LineCO]] = field(default_factory=lambda:([], [], [], []))
 
     @override
     def __add__(self, extraData: tuple[FramedCO | AtomCreateOption, RenderStyle]) -> 'FramedData':
         createOption: FramedCO | AtomCreateOption = extraData[0]
-        style: RenderStyle = extraData[1]
         if createOption.value < 0x1000:
             for active, data in zip(self.createActiveBorder, self.createBorderData):
                 if active:
-                    data += (LineCO(createOption.value), style)
+                    data.append(LineCO(createOption.value))
         elif createOption.value < 0x2000:
-            self.createFillData += (BoxCO(createOption.value), style)
+            self.createFillData.append(BoxCO(createOption.value))
         elif createOption.value == 0x8000:
             self.fillData = CreateInfo(Box, renderData=self.createFillData)
             self.borderData = (CreateInfo(Line, renderData=self.createBorderData[0]),

@@ -132,5 +132,8 @@ class LayoutManager:
                 mybods[si] = ee
 
         neededit: int = max([calculateDepth(x) for x in range(len(mybods))])
+        print("#Updates:",neededit)
         for _ in range(neededit):
             LayoutManager.applyLayout()
+
+

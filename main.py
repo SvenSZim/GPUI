@@ -11,6 +11,7 @@ from ui import Box, BoxPrefab, BoxCO
 from ui import Text, TextPrefab, TextCO
 
 from ui import Framed, FramedCO, FramedPrefab
+from ui import Checkbox, CheckboxCO, CheckboxPrefab
 #from ui import BoxCycleToggle
 #from ui import TextCycleToggle
 
@@ -39,7 +40,7 @@ def main():
 
     # ------------------------- box ------------------------
     ob1: Box = Box(Rect((0,0),(100,100)), renderData=BoxPrefab.BASIC)
-    ob2: Box = Box(Rect((0,0),(100,100)), renderData=[BoxCO.FILL_COLOR2, BoxCO.ALTCHECKERBOARD, BoxCO.ALTLENGTH20])
+    ob2: Box = Box(Rect((0,0),(100,100)), renderData=[BoxCO.COLOR2, BoxCO.ALTCHECKERBOARD, BoxCO.ALTLENGTH20])
 
 
     # ------------------------- text ------------------------
@@ -49,8 +50,11 @@ def main():
     
     
     # ----------------------- composite-elements ----------------------
-    txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect((0,0),(165, 105)), content='WRAPPED :)')
-    f1: Framed = Framed(txt2, renderData=[BoxCO.FILL_COLOR2, LineCO.COLOR1, FramedCO.USEBORDER_RB, LineCO.DOTTED, FramedCO.USEBORDER_R, LineCO.ALTLENGTH20])
+    txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect((0,0),(152, 92)), content='WRAPPED :)')
+    f1: Framed = Framed(txt2, offset=8, renderData=[BoxCO.COLOR2, LineCO.COLOR1, FramedCO.USEBORDER_RB, LineCO.DOTTED, FramedCO.USEBORDER_R, LineCO.ALTLENGTH20])
+
+    cb1: Checkbox = Checkbox(Rect((0,0),(100,100)), renderData=[BoxCO.COLOR1])
+    f2: Framed = Framed(cb1, renderData=[LineCO.COLOR1])
     #contents: list[str] = str('Hello World How Are U Doin Today').split()
     #idx: int = 0
     #def updateContentOfTxt1():
@@ -74,22 +78,21 @@ def main():
 
 
     # ------------------------- layout ------------------------
-    ob2.alignnextto(ob1, 3, offset=20)
-    l1.alignaxis(ob2, 2)
-    l2.alignaxis(ob2, 2)
-    l1.alignnextto(ob2, 1, offset=20)
-    l2.alignnextto(ob2, 1, offset=20)
-    txt1.alignnextto(ob2, 3, offset=20)
-    f1.alignnextto(txt1, 3, offset=20)
+    ob2.alignpoint(ob1, (0,0),(0,1), offset=(0,20))
+    l1.alignpoint(ob2, (0,0),(1,0), offset=(20,0))
+    l2.alignpoint(ob2, (0,0),(1,0), offset=(20,0))
+    txt1.alignpoint(ob2, (0,0),(0,1), offset=(0,20))
+    f1.alignpoint(txt1, (0,0),(0,1), offset=(0,20))
+    f2.alignpoint(ob1, (0,0),(1,0), offset=(20,0))
 
     movecallbackid: str = ''
     toggle: bool = True
     def moveLayout():
         nonlocal toggle, ob1, movecallbackid
         if toggle:
-            ob1.alignaxis(Rect((0, 200),(0,0)), 2)
+            ob1.alignpoint(Rect((200, 200),(0,0)))
         else:
-            ob1.alignaxis(Rect(), 2)
+            ob1.alignpoint(Rect())
             EventManager.unsubscribeToEvent(InputManager.getEvent(InputEvent.M_DOWN), movecallbackid)
         LayoutManager.forceApplyLayout()
         toggle = not toggle
@@ -104,7 +107,7 @@ def main():
         InputManager.update()
 
         main_screen.fill('black')
-        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, f1])#, btn1])#, btn2])
+        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, f1, f2])#, btn1])#, btn2])
 
         pg.display.flip()
 

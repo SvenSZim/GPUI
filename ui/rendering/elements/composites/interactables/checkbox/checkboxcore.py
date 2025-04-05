@@ -1,11 +1,13 @@
 
+from ......utility import Rect
 from ......interaction import Togglable
-from ....elementcore   import ElementCore
+from ....element   import Element
+from ..interactablecore   import InteractableCore
 
-class CheckboxCore(ElementCore, Togglable):
-
-    # checkable as addon?
-
-    def __init__(self, rect: Rect) -> None:
-
-
+class CheckboxCore(InteractableCore[Element], Togglable):
+    """
+    CheckboxCore is the core object of the interactable 'Checkbox'.
+    """
+    def __init__(self, rect: Rect, startState: bool=False, toggleActive: bool=True) -> None:
+        InteractableCore.__init__(self, rect)
+        Togglable.__init__(self, numberOfStates=2, startState=int(startState), toggleActive=toggleActive)
