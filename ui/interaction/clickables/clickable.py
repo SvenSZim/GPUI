@@ -57,7 +57,7 @@ class Clickable(iRect, ABC):
         """
         onTrigger gets called when the Button is triggered.
         """
-        pass # buttonActive -> trigger event
+        pass
 
     def activeTrigger(self) -> None:
         """

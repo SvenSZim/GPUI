@@ -5,7 +5,7 @@ from .....utility   import Rect
 from ...element     import Element
 from ...elementcore import ElementCore
 
-Inner = TypeVar('Inner', bound=Union[Element, list[Element]])
+Inner = TypeVar('Inner', Element, list[Element])
 
 class AddonCore(Generic[Inner], ElementCore, ABC):
 
@@ -14,11 +14,11 @@ class AddonCore(Generic[Inner], ElementCore, ABC):
     def __init__(self, outer: Rect, inner: Inner) -> None:
         super().__init__(outer)
         self._inner = inner
-        self.alignInner()
+        self._alignInner()
 
     def getInner(self) -> Inner:
         return self._inner
 
     @abstractmethod
-    def alignInner(self) -> None:
+    def _alignInner(self) -> None:
         pass

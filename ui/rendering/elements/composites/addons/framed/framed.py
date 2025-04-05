@@ -33,16 +33,21 @@ class Framed(Addon[Element, FramedCore, FramedData, FramedCO, FramedPrefab]):
 
         super().__init__(FramedCore(inner, offset=offset), renderData, active)
         
-        self.__background = self._renderData.fillData.createElement(self.getRect())
-        self.__borders = (self._renderData.borderData[0].createElement(Rect(self.getPosition(), (0,self.getHeight()))),
-                          self._renderData.borderData[1].createElement(Rect(self.getPosition(), (0,self.getHeight()))),
-                          self._renderData.borderData[2].createElement(Rect(self.getPosition(), (self.getWidth(),0))),
-                          self._renderData.borderData[3].createElement(Rect(self.getPosition(), (self.getWidth(),0))))
+        self.__background = self._renderData.fillData.createElement(Rect())
+        self.__borders = (self._renderData.borderData[0].createElement(Rect()),
+                          self._renderData.borderData[1].createElement(Rect()),
+                          self._renderData.borderData[2].createElement(Rect()),
+                          self._renderData.borderData[3].createElement(Rect()))
         self.__background.alignpoint(self)
+        self.__background.alignpoint(self, (1,1),(1,1), keepSize=False)
         self.__borders[0].alignpoint(self)
+        self.__borders[0].alignpoint(self, (1,1),(0,1), keepSize=False)
         self.__borders[1].alignpoint(self, (0,0), (1,0))
+        self.__borders[1].alignpoint(self, (1,1),(1,1), keepSize=False)
         self.__borders[2].alignpoint(self)
+        self.__borders[2].alignpoint(self, (1,1),(1,0), keepSize=False)
         self.__borders[3].alignpoint(self, (0,0), (0,1))
+        self.__borders[3].alignpoint(self, (1,1),(1,1), keepSize=False)
     
     @staticmethod
     @override

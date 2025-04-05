@@ -58,7 +58,7 @@ class LayoutManager:
     def addConnection(connectionDimension: tuple[bool, bool],
                       body: Body, fixTo: iRect, bodyFixPoint: Point, otherFixPoint: Point,
                       offset: int | tuple[int, int]=0, 
-                      fixedGlobal: tuple[bool, bool]=(True,True),
+                      fixedGlobal: tuple[bool, bool] | bool=True,
                       keepSizeFix: tuple[bool, bool] | bool=True) -> None:
         """
         addConnection creates and adds a new connection between a body and a reference object
@@ -71,7 +71,7 @@ class LayoutManager:
             bodyFixPoint        (Point) ~ (tuple[float, float])         : the relative position in the body to fix
             otherFixPoint       (Point) ~ (tuple[float, float])         : the relative position in the reference object to use as absolute position
             offset              (int or tuple[int, int])                : a offset to use when connecting. int applies to both dimensions
-            fixedGlobal         (tuple[bool, bool])                     : boolean if the fixations are global positioned or locally
+            fixedGlobal         (tuple[bool, bool] or bool)             : boolean if the fixations are global positioned or locally
                                                                             (in reference to the object itself)
             keepSizeFix         (tuple[bool, bool] or bool)             : boolean if the connection should keep size fixes or override them
         """
@@ -83,6 +83,8 @@ class LayoutManager:
             body2 = fixTo
         if isinstance(keepSizeFix, bool):
             keepSizeFix = (keepSizeFix, keepSizeFix)
+        if isinstance(fixedGlobal, bool):
+            fixedGlobal = (fixedGlobal, fixedGlobal)
 
         newJoint: Joint = Joint(dimension=connectionDimension, start=(body1idx, bodyFixPoint), end=(body2, otherFixPoint), 
                                 offset=offset, fixedGlobal=fixedGlobal, keepSizeFix=keepSizeFix)
@@ -116,7 +118,9 @@ class LayoutManager:
         """
         mybods: list[None | int] = [None for _ in range(len(LayoutManager.__l_bodys))]
 
-        def calculateDepth(s: int) -> int:
+        def calculateDepth(s: None | int) -> int:
+            if s is None:
+                return 0
             nonlocal mybods
             if mybods[s] is None or s < 0:
                 return 0

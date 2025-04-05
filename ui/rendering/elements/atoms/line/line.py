@@ -98,23 +98,25 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
             normalizer: float = stepLength/sqrt(rect.width*rect.width + rect.height*rect.height)
             stepSizeX: float = rect.width*normalizer
             stepSizeY: float = rect.height*normalizer
-            start_line: Rect = Rect(rect.getPosition(), (int(stepSizeX), int(stepSizeY)))
+
+            cline: list[float] = [float(x) for x in rect.getPosition()]
             firstColor: bool = True
-            while boundRect.collidepoint((start_line.right, start_line.bottom)):
+            while boundRect.collidepoint((int(cline[0] + stepSizeX), int(cline[1] + stepSizeY))):
                 if firstColor:
                     if self._renderData.mainColor is not None:
-                        self._drawer.drawline(surface, (start_line.left, start_line.top), (start_line.right, start_line.bottom), self._renderData.mainColor)
+                        self._drawer.drawline(surface, (int(cline[0]), int(cline[1])), (int(cline[0] + stepSizeX), int(cline[1] + stepSizeY)), self._renderData.mainColor)
                 else:
                     if self._renderData.altColor is not None:
-                        self._drawer.drawline(surface, (start_line.left, start_line.top), (start_line.right, start_line.bottom), self._renderData.altColor)
+                        self._drawer.drawline(surface, (int(cline[0]), int(cline[1])), (int(cline[0] + stepSizeX), int(cline[1] + stepSizeY)), self._renderData.altColor)
                 firstColor = not firstColor
-                start_line = Rect((start_line.right, start_line.bottom),(int(stepSizeX), int(stepSizeY)))
+                cline[0] += stepSizeX
+                cline[1] += stepSizeY
             if firstColor:
                 if self._renderData.mainColor is not None:
-                    self._drawer.drawline(surface, (start_line.left, start_line.top), (rect.right, rect.bottom), self._renderData.mainColor)
+                    self._drawer.drawline(surface, (int(cline[0]), int(cline[1])), (rect.right, rect.bottom), self._renderData.mainColor)
             else:
                 if self._renderData.altColor is not None:
-                    self._drawer.drawline(surface, (start_line.left, start_line.top), (rect.right, rect.bottom), self._renderData.altColor)
+                    self._drawer.drawline(surface, (int(cline[0]), int(cline[1])), (rect.right, rect.bottom), self._renderData.altColor)
 
 
 

@@ -38,8 +38,11 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
         self.__fillCross = (self._renderData.crossData[0].createElement(rect),
                             self._renderData.crossData[1].createElement(rect))
         self.__fillBox.alignpoint(self)
+        self.__fillBox.alignpoint(self, (1,1),(1,1), keepSize=False)
         self.__fillCross[0].alignpoint(self)
+        self.__fillCross[0].alignpoint(self, (1,1),(1,1), keepSize=False)
         self.__fillCross[1].alignpoint(self)
+        self.__fillCross[1].alignpoint(self, (1,1),(1,1), keepSize=False)
     
     @staticmethod
     @override

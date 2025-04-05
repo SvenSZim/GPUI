@@ -7,7 +7,7 @@ from .addondata         import AddonData
 from .addoncreateoption import AddonCreateOption
 from .addonprefab       import AddonPrefab
 
-Inner = TypeVar('Inner', bound=Union[Element, list[Element]])
+Inner = TypeVar('Inner', Element, list[Element])
 
 Core         = TypeVar('Core'        , bound=AddonCore        )
 Data         = TypeVar('Data'        , bound=AddonData        )

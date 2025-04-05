@@ -33,8 +33,8 @@ class Togglable(Clickable, ABC):
         onStateTrigger triggers the Event of the currentState and cycles to
         the next one.
         """
-        EventManager.triggerEvent(self.__toggleEvents[self._currentState])
         self._currentState = (self._currentState + 1) % self._numberOfStates
+        EventManager.triggerEvent(self.__toggleEvents[self._currentState])
     
     @override
     def _onTrigger(self) -> None:

@@ -62,6 +62,23 @@ class ElementCore(iRect, ABC):
         return self._body
 
     # -------------------- positional-setter --------------------
+    
+    def _scaleUpdate(self, rect: Rect) -> None:
+        pass
+
+    def setWidth(self, width: int) -> None:
+        """
+        setWidth sets the width of the element.
+        """
+        LayoutManager.addConnection((True, False), self._body, Rect(), (1.0, 0.0), (1.0, 0.0), offset=width, fixedGlobal=False, keepSizeFix=False)
+        self._scaleUpdate(Rect(size=(width, self.getHeight())))
+    
+    def setHeight(self, height: int) -> None:
+        """
+        setHeight sets the height of the element.
+        """
+        LayoutManager.addConnection((False, True), self._body, Rect(), (0.0, 1.0), (0.0, 1.0), offset=height, fixedGlobal=False, keepSizeFix=False)
+        self._scaleUpdate(Rect(size=(self.getWidth(), height)))
 
     def alignaxis(self, other: 'ElementCore | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """
@@ -85,7 +102,7 @@ class ElementCore(iRect, ABC):
             case 3:
                 LayoutManager.addConnection((False, True), self._body, other, (0.0, 1.0), (0.0, 1.0), offset=offset, keepSizeFix=keepSize)
 
-    def alignpoint(self, other: 'ElementCore | iRect', myPoint: Point=(0.0,0.0), otherPoint: Point=(0.0,0.0), offset: int | tuple[int, int]=0) -> None:
+    def alignpoint(self, other: 'ElementCore | iRect', myPoint: Point=(0.0,0.0), otherPoint: Point=(0.0,0.0), offset: int | tuple[int, int]=0, keepSize: bool=True) -> None:
         """
         pointalign creates a LayoutRequest to align two relative points of elements fixed onto one another.
 
@@ -96,7 +113,7 @@ class ElementCore(iRect, ABC):
         """
         if isinstance(other, ElementCore):
             other = other.getBody()
-        LayoutManager.addConnection((True, True), self._body, other, myPoint, otherPoint, offset=offset)
+        LayoutManager.addConnection((True, True), self._body, other, myPoint, otherPoint, offset=offset, keepSizeFix=keepSize)
 
     def alignnextto(self, other: 'ElementCore | iRect', where: int, offset: int=0, keepSize: bool=True) -> None:
         """

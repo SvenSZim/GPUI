@@ -97,7 +97,19 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, iRect, ABC):
         return self._core
 
     # -------------------- positional-setter --------------------
-    
+
+    def setWidth(self, width: int) -> None:
+        """
+        setWidth sets the width of the element.
+        """
+        self._core.setWidth(width)
+
+    def setHeight(self, height: int) -> None:
+        """
+        setHeight sets the height of the element.
+        """
+        self._core.setHeight(height)
+
     def alignaxis(self, other: 'Element | Core | iRect', axis: int, offset: int=0, keepSize: bool=True) -> None:
         """
         alignaxis creates a LayoutRequest to align the axis of the core element with the given one.
@@ -112,7 +124,7 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, iRect, ABC):
             other = other.getCore()
         self._core.alignaxis(other, axis, offset, keepSize)
 
-    def alignpoint(self, other: 'Element | Core | iRect', myPoint: Point=(0.0,0.0), otherPoint: Point=(0.0,0.0), offset: int | tuple[int, int] = 0) -> None:
+    def alignpoint(self, other: 'Element | Core | iRect', myPoint: Point=(0.0,0.0), otherPoint: Point=(0.0,0.0), offset: int | tuple[int, int] = 0, keepSize: bool=True) -> None:
         """
         pointalign creates a LayoutRequest to align two relative points of elements fixed onto one another.
 
@@ -120,10 +132,11 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, iRect, ABC):
             other:      (Element or Core or Rect)   : the reference to align against
             myPoint:    (Point)                     : the relative position on this element to align
             otherPoint: (Point)                     : the relative position on the other element to align against
+            keepSize (bool)                                      : boolean if the connection should keep the size
         """
         if isinstance(other, Element):
             other = other.getCore()
-        self._core.alignpoint(other, myPoint, otherPoint, offset=offset)
+        self._core.alignpoint(other, myPoint, otherPoint, offset=offset, keepSize=keepSize)
 
     def alignnextto(self, other: 'Element | Core | iRect', where: int, offset: int=0, keepSize: bool=True) -> None:
         """

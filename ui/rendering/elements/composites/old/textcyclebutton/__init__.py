@@ -1,2 +1,0 @@
-from .UICTextCycleButtonCore import UICTextCycleButtonCore
-from .UICTextCycleButton import UICTextCycleButton

@@ -24,7 +24,7 @@ class CheckboxCore(InteractableCore[Element], Togglable):
 
         Returns (bool): returns if the subscription was successful
         """
-        return self.subscribeToToggleState(0, callback)
+        return self.subscribeToToggleState(1, callback)
 
     def unsubscribeToSelect(self, callback: str) -> bool:
         """
@@ -35,7 +35,7 @@ class CheckboxCore(InteractableCore[Element], Togglable):
 
         Returns (bool): if the unsubscription was successful
         """
-        return self.unsubscribeToToggleState(0, callback)
+        return self.unsubscribeToToggleState(1, callback)
 
     def quickSubscribeToSelect(self, f: Callable, *args: Any) -> tuple[str, bool]:
         """
@@ -49,7 +49,7 @@ class CheckboxCore(InteractableCore[Element], Togglable):
         Returns (tuple[str, bool]): 1. the id of the newly created Callback
                                     2. if the callback was successfully subscribed
         """
-        return self.quickSubscribeToToggleState(0, f, *args)
+        return self.quickSubscribeToToggleState(1, f, *args)
 
     def subscribeToDeselect(self, callback: str) -> bool:
         """
@@ -60,7 +60,7 @@ class CheckboxCore(InteractableCore[Element], Togglable):
 
         Returns (bool): returns if the subscription was successful
         """
-        return self.subscribeToToggleState(1, callback)
+        return self.subscribeToToggleState(0, callback)
 
     def unsubscribeToDeselect(self, callback: str) -> bool:
         """
@@ -71,7 +71,7 @@ class CheckboxCore(InteractableCore[Element], Togglable):
 
         Returns (bool): if the unsubscription was successful
         """
-        return self.unsubscribeToToggleState(1, callback)
+        return self.unsubscribeToToggleState(0, callback)
 
     def quickSubscribeToDeselect(self, f: Callable, *args: Any) -> tuple[str, bool]:
         """
@@ -85,5 +85,5 @@ class CheckboxCore(InteractableCore[Element], Togglable):
         Returns (tuple[str, bool]): 1. the id of the newly created Callback
                                     2. if the callback was successfully subscribed
         """
-        return self.quickSubscribeToToggleState(1, f, *args)
+        return self.quickSubscribeToToggleState(0, f, *args)
 
