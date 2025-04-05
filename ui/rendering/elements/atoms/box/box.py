@@ -78,6 +78,9 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
             rect = Rect((rect.left + rect.width, rect.top), (-rect.width, rect.height))
         if rect.height < 0:
             rect = Rect((rect.left, rect.top + rect.height), (rect.width, -rect.height))
+        inset: int = int(min(rect.width, rect.height) * (1.0 - self._renderData.partial) / 2)
+        rect = Rect((rect.left + inset, rect.top + inset),
+                    (rect.width - 2 * inset, rect.height - 2 * inset))
         
         match self._renderData.altMode:
             case AltMode.CHECKERBOARD:

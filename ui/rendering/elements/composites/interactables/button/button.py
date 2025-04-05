@@ -1,4 +1,4 @@
-from typing import override
+from typing import Any, Callable, override
 
 from ......utility   import Rect
 from ......display   import Surface
@@ -66,6 +66,84 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
         Returns (creator for this class): createinfo for this class
         """
         return CreateInfo(Button, renderData=prefab)
+
+    # -------------------- subscriptions --------------------
+
+    def subscribeToClick(self, callback: str) -> bool:
+        """
+        subscribeToClick subscribes a Callback to the Event of the object
+        getting clicked.
+
+        Args:
+            callback (str): the id of the callback to subscribe to the click
+
+        Returns (bool): returns if the subscription was successful
+        """
+        return self._core.subscribeToClick(callback)
+    
+    def unsubscribeToClick(self, callback: str) -> bool:
+        """
+        unsubscribeToClick unsubscribes a callback (by id) from the Event of the
+        object getting clicked.
+
+        Args:
+            callback (str): the id of the callback to unsubscribe
+
+        Returns (bool): if the unsubscription was successful
+        """
+        return self._core.unsubscribeToClick(callback)
+
+    def quickSubscribeToClick(self, f: Callable, *args: Any) -> tuple[str, bool]:
+        """
+        quickSubscribeToClick takes a function and its arguments, creates
+        a Callback and subscribes to the Event of the object getting clicked.
+
+        Args:
+            f     (Callable) : the function to use as callback
+            args  (list[Any]): the arguments to use as callback
+
+        Returns (tuple[str, bool]): 1. the id of the newly created Callback
+                                    2. if the callback was successfully subscribed
+        """
+        return self._core.quickSubscribeToClick(f, *args)
+
+    def subscribeToHold(self, callback: str) -> bool:
+        """
+        subscribeToHold subscribes a Callback to the Event of the button
+        getting pressed down.
+
+        Args:
+            callback (str): the id of the callback to subscribe to the click
+
+        Returns (bool): returns if the subscription was successful
+        """
+        return self._core.subscribeToHold(callback)
+    
+    def unsubscribeToHold(self, callback: str) -> bool:
+        """
+        unsubscribeToHold unsubscribes a callback (by id) from the Event of the
+        button getting pressed down.
+
+        Args:
+            callback (str): the id of the callback to unsubscribe
+
+        Returns (bool): if the unsubscription was successful
+        """
+        return self._core.unsubscribeToHold(callback)
+
+    def quickSubscribeToHold(self, f: Callable, *args: Any) -> tuple[str, bool]:
+        """
+        quickSubscribeToHold takes a function and its arguments, creates
+        a Callback and subscribes to the Event of the button getting pressed down.
+
+        Args:
+            f     (Callable) : the function to use as callback
+            args  (list[Any]): the arguments to use as callback
+
+        Returns (tuple[str, bool]): 1. the id of the newly created Callback
+                                    2. if the callback was successfully subscribed
+        """
+        return self._core.quickSubscribeToHold(f, *args)
 
     # -------------------- rendering --------------------
 

@@ -8,14 +8,16 @@ from .clickable     import Clickable
 class Holdable(Clickable, ABC):
 
     _activeReleaseCallback: str
-    _onhold: str
+    _onHoldTriggerCallback: str
 
+    _onhold: str
     _isPressed: bool
     
     def __init__(self, buttonActive: bool=True) -> None:
         Clickable.__init__(self, buttonActive)
 
         self._activeReleaseCallback = EventManager.createCallback(self._onRelease)
+        self._onHoldTriggerCallback = EventManager.createCallback(self._onHoldTrigger)
         self._onhold = EventManager.createEvent()
 
         self._isPressed = False
@@ -36,9 +38,12 @@ class Holdable(Clickable, ABC):
         """
         if self._buttonActive:
             EventManager.unsubscribeToEvent(InputManager.getEvent(InputEvent.LEFTUP), self._activeReleaseCallback)
-            EventManager.unsubscribeToEvent(InputManager.getEvent(InputEvent.UPDATE), self._onhold)
+            EventManager.unsubscribeToEvent(InputManager.getEvent(InputEvent.UPDATE), self._onHoldTriggerCallback)
 
             self._isPressed = False
+
+    def _onHoldTrigger(self) -> None:
+        EventManager.triggerEvent(self._onhold)
 
     @override
     def _onTrigger(self) -> None:
@@ -48,7 +53,7 @@ class Holdable(Clickable, ABC):
         if self._buttonActive:
             EventManager.triggerEvent(self._onclick)
             EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.LEFTUP), self._activeReleaseCallback)
-            EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.UPDATE), self._onhold)
+            EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.UPDATE), self._onHoldTriggerCallback)
 
             self._isPressed = True
 

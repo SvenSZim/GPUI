@@ -34,6 +34,7 @@ def main():
     
     screen_size = (1280, 720)
     main_screen = pg.display.set_mode(screen_size)
+    background_color = 'black'
 
     # ------------------------- line ------------------------
     l1: Line = Line(Rect((0, 0), (100, 100)), renderData=LinePrefab.DOTTED)
@@ -54,7 +55,7 @@ def main():
     txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect((0,0),(152, 92)), content='WRAPPED :)')
     f1: Framed = Framed(txt2, offset=8, renderData=[BoxCO.COLOR2, LineCO.COLOR1, FramedCO.USEBORDER_RB, LineCO.DOTTED, FramedCO.USEBORDER_R, LineCO.ALTLENGTH20])
 
-    b1: Button = Button(Rect((0,0),(100,100)), renderData=[BoxCO.COLOR2])
+    b1: Button = Button(Rect((0,0),(100,100)), renderData=[BoxCO.COLOR2, BoxCO.PARTIAL_80])
     f2: Framed = Framed(b1, renderData=[LineCO.COLOR1])
 
     cb1: Checkbox = Checkbox(Rect((0,0),(100,100)), renderData=[CheckboxCO.USECROSS, LineCO.COLOR1])
@@ -105,16 +106,38 @@ def main():
     movecallbackid: str = EventManager.createCallback(moveLayout)
     InputManager.subscribeToEvent(InputEvent.M_DOWN, movecallbackid)
 
+    # ------------------------- action ------------------------
+
+    def flashbang():
+        nonlocal background_color
+        background_color = 'darkred'
+
+    b1.quickSubscribeToHold(flashbang)
+
+    def moveRight():
+        nonlocal ob1
+        ob1.alignaxis(Rect(), 0, offset=200)
+        LayoutManager.forceApplyLayout()
+
+    def moveLeft():
+        nonlocal ob1
+        ob1.alignaxis(Rect(), 0)
+        LayoutManager.forceApplyLayout()
+
+    cb1.quickSubscribeToSelect(moveRight)
+    cb1.quickSubscribeToDeselect(moveLeft)
+
     # ------------------------- render ------------------------
     LayoutManager.forceApplyLayout()
 
     while running:
         InputManager.update()
 
-        main_screen.fill('black')
+        main_screen.fill(background_color)
         Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, f1, f2, f3])#, btn1])#, btn2])
 
         pg.display.flip()
+        background_color = 'black'
 
     pg.font.quit()
     pg.quit()

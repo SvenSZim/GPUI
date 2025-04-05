@@ -29,13 +29,16 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
     altMode     : Optional[AltMode] = None
     altColor    : Optional[Color]   = None
     altAbsLen   : Optional[float]   = None
+    partial     : float             = 1.0
 
     @override
     def __add__(self, extraData: tuple[BoxCO, RenderStyle]) -> 'BoxData':
         createOption: BoxCO = extraData[0]
         style: RenderStyle = extraData[1]
-        if 0x1030 <= createOption.value < 0x1045:
-            self.altMode = AltMode(createOption.value - 0x1030)
+        if 0x1031 <= createOption.value < 0x103a:
+            self.partial = 0.1 * (createOption.value - 0x1030)
+        elif 0x1050 <= createOption.value < 0x1065:
+            self.altMode = AltMode(createOption.value - 0x1050)
             if self.mainColor is None and self.altColor is None:
                 self.mainColor = StyleManager.getStyleColor(0, style)
             if self.altAbsLen is None:
@@ -61,6 +64,9 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
                     self.mainColor = StyleManager.getStyleColor(0, style)
                 case BoxCO.COLOR2:
                     self.mainColor = StyleManager.getStyleColor(1, style)
+
+                case BoxCO.PARTIAL_NOPARTIAL:
+                    self.partial = 1.0
 
                 case BoxCO.ALTLENGTH10:
                     self.altAbsLen = 10.0
