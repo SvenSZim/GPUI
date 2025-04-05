@@ -6,4 +6,5 @@ from .atoms import Text, TextCO, TextPrefab
 
 from .composites import Framed, FramedCO, FramedPrefab
 
+from .composites import Button, ButtonCO, ButtonPrefab
 from .composites import Checkbox, CheckboxCO, CheckboxPrefab

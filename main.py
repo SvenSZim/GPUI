@@ -11,6 +11,7 @@ from ui import Box, BoxPrefab, BoxCO
 from ui import Text, TextPrefab, TextCO
 
 from ui import Framed, FramedCO, FramedPrefab
+from ui import Button, ButtonCO, ButtonPrefab
 from ui import Checkbox, CheckboxCO, CheckboxPrefab
 #from ui import BoxCycleToggle
 #from ui import TextCycleToggle
@@ -53,8 +54,11 @@ def main():
     txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect((0,0),(152, 92)), content='WRAPPED :)')
     f1: Framed = Framed(txt2, offset=8, renderData=[BoxCO.COLOR2, LineCO.COLOR1, FramedCO.USEBORDER_RB, LineCO.DOTTED, FramedCO.USEBORDER_R, LineCO.ALTLENGTH20])
 
-    cb1: Checkbox = Checkbox(Rect((0,0),(100,100)), renderData=[BoxCO.COLOR1])
-    f2: Framed = Framed(cb1, renderData=[LineCO.COLOR1])
+    b1: Button = Button(Rect((0,0),(100,100)), renderData=[BoxCO.COLOR2])
+    f2: Framed = Framed(b1, renderData=[LineCO.COLOR1])
+
+    cb1: Checkbox = Checkbox(Rect((0,0),(100,100)), renderData=[CheckboxCO.USECROSS, LineCO.COLOR1])
+    f3: Framed = Framed(cb1, renderData=[LineCO.COLOR1])
     #contents: list[str] = str('Hello World How Are U Doin Today').split()
     #idx: int = 0
     #def updateContentOfTxt1():
@@ -84,6 +88,7 @@ def main():
     txt1.alignpoint(ob2, (0,0),(0,1), offset=(0,20))
     f1.alignpoint(txt1, (0,0),(0,1), offset=(0,20))
     f2.alignpoint(ob1, (0,0),(1,0), offset=(20,0))
+    f3.alignpoint(f2, (0,0),(1,0), offset=(20,0))
 
     movecallbackid: str = ''
     toggle: bool = True
@@ -107,7 +112,7 @@ def main():
         InputManager.update()
 
         main_screen.fill('black')
-        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, f1, f2])#, btn1])#, btn2])
+        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob1, ob2, txt1, f1, f2, f3])#, btn1])#, btn2])
 
         pg.display.flip()
 

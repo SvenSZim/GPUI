@@ -99,6 +99,8 @@ class EventManager:
             return True
         return False
 
+    # -------------------- subscriptions --------------------
+
     @staticmethod
     def subscribeToEvent(event: str, callback: str) -> bool:
         """

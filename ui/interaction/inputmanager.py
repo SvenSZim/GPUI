@@ -56,8 +56,8 @@ class InputManager:
                         EventManager.triggerEvent(InputManager.events[InputEvent.LEFTUP])
                         InputManager.currentDown.remove(InputEvent.LEFTHELD)
 
-        for event in InputManager.currentDown:
-            EventManager.triggerEvent(InputManager.events[event])
+        #for event in InputManager.currentDown:
+        #    EventManager.triggerEvent(InputManager.events[event])
 
         EventManager.triggerEvent(InputManager.events[InputEvent.UPDATE])
 

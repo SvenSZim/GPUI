@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Generic, TypeVar, Union
+from typing import Generic, TypeVar
 
 from ...element     import Element
 from .interactablecore          import InteractableCore
