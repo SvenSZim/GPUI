@@ -53,8 +53,8 @@ def main():
     
     
     # ----------------------- composite-elements ----------------------
-    txt2: Text = Text.fromPrefab(TextPrefab.DYNAMIC_BASIC).createElement(Rect(size=(144, 84)), content='WRAPPED :)')
-    f1: Framed = Framed(txt2, offset=8, renderData=[BoxCO.COLOR2, LineCO.COLOR1, FramedCO.USEBORDER_RB, LineCO.DOTTED, FramedCO.USEBORDER_R, LineCO.ALTLENGTH20])
+    txt2: Text = Text.fromCreateOptions([TextCO.SIZE_SM ,TextCO.COLOR1, TextCO.ALIGNTOP]).createElement(Rect(size=(144, 84)), content='WRAPPED :)')
+    f1: Framed = Framed(txt2, offset=0, renderData=[BoxCO.COLOR2, LineCO.COLOR1, FramedCO.USEBORDER_RB, LineCO.DOTTED, FramedCO.USEBORDER_R, LineCO.ALTLENGTH20])
 
     b1: Button = Button(Rect(size=(100,100)), renderData=[BoxCO.COLOR2, BoxCO.PARTIAL_80])
     f2: Framed = Framed(b1, renderData=[LineCO.COLOR1])
@@ -69,7 +69,7 @@ def main():
     f5: Framed = Framed(s1, offset=10, renderData=[LineCO.COLOR1])
 
     tc1: TextCycle = TextCycle(Rect(size=(200, 80)), contents=str("State1 State2 State3 State4 STATEABCDEFGHIJKL").split(),
-                               renderData=[TextCO.COLOR1, TextCO.DYNAMIC])
+                               renderData=[TextCO.COLOR1, TextCO.SIZEDYNAMIC])
     f6: Framed = Framed(tc1, offset=10, renderData=[LineCO.COLOR1])
 
     # ------------------------- layout ------------------------
@@ -124,11 +124,15 @@ def main():
 
     # ------------------------- render ------------------------
 
+    b2: Box = Box(Rect(size=(900, 900)), renderData=[BoxCO.COLOR2])
+    b2.setZIndex(-1)
+
+    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2]
     while running:
         InputManager.update()
 
         main_screen.fill(background_color)
-        Renderer.renderAll(PygameSurface(main_screen), [l1, l2, ob2, txt1, f1, f4, f5, f6])#, btn1])#, btn2])
+        allObjects = Renderer.renderAll(PygameSurface(main_screen), allObjects)
 
         pg.display.flip()
         background_color = 'black'

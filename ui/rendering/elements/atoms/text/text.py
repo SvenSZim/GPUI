@@ -6,7 +6,7 @@ from .....display import Surface, Font, FontManager
 from ....createinfo     import CreateInfo
 from ..atom             import Atom
 from .textcore          import TextCore
-from .textdata          import TextData
+from .textdata          import TextData, AlignType
 from .textcreateoption  import TextCO
 from .textprefab        import TextPrefab
 
@@ -90,9 +90,29 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
             font: Font = FontManager.getFont().SysFont(self._renderData.sysFontName, self._renderData.fontSize)
             text_render: Surface = font.render(self._core.getContent(), self._renderData.textColor)
             text_size: tuple[int, int] = text_render.getSize()
-            text_position: tuple[int, int] = (int(rect.getPosition()[0] + (rect.getSize()[0] - text_size[0]) / 2),
-                                                  int(rect.getPosition()[1] + (rect.getSize()[1] - text_size[1]) / 2))
-            surface.blit(text_render, text_position)
+            textPosX: int
+            match self._renderData.fontAlign.value & 0x0f:
+                # check last 4 bits -> x positioning
+                case 0:
+                    textPosX = rect.left
+                case 1:
+                    textPosX = int(rect.left + (rect.width - text_size[0]) / 2)
+                case 2:
+                    textPosX = rect.right - text_size[0]
+                case _:
+                    textPosX = 0
+            textPosY: int
+            match (self._renderData.fontAlign.value & 0xf0) >> 4:
+                # check second 4 bits -> y positioning
+                case 0:
+                    textPosY = rect.top
+                case 1:
+                    textPosY = int(rect.top + (rect.height - text_size[1]) / 2)
+                case 2:
+                    textPosY = rect.bottom - text_size[1]
+                case _:
+                    textPosY = 0
+            surface.blit(text_render, (textPosX, textPosY))
 
 
 # -------------------------------------------------- helpers --------------------------------------------------

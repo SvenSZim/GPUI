@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from ..display import Font, FontManager, Surface, SurfaceDrawer
 from .style import RenderStyle
@@ -11,8 +11,11 @@ class Renderer(ABC):
     # -------------------- creation --------------------
 
     _active: bool   # boolean if the renderer is active or not
+    _zIndex: int    # zIndex of the element (depth)
+
     def __init__(self, active: bool = True) -> None:
         self._active = active
+        self._zIndex = 0
 
     # -------------------- active-state --------------------
 
@@ -42,6 +45,18 @@ class Renderer(ABC):
         """
         self._active = active
 
+    def getZIndex(self) -> int:
+        """
+        getZIndex returns the z-index of the Renderer
+        """
+        return self._zIndex
+
+    def setZIndex(self, zindex: int) -> None:
+        """
+        setZIndex sets the z-index of the Renderer
+        """
+        self._zIndex = zindex
+
     # -------------------- abstract-methods --------------------
 
     @abstractmethod
@@ -59,6 +74,10 @@ class Renderer(ABC):
     _drawer: type[SurfaceDrawer] | None = None
     _renderstyle: RenderStyle | None = None
 
+    __cachedSortedRenderer: list['Renderer'] = []
+
+    __postRenderQueue: list['Renderer'] = []
+
     @staticmethod
     def init(drawer: type[SurfaceDrawer], font: type[Font], renderstyle: RenderStyle) -> None:
         """
@@ -74,7 +93,22 @@ class Renderer(ABC):
         Renderer._renderstyle = renderstyle
 
     @staticmethod
-    def renderAll(screen: Surface, elements: list['Renderer']) -> None:
+    def addPostRenderElement(element: 'Renderer') -> None:
+        """
+        addPostRenderElement adds a element to the post-render-queue of the renderer.
+        Thereby the element get forcefully rendered after all 'normal' renders.
+        """
+        Renderer.__postRenderQueue.append(element)
+
+    @staticmethod
+    def __renderPost(screen: Surface) -> None:
+        assert Renderer._drawer is not None and Renderer._renderstyle is not None
+        for el in Renderer.__postRenderQueue:
+            el.render(screen)
+        Renderer.__postRenderQueue = []
+
+    @staticmethod
+    def renderAll(screen: Surface, elements: list['Renderer']) -> list['Renderer']:
         """
         renderAll renders all the given uiobjects onto the given screen.
 
@@ -87,6 +121,14 @@ class Renderer(ABC):
         
         if Renderer._renderstyle is None:
             raise ValueError("Renderer::renderstyle is not instantiated!")
-
+        
+        if elements != Renderer.__cachedSortedRenderer:
+            elements = sorted(elements, key=lambda x: x.getZIndex())
+            Renderer.__cachedSortedRenderer = elements
         for element in elements:
             element.render(screen)
+
+        if len(Renderer.__postRenderQueue) > 0:
+            Renderer.__renderPost(screen)
+
+        return elements
