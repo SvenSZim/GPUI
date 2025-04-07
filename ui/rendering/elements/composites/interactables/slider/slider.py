@@ -33,15 +33,15 @@ class Slider(Interactable[SliderCore, SliderData, SliderCO, SliderPrefab]):
 
         super().__init__(SliderCore(rect, sliderStartState=sliderStart, horizontalSlider=horizontalSlider, sliderActive=sliderActive), renderData, active)
 
-        self.__fillBox = self._renderData.fillData.createElement(rect)
-        self.__fillLine = self._renderData.lineData.createElement(rect)
+        self.__fillBox = self._renderData.fillData.createElement(Rect())
+        self.__fillLine = self._renderData.lineData.createElement(Rect())
         self.__fillBox.alignpoint(self)
         if horizontalSlider:
-            self.__fillBox.alignaxis(self, 3)
-            self.__fillLine.alignpoint(self, otherPoint=(0.0, 0.5))
+            self.__fillBox.alignaxis(self, 3, keepSize=False)
+            self.__fillLine.alignpoint(self, otherPoint=(0.0, 0.5), keepSize=False)
         else:
-            self.__fillBox.alignaxis(self, 1)
-            self.__fillLine.alignpoint(self, otherPoint=(0.5, 0.0))
+            self.__fillBox.alignaxis(self, 1, keepSize=False)
+            self.__fillLine.alignpoint(self, otherPoint=(0.5, 0.0), keepSize=False)
     
     @staticmethod
     @override
