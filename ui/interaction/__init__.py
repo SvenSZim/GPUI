@@ -5,4 +5,4 @@ Consists of Event and Input related functionality.
 
 from .event        import EventManager
 from .inputmanager import InputEvent, InputManager
-from .clickables   import Holdable, Togglable
+from .clickables   import Clickable, Holdable, Togglable

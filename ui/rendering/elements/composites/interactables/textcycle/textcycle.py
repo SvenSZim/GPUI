@@ -114,7 +114,7 @@ class TextCycle(Interactable[TextCycleCore, TextCycleData, TextCycleCO, TextCycl
 
         Returns (bool): returns if the subscription was successful
         """
-        return self._core.subscribeToState(state, callback)
+        return self._core.subscribeToToggleState(state, callback)
 
     def unsubscribeToState(self, state: int, callback: str) -> bool:
         """
@@ -126,7 +126,7 @@ class TextCycle(Interactable[TextCycleCore, TextCycleData, TextCycleCO, TextCycl
 
         Returns (bool): if the unsubscription was successful
         """
-        return self._core.unsubscribeToState(state, callback)
+        return self._core.unsubscribeToToggleState(state, callback)
 
     def quickSubscribeToState(self, state: int, f: Callable, *args: Any) -> tuple[str, bool]:
         """
@@ -141,7 +141,7 @@ class TextCycle(Interactable[TextCycleCore, TextCycleData, TextCycleCO, TextCycl
         Returns (tuple[str, bool]): 1. the id of the newly created Callback
                                     2. if the callback was successfully subscribed
         """
-        return self._core.quickSubscribeToState(state, f, *args)
+        return self._core.quickSubscribeToToggleState(state, f, *args)
     
     # -------------------- rendering --------------------
 

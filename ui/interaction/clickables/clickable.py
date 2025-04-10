@@ -4,7 +4,7 @@ from typing import Any, Callable
 
 from ...utility     import iRect, Rect
 from ..event        import EventManager
-from ..inputmanager import InputManager, InputEvent
+from ..inputmanager import InputManager
 
 class Clickable(iRect, ABC):
 
@@ -20,7 +20,6 @@ class Clickable(iRect, ABC):
 
         self._activeTriggerCallback = EventManager.createCallback(self.activeTrigger)
         self._passiveTriggerCallback = EventManager.createCallback(self.passiveTrigger)
-        EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.LEFTDOWN), self._activeTriggerCallback)
 
     # -------------------- active-state --------------------
 
@@ -52,12 +51,11 @@ class Clickable(iRect, ABC):
 
     # -------------------- triggering --------------------
 
-    @abstractmethod
     def _onTrigger(self) -> None:
         """
         onTrigger gets called when the Button is triggered.
         """
-        pass
+        EventManager.triggerEvent(self._onclick)
 
     def activeTrigger(self) -> None:
         """

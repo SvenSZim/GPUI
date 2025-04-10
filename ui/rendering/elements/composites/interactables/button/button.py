@@ -71,6 +71,7 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
 
     # -------------------- subscriptions --------------------
 
+    @override
     def subscribeToClick(self, callback: str) -> bool:
         """
         subscribeToClick subscribes a Callback to the Event of the object
@@ -83,6 +84,7 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
         """
         return self._core.subscribeToClick(callback)
     
+    @override
     def unsubscribeToClick(self, callback: str) -> bool:
         """
         unsubscribeToClick unsubscribes a callback (by id) from the Event of the
@@ -95,6 +97,7 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
         """
         return self._core.unsubscribeToClick(callback)
 
+    @override
     def quickSubscribeToClick(self, f: Callable, *args: Any) -> tuple[str, bool]:
         """
         quickSubscribeToClick takes a function and its arguments, creates

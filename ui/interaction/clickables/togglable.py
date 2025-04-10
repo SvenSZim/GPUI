@@ -41,7 +41,7 @@ class Togglable(Clickable, ABC):
         """
         onTrigger gets called when the Toggle is triggered.
         """
-        EventManager.triggerEvent(self._onclick)
+        super()._onTrigger()
         self.__onStateTrigger()
     
     # -------------------- subscriptions --------------------

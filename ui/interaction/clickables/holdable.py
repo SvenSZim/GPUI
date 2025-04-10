@@ -49,7 +49,7 @@ class Holdable(Clickable, ABC):
         """
         onTrigger gets called when the Button is triggered.
         """
-        EventManager.triggerEvent(self._onclick)
+        super()._onTrigger()
         EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.LEFTUP), self._activeReleaseCallback)
         EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.UPDATE), self._onHoldTriggerCallback)
 

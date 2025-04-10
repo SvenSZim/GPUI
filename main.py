@@ -11,7 +11,9 @@ from ui import Box, BoxPrefab, BoxCO
 from ui import Text, TextPrefab, TextCO
 
 from ui import Framed, FramedCO
+from ui import Stack
 from ui import Grouped
+from ui import Dropdown
 from ui import Button, ButtonCO
 from ui import Checkbox, CheckboxCO
 from ui import Slider, SliderCO
@@ -72,6 +74,15 @@ def main():
                                renderData=[TextCO.COLOR1, TextCO.SIZEDYNAMIC])
     f6: Framed = Framed(tc1, offset=10, renderData=[LineCO.COLOR1])
 
+    texts: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
+                                  offset=10, renderData=[LineCO.COLOR1]) for txt in range(5)]
+    stk1: Stack = Stack(Rect(), Rect(size=(90, 50)), texts[0], (texts[1], 2), (texts[2], 0.3), *texts[3:-1], offset=5)
+    
+    f7: Framed = Framed(Text(Rect(size=(150, 80)), content="SELECT", renderData=[TextCO.COLOR1]), renderData=[BoxCO.COLOR2])
+    texts2: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
+                                  offset=10, renderData=[LineCO.COLOR1, BoxCO.COLOR2]) for txt in range(5)]
+    dpd: Dropdown = Dropdown(f7, (texts2[0], 0.4), (texts2[1], 1.2), *texts2[2:], offset=10)
+
     # ------------------------- layout ------------------------
     f4.alignpoint(Rect(), offset=20)
     ob2.alignpoint(g1, otherPoint=(0,1), offset=(0,20))
@@ -81,6 +92,10 @@ def main():
     f1.alignpoint(txt1, otherPoint=(0,1), offset=(0,20))
     f5.alignpoint(f1, otherPoint=(1,0), offset=(20,0))
     f6.alignpoint(l2, otherPoint=(1,0), offset=(20,0))
+    stk1.alignaxis(f4, 2)
+    stk1.alignnextto(f6, 1, offset=20)
+    dpd.alignaxis(stk1, 2)
+    dpd.alignnextto(stk1, 1, offset=20)
 
     LayoutManager.applyLayout()
     # ------------------------- action ------------------------
@@ -98,11 +113,13 @@ def main():
 
     def stretch():
         nonlocal f4
-        f4.setWidth(540)
+        stk1.addElement(texts[-1])
+        f4.setWidth(465)
         LayoutManager.applyLayout()
 
     def shrink():
         nonlocal f4
+        stk1.popElement()
         f4.setWidth(340)
         LayoutManager.applyLayout()
 
@@ -124,10 +141,10 @@ def main():
 
     # ------------------------- render ------------------------
 
-    b2: Box = Box(Rect(size=(900, 900)), renderData=[BoxCO.COLOR2])
+    b2: Box = Box(Rect(size=(100, 100)), renderData=[BoxCO.COLOR2])
     b2.setZIndex(-1)
 
-    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2]
+    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2, stk1, dpd]
     while running:
         InputManager.update()
 
