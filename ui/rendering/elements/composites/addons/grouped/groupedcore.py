@@ -39,39 +39,25 @@ class GroupedCore(AddonCore[list[Element]]):
         if len(self._inner) == 0:
             return
         
-        LayoutManager.addConnection((True, True), self._inner[0].getCore().getBody(), self.getBody(), (0.0, 0.0), (0.0, 0.0))
-        
         if self.__alignVertical:
-            LayoutManager.addConnection((True, False), self._inner[0].getCore().getBody(), self.getBody(),
-                                        (1.0, 0.0), (1.0, 0.0), keepSizeFix=False)
             availableHeight: float = self.getHeight() - self.__offset * (len(self._inner) - 1)
-            usedHeightPercent: float = (availableHeight * self.__relativeSizing[0]) / self.getHeight()
-            LayoutManager.addConnection((False, True), self._inner[0].getCore().getBody(), self.getBody(),
-                                        (0.0, 1.0), (0.0, usedHeightPercent), keepSizeFix=False)
+            usedHeightPercent: float = 0.0
+
             for nr, el in enumerate(self._inner):
-                if nr == 0:
-                    continue
-                LayoutManager.addConnection((True, True), el.getCore().getBody(), self._inner[nr-1].getCore().getBody(), (0.0, 0.0), (0.0, 1.0), (0, self.__offset))
-                LayoutManager.addConnection((True, False), el.getCore().getBody(), self.getBody(),
-                                            (1.0, 0.0), (1.0, 0.0), keepSizeFix=False)
-                usedHeightPercent += self.__offset / self.getHeight()
+                if nr > 0:
+                    usedHeightPercent += self.__offset / self.getHeight()
+                el.alignpoint(self, otherPoint=(0,usedHeightPercent))
+
                 usedHeightPercent += (availableHeight * self.__relativeSizing[nr]) / self.getHeight()
-                LayoutManager.addConnection((False, True), el.getCore().getBody(), self.getBody(),
-                                            (0.0, 1.0), (0.0, usedHeightPercent), keepSizeFix=False)
+                el.alignpoint(self, (1,1), (1,usedHeightPercent), keepSize=False)
         else:
             availableWidth: float = self.getWidth() - self.__offset * (len(self._inner) - 1)
-            usedWidthPercent: float = (availableWidth * self.__relativeSizing[0]) / self.getWidth()
-            LayoutManager.addConnection((True, False), self._inner[0].getCore().getBody(), self.getBody(),
-                                        (1.0, 0.0), (usedWidthPercent, 0.0), keepSizeFix=False)
-            LayoutManager.addConnection((False, True), self._inner[0].getCore().getBody(), self.getBody(),
-                                        (0.0, 1.0), (0.0, 1.0), keepSizeFix=False)
+            usedWidthPercent: float = 0.0
+
             for nr, el in enumerate(self._inner):
-                if nr == 0:
-                    continue
-                LayoutManager.addConnection((True, True), el.getCore().getBody(), self._inner[nr-1].getCore().getBody(), (0.0, 0.0), (1.0, 0.0), (self.__offset, 0))
-                usedWidthPercent += self.__offset / self.getWidth()
+                if nr > 0:
+                    usedWidthPercent += self.__offset / self.getWidth()
+                el.alignpoint(self, otherPoint=(usedWidthPercent,0))
+                
                 usedWidthPercent += (availableWidth * self.__relativeSizing[nr]) / self.getWidth()
-                LayoutManager.addConnection((True, False), el.getCore().getBody(), self.getBody(),
-                                            (1.0, 0.0), (usedWidthPercent, 0.0), keepSizeFix=False)
-                LayoutManager.addConnection((False, True), el.getCore().getBody(), self.getBody(),
-                                            (0.0, 1.0), (0.0, 1.0), keepSizeFix=False)
+                el.alignpoint(self, (1,1), (usedWidthPercent,1), keepSize=False)

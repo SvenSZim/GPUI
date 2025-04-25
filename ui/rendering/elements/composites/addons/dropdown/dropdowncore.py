@@ -23,10 +23,10 @@ class DropdownCore(AddonCore, Togglable):
     
     @override
     def _alignInner(self) -> None:
-        LayoutManager.addConnection((True, True), self._inner.getCore().getBody(), self.getBody(), (0.0, 0.0), (0.0, 0.0))
+        self._inner.alignpoint(self)
         if self.__verticalDropdown:
-            LayoutManager.addConnection((True, False), self._inner.getCore().getBody(), self.getBody(), (1.0, 1.0), (1.0, 1.0), keepSizeFix=False)
-            LayoutManager.addConnection((False, True), self._inner.getCore().getBody(), self.getBody(), (0.0, 0.0), (1.0, 1.0))
+            self._inner.alignaxis(self, 1, keepSize=False)
+            self._inner.alignnextto(self, 3)
         else:
-            LayoutManager.addConnection((False, True), self._inner.getCore().getBody(), self.getBody(), (1.0, 1.0), (1.0, 1.0), keepSizeFix=False)
-            LayoutManager.addConnection((True, False), self._inner.getCore().getBody(), self.getBody(), (0.0, 0.0), (1.0, 1.0))
+            self._inner.alignaxis(self, 3, keepSize=False)
+            self._inner.alignnextto(self, 1)

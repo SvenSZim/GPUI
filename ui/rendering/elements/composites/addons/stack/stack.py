@@ -59,20 +59,6 @@ class Stack(Addon[list[Element], StackCore, StackData, StackCO, StackPrefab]):
         """
         return CreateInfo(Stack, renderData=prefab)
 
-    # -------------------- stack-options --------------------
-
-    def addElement(self, newElement: Element | tuple[Element, float]) -> None:
-        """
-        addElement adds a new element to the end of the stack.
-        """
-        self._core.addElement(newElement)
-
-    def popElement(self):
-        """
-        popElement removes the last element from the stack.
-        """
-        self._core.popElement()
-
     # -------------------- rendering --------------------
 
     @override

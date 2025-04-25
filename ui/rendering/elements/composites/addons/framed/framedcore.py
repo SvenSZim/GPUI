@@ -18,5 +18,5 @@ class FramedCore(AddonCore[Element]):
 
     @override
     def _alignInner(self) -> None:
-        LayoutManager.addConnection((True, True), self._inner.getCore().getBody(), self.getBody(), (0.0, 0.0), (0.0, 0.0), self.__offset)
-        LayoutManager.addConnection((True, True), self._inner.getCore().getBody(), self.getBody(), (1.0, 1.0), (1.0, 1.0), -self.__offset, keepSizeFix=False)
+        self._inner.alignpoint(self, offset=self.__offset)
+        self._inner.alignpoint(self, (1,1), (1,1), offset=-self.__offset, keepSize=False)

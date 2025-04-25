@@ -64,7 +64,7 @@ def main():
     cb1: Checkbox = Checkbox(Rect(size=(100,100)), renderData=[CheckboxCO.USECROSS, LineCO.COLOR1])
     f3: Framed = Framed(cb1, renderData=[LineCO.COLOR1])
 
-    g1: Grouped = Grouped(Rect(size=(340, 100)), ob1, (f2, 0.2), (f3, 0.5), alignVertical=False, offset=20)
+    g1: Grouped = Grouped(Rect(size=(340, 90)), ob1, (f2, 0.2), (f3, 0.5), alignVertical=False, offset=20)
     f4: Framed = Framed(g1, offset=5, renderData=[LineCO.COLOR1, FramedCO.USEBORDER_LR, LineCO.DOTTED])
     
     s1: Slider = Slider(Rect(size=(440,80)), renderData=[BoxCO.COLOR1])
@@ -77,6 +77,7 @@ def main():
     texts: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
                                   offset=10, renderData=[LineCO.COLOR1]) for txt in range(5)]
     stk1: Stack = Stack(Rect(), Rect(size=(90, 50)), texts[0], (texts[1], 2), (texts[2], 0.3), *texts[3:-1], offset=5)
+    f8: Framed = Framed(stk1, offset=5, renderData=[LineCO.COLOR2, BoxCO.ALTCHECKERBOARD, BoxCO.COLOR2])
     
     f7: Framed = Framed(Text(Rect(size=(150, 80)), content="SELECT", renderData=[TextCO.COLOR1]), renderData=[BoxCO.COLOR2])
     texts2: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
@@ -92,10 +93,10 @@ def main():
     f1.alignpoint(txt1, otherPoint=(0,1), offset=(0,20))
     f5.alignpoint(f1, otherPoint=(1,0), offset=(20,0))
     f6.alignpoint(l2, otherPoint=(1,0), offset=(20,0))
-    stk1.alignaxis(f4, 2)
-    stk1.alignnextto(f6, 1, offset=20)
-    dpd.alignaxis(stk1, 2)
-    dpd.alignnextto(stk1, 1, offset=20)
+    f8.alignaxis(f4, 2)
+    f8.alignnextto(f6, 1, offset=20)
+    dpd.alignaxis(f8, 2)
+    dpd.alignnextto(f8, 1, offset=20)
 
     LayoutManager.applyLayout()
     # ------------------------- action ------------------------
@@ -113,13 +114,11 @@ def main():
 
     def stretch():
         nonlocal f4
-        stk1.addElement(texts[-1])
         f4.setWidth(465)
         LayoutManager.applyLayout()
 
     def shrink():
         nonlocal f4
-        stk1.popElement()
         f4.setWidth(340)
         LayoutManager.applyLayout()
 
@@ -144,7 +143,7 @@ def main():
     b2: Box = Box(Rect(size=(100, 100)), renderData=[BoxCO.COLOR2])
     b2.setZIndex(-1)
 
-    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2, stk1, dpd]
+    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2, f8, dpd]
     while running:
         InputManager.update()
 
