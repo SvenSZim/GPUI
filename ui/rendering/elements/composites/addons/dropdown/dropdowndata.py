@@ -1,9 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import override
 
-from .....createinfo        import CreateInfo
 from .....style             import RenderStyle
-from ....atoms              import AtomCreateOption, Line, LineCO, LinePrefab, Box, BoxCO, BoxPrefab
 from ..addondata            import AddonData
 from .dropdowncreateoption  import DropdownCO
 from .dropdownprefab        import DropdownPrefab

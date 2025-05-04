@@ -11,8 +11,9 @@ from .elements import Box, BoxCO, BoxPrefab
 from .elements import Text, TextCO, TextPrefab
 
 from .elements import Framed, FramedCO, FramedPrefab
-from .elements import Stack, StackCO, StackPrefab
+from .elements import Stacked, StackedCO, StackedPrefab
 from .elements import Grouped, GroupedCO, GroupedPrefab
+from .elements import Section, SectionCO, SectionPrefab
 from .elements import Dropdown, DropdownCO, DropdownPrefab
 from .elements import Button, ButtonCO, ButtonPrefab
 from .elements import Checkbox, CheckboxCO, CheckboxPrefab

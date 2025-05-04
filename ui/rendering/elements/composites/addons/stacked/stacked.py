@@ -7,35 +7,35 @@ from ....element     import Element
 from ....atoms       import AtomCreateOption
 from ..addon         import Addon
 
-from .stackcore         import StackCore
-from .stackdata         import StackData
-from .stackcreateoption import StackCO
-from .stackprefab       import StackPrefab
+from .stackedcore         import StackedCore
+from .stackeddata         import StackedData
+from .stackedcreateoption import StackedCO
+from .stackedprefab       import StackedPrefab
 
-class Stack(Addon[list[Element], StackCore, StackData, StackCO, StackPrefab]):
+class Stacked(Addon[list[Element], StackedCore, StackedData, StackedCO, StackedPrefab]):
 
     
 
     # -------------------- creation --------------------
 
     def __init__(self, rect: Rect, elementSizing: Rect, *inner: Element | tuple[Element, float], alignVertical: bool=True, offset: int=0,
-                 renderData: StackPrefab | list[StackCO | AtomCreateOption] | StackData=StackPrefab.BASIC, active: bool = True) -> None:
+                 renderData: StackedPrefab | list[StackedCO | AtomCreateOption] | StackedData=StackedPrefab.BASIC, active: bool = True) -> None:
         assert self._renderstyle is not None
 
         if isinstance(renderData, list):
-            myData: StackData = StackData()
+            myData: StackedData = StackedData()
             for createOption in renderData:
                 myData += (createOption, self._renderstyle)
-            myData += (StackCO.CREATE, self._renderstyle)
+            myData += (StackedCO.CREATE, self._renderstyle)
             renderData = myData
-        elif isinstance(renderData, StackPrefab):
-            renderData = StackData() * (renderData, self._renderstyle)
+        elif isinstance(renderData, StackedPrefab):
+            renderData = StackedData() * (renderData, self._renderstyle)
 
-        super().__init__(StackCore(rect, elementSizing, *inner, alignVertical=alignVertical, offset=offset), renderData, active)
+        super().__init__(StackedCore(rect, elementSizing, *inner, alignVertical=alignVertical, offset=offset), renderData, active)
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[StackCO]) -> CreateInfo['Stack']:
+    def fromCreateOptions(createOptions: list[StackedCO]) -> CreateInfo['Stacked']:
         """
         fromCreateOptions creates the element from createoptions.
 
@@ -44,11 +44,11 @@ class Stack(Addon[list[Element], StackCore, StackData, StackCO, StackPrefab]):
 
         Returns (creator for this class): createinfo for this class
         """
-        return CreateInfo(Stack, renderData=createOptions)
+        return CreateInfo(Stacked, renderData=createOptions)
 
     @staticmethod
     @override
-    def fromPrefab(prefab: StackPrefab) -> CreateInfo['Stack']:
+    def fromPrefab(prefab: StackedPrefab) -> CreateInfo['Stacked']:
         """
         fromPrefab creates the element from a prefab.
 
@@ -57,7 +57,7 @@ class Stack(Addon[list[Element], StackCore, StackData, StackCO, StackPrefab]):
 
         Returns (creator for this class): createinfo for this class
         """
-        return CreateInfo(Stack, renderData=prefab)
+        return CreateInfo(Stacked, renderData=prefab)
 
     # -------------------- rendering --------------------
 

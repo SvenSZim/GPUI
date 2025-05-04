@@ -1,6 +1,7 @@
 from .addons import Framed, FramedCO, FramedPrefab
-from .addons import Stack, StackCO, StackPrefab
+from .addons import Stacked, StackedCO, StackedPrefab
 from .addons import Grouped, GroupedCO, GroupedPrefab
+from .addons import Section, SectionCO, SectionPrefab
 from .addons import Dropdown, DropdownCO, DropdownPrefab
 
 from .interactables import Button, ButtonCO, ButtonPrefab

@@ -1,5 +1,5 @@
 
 from ..addonprefab import AddonPrefab
 
-class StackPrefab(AddonPrefab):
+class StackedPrefab(AddonPrefab):
     BASIC=0

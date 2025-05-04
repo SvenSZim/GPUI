@@ -14,8 +14,9 @@ from .rendering import Box, BoxCO, BoxPrefab
 from .rendering import Text, TextCO, TextPrefab
 
 from .rendering import Framed, FramedCO, FramedPrefab
-from .rendering import Stack, StackCO, StackPrefab
+from .rendering import Stacked, StackedCO, StackedPrefab
 from .rendering import Grouped, GroupedCO, GroupedPrefab
+from .rendering import Section, SectionCO, SectionPrefab
 from .rendering import Dropdown, DropdownCO, DropdownPrefab
 from .rendering import Button, ButtonCO, ButtonPrefab
 from .rendering import Checkbox, CheckboxCO, CheckboxPrefab

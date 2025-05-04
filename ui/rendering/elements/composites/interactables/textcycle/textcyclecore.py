@@ -1,5 +1,4 @@
 
-from typing import Any, Callable
 from ......utility      import Rect
 from ......interaction  import Togglable
 from ..interactablecore import InteractableCore

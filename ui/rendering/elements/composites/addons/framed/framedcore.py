@@ -1,7 +1,6 @@
-
 from typing import override
+
 from ......utility import Rect
-from ....body      import LayoutManager
 from ....element   import Element
 from ..addoncore   import AddonCore
 

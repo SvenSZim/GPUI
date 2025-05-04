@@ -14,11 +14,11 @@ class FramedData(AddonData[FramedCO, FramedPrefab]):
     FramedData is the storage class for all render-information
     for the addon 'Framed'.
     """
-    fillData          : CreateInfo[Box]                                                               = field(default_factory=lambda: CreateInfo(Box, BoxPrefab.INVISIBLE))
-    borderData        : tuple[CreateInfo[Line], CreateInfo[Line], CreateInfo[Line], CreateInfo[Line]] = field(default_factory=lambda:(CreateInfo(Line, LinePrefab.INVISIBLE),
-                                                                                                                                      CreateInfo(Line, LinePrefab.INVISIBLE),
-                                                                                                                                      CreateInfo(Line, LinePrefab.INVISIBLE),
-                                                                                                                                      CreateInfo(Line, LinePrefab.INVISIBLE)))
+    fillData          : CreateInfo[Box]                                                               = field(default_factory=lambda: CreateInfo(Box, renderData=BoxPrefab.INVISIBLE))
+    borderData        : tuple[CreateInfo[Line], CreateInfo[Line], CreateInfo[Line], CreateInfo[Line]] = field(default_factory=lambda:(CreateInfo(Line, renderData=LinePrefab.INVISIBLE),
+                                                                                                                                      CreateInfo(Line, renderData=LinePrefab.INVISIBLE),
+                                                                                                                                      CreateInfo(Line, renderData=LinePrefab.INVISIBLE),
+                                                                                                                                      CreateInfo(Line, renderData=LinePrefab.INVISIBLE)))
     createActiveBorder: list[bool]                                                    = field(default_factory=lambda:[True, True, True, True])
     createFillData    : list[BoxCO]                                                   = field(default_factory=lambda:[])
     createBorderData  : tuple[list[LineCO], list[LineCO], list[LineCO], list[LineCO]] = field(default_factory=lambda:([], [], [], []))

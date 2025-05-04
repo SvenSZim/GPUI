@@ -1,13 +1,12 @@
 from typing import override
 
 from ......utility import Rect
-from ....body      import LayoutManager
 from ....element   import Element
 from ..addoncore   import AddonCore
 
-class StackCore(AddonCore[list[Element]]):
+class StackedCore(AddonCore[list[Element]]):
     """
-    StackCore is the core object of the addon 'Stack'.
+    StackedCore is the core object of the addon 'Stacked'.
     """
     __elementSizing: tuple[int, int]
     __alignVertical: bool

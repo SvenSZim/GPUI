@@ -5,8 +5,9 @@ from .atoms import Box, BoxCO, BoxPrefab
 from .atoms import Text, TextCO, TextPrefab
 
 from .composites import Framed, FramedCO, FramedPrefab
-from .composites import Stack, StackCO, StackPrefab
+from .composites import Stacked, StackedCO, StackedPrefab
 from .composites import Grouped, GroupedCO, GroupedPrefab
+from .composites import Section, SectionCO, SectionPrefab
 from .composites import Dropdown, DropdownCO, DropdownPrefab
 
 from .composites import Button, ButtonCO, ButtonPrefab

@@ -1,9 +1,9 @@
 
 from ..addoncreateoption import AddonCreateOption
 
-class StackCO(AddonCreateOption):
+class StackedCO(AddonCreateOption):
     """
-    StackCO (CreateOption) is the storage class for all possible
+    StackedCO (CreateOption) is the storage class for all possible
     CreateOptions when creating a object from the addon 'Stack'.
     """
 

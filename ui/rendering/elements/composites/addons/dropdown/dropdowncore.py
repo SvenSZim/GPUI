@@ -2,9 +2,8 @@ from typing import override
 
 from ......utility      import Rect
 from ......interaction  import Togglable
-from ....body    import LayoutManager
 from ....element import Element
-from ..stack     import Stack
+from ..stacked   import Stacked
 from ..addoncore import AddonCore
 
 class DropdownCore(AddonCore, Togglable):
@@ -16,7 +15,7 @@ class DropdownCore(AddonCore, Togglable):
         
         self.__verticalDropdown = verticalDropdown
         
-        mStack: Stack = Stack(outer, outer, *inner, alignVertical=verticalDropdown, offset=offset)
+        mStack: Stacked = Stacked(outer, outer, *inner, alignVertical=verticalDropdown, offset=offset)
         AddonCore.__init__(self, outer, mStack)
         Togglable.__init__(self, numberOfStates=2, buttonActive=buttonActive)
 

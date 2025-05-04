@@ -12,6 +12,9 @@ DONE:
     - group
     - slider
     - textcycle
+    - stacked
+    - dropdown
+    - section
 
 TODO:
   Additional Atomic Elements:
@@ -20,6 +23,10 @@ TODO:
   Composite Elements:
    [-] if compsite elements require some behavior maybe implement a module with interfaces, elements can/should implement
     - categorize:
-      1. Addons (Stack, Bar)
-      2. Interactables (CheckboxGroup (+limitations), Dropdown, TextInput?, DraggableRect?)
+      1. Addons (Bar)
+      2. Interactables (CheckboxGroup (+limitations), TextInput?, DraggableRect?)
      [3.] Popups (Hovered, Notification, Modal)
+
+
+  Potential Problems:
+    - Section: offset also scales dynamic

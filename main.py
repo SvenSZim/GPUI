@@ -10,9 +10,7 @@ from ui import Line, LinePrefab, LineCO
 from ui import Box, BoxPrefab, BoxCO
 from ui import Text, TextPrefab, TextCO
 
-from ui import Framed, FramedCO
-from ui import Stack
-from ui import Grouped
+from ui import Framed, FramedCO, Stacked, Grouped, Section
 from ui import Dropdown
 from ui import Button, ButtonCO
 from ui import Checkbox, CheckboxCO
@@ -76,13 +74,18 @@ def main():
 
     texts: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
                                   offset=10, renderData=[LineCO.COLOR1]) for txt in range(5)]
-    stk1: Stack = Stack(Rect(), Rect(size=(90, 50)), texts[0], (texts[1], 2), (texts[2], 0.3), *texts[3:-1], offset=5)
+    stk1: Stacked = Stacked(Rect(), Rect(size=(90, 50)), texts[0], (texts[1], 2), (texts[2], 0.3), *texts[3:], offset=5)
     f8: Framed = Framed(stk1, offset=5, renderData=[LineCO.COLOR2, BoxCO.ALTCHECKERBOARD, BoxCO.COLOR2])
     
     f7: Framed = Framed(Text(Rect(size=(150, 80)), content="SELECT", renderData=[TextCO.COLOR1]), renderData=[BoxCO.COLOR2])
     texts2: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
                                   offset=10, renderData=[LineCO.COLOR1, BoxCO.COLOR2]) for txt in range(5)]
     dpd: Dropdown = Dropdown(f7, (texts2[0], 0.4), (texts2[1], 1.2), *texts2[2:], offset=10)
+
+    texts3: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
+                                  offset=10, renderData=[LineCO.COLOR1]) for txt in range(3, 8)]
+    stk2: Stacked = Stacked(Rect(), Rect(size=(90, 50)), (texts3[0], 2.4), *texts3[1:-3], (texts3[-3], 1.5), offset=5)
+    sec1: Section = Section(stk2, texts3[-2], texts3[-1], offset=50, renderData=[LineCO.COLOR1, LineCO.PARTIAL_70])
 
     # ------------------------- layout ------------------------
     f4.alignpoint(Rect(), offset=20)
@@ -97,6 +100,8 @@ def main():
     f8.alignnextto(f6, 1, offset=20)
     dpd.alignaxis(f8, 2)
     dpd.alignnextto(f8, 1, offset=20)
+    sec1.alignaxis(dpd, 2)
+    sec1.alignnextto(dpd, 1, offset=20)
 
     LayoutManager.applyLayout()
     # ------------------------- action ------------------------
@@ -143,7 +148,7 @@ def main():
     b2: Box = Box(Rect(size=(100, 100)), renderData=[BoxCO.COLOR2])
     b2.setZIndex(-1)
 
-    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2, f8, dpd]
+    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2, f8, dpd, sec1]
     while running:
         InputManager.update()
 
