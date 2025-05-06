@@ -34,7 +34,7 @@ class Dropdown(Addon[Element, DropdownCore, DropdownData, DropdownCO, DropdownPr
         Clickable.__init__(self, active)
         Addon.__init__(self, DropdownCore(outer.getRect(), *inner, verticalDropdown=verticalDropdown, offset=offset, buttonActive=dropdownActive), renderData, active)
         
-        self._core.addTriggerEvent(self._onclick)
+        self._core.addGlobalTriggerEvent(self._onclick)
         #Default trigger event: LEFTDOWN
         self.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
         

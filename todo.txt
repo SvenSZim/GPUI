@@ -5,16 +5,24 @@ DONE:
     - text
     - button
     - button -> toggle
-    - buttons/toggle are not really 'atoms' because they dont get 'rendered' -> maybe move to interaction?
+  
+  - buttons/toggle are not really 'atoms' because they dont get 'rendered' -> maybe move to interaction?
+    
+  Addons:
     - framed
+    - group
+    - stacked
+    - section
+    - dropdown
+
+  Interactables:
     - new button (more of a click-and-done) (should also be usable for slider) = holdable
     - checkbox
-    - group
     - slider
     - textcycle
-    - stacked
-    - dropdown
-    - section
+
+  - CheckboxGroup + limitations
+  - Dropdown-Select
 
 TODO:
   Additional Atomic Elements:
@@ -23,9 +31,11 @@ TODO:
   Composite Elements:
    [-] if compsite elements require some behavior maybe implement a module with interfaces, elements can/should implement
     - categorize:
-      1. Addons (Bar)
-      2. Interactables (CheckboxGroup (+limitations), TextInput?, DraggableRect?)
+      1. Addons (Revealing, Bar)
+      2. Interactables (TextInput?, DraggableRect?)
      [3.] Popups (Hovered, Notification, Modal)
+
+  - Create a XML-Parser to load and store UI-layouts
 
 
   Potential Problems:

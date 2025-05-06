@@ -30,10 +30,8 @@ class Togglable(Clickable, ABC):
 
     def __onStateTrigger(self) -> None:
         """
-        onStateTrigger triggers the Event of the currentState and cycles to
-        the next one.
+        onStateTrigger triggers the Event of the currentState
         """
-        self._currentState = (self._currentState + 1) % self._numberOfStates
         EventManager.triggerEvent(self.__toggleEvents[self._currentState])
     
     @override
@@ -42,7 +40,18 @@ class Togglable(Clickable, ABC):
         onTrigger gets called when the Toggle is triggered.
         """
         super()._onTrigger()
+        self._currentState = (self._currentState + 1) % self._numberOfStates
         self.__onStateTrigger()
+
+    def _onCustomTrigger(self, switchTo: Callable[[int], int]):
+        """
+        onCustomTrigger gets called internally when switching
+        to a custom new state.
+        """
+        if self._buttonActive:
+            super()._onTrigger()
+            self._currentState = max(0, min(self._numberOfStates-1, switchTo(self._currentState)))
+            self.__onStateTrigger()
     
     # -------------------- subscriptions --------------------
 

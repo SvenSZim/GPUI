@@ -1,51 +1,38 @@
 from typing import Any, Callable, override
 
-from ......utility   import Rect
 from ......display   import Surface
 from .....createinfo import CreateInfo
-from ....atoms       import AtomCreateOption, Box, Line
+from ....element     import Element
+from ....atoms       import AtomCreateOption
 from ..interactable  import Interactable
 
-from .buttoncore         import ButtonCore
-from .buttondata         import ButtonData
-from .buttoncreateoption import ButtonCO
-from .buttonprefab       import ButtonPrefab
+from .clickwrappercore         import ClickwrapperCore
+from .clickwrapperdata         import ClickwrapperData
+from .clickwrappercreateoption import ClickwrapperCO
+from .clickwrapperprefab       import ClickwrapperPrefab
 
-class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
-
-    __fillBox: Box
-    __fillCross: tuple[Line, Line]
+class Clickwrapper(Interactable[ClickwrapperCore, ClickwrapperData, ClickwrapperCO, ClickwrapperPrefab]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, buttonActive: bool=True,
-                 renderData: ButtonPrefab | list[ButtonCO | AtomCreateOption] | ButtonData=ButtonPrefab.BASIC, active: bool = True) -> None:
+    def __init__(self, inner: Element, buttonActive: bool=True,
+                 renderData: ClickwrapperPrefab | list[ClickwrapperCO | AtomCreateOption] | ClickwrapperData=ClickwrapperPrefab.BASIC, active: bool = True) -> None:
         assert self._renderstyle is not None
 
         if isinstance(renderData, list):
-            myData: ButtonData = ButtonData()
+            myData: ClickwrapperData = ClickwrapperData()
             for createOption in renderData:
                 myData += (createOption, self._renderstyle)
-            myData += (ButtonCO.CREATE, self._renderstyle)
+            myData += (ClickwrapperCO.CREATE, self._renderstyle)
             renderData = myData
-        elif isinstance(renderData, ButtonPrefab):
-            renderData = ButtonData() * (renderData, self._renderstyle)
+        elif isinstance(renderData, ClickwrapperPrefab):
+            renderData = ClickwrapperData() * (renderData, self._renderstyle)
 
-        super().__init__(ButtonCore(rect, buttonActive), renderData, renderActive=active, buttonActive=buttonActive)
-
-        self.__fillBox   = self._renderData.fillData.createElement(rect)
-        self.__fillCross = (self._renderData.crossData[0].createElement(rect),
-                            self._renderData.crossData[1].createElement(rect))
-        self.__fillBox.alignpoint(self)
-        self.__fillBox.alignpoint(self, (1,1),(1,1), keepSize=False)
-        self.__fillCross[0].alignpoint(self)
-        self.__fillCross[0].alignpoint(self, (1,1),(1,1), keepSize=False)
-        self.__fillCross[1].alignpoint(self)
-        self.__fillCross[1].alignpoint(self, (1,1),(1,1), keepSize=False)
+        super().__init__(ClickwrapperCore(inner, buttonActive), renderData, renderActive=active, buttonActive=buttonActive)
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[ButtonCO]) -> CreateInfo['Button']:
+    def fromCreateOptions(createOptions: list[ClickwrapperCO]) -> CreateInfo['Clickwrapper']:
         """
         fromCreateOptions creates the element from createoptions.
 
@@ -54,11 +41,11 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
 
         Returns (creator for this class): createinfo for this class
         """
-        return CreateInfo(Button, renderData=createOptions)
+        return CreateInfo(Clickwrapper, renderData=createOptions)
 
     @staticmethod
     @override
-    def fromPrefab(prefab: ButtonPrefab) -> CreateInfo['Button']:
+    def fromPrefab(prefab: ClickwrapperPrefab) -> CreateInfo['Clickwrapper']:
         """
         fromPrefab creates the element from a prefab.
 
@@ -67,7 +54,20 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
 
         Returns (creator for this class): createinfo for this class
         """
-        return CreateInfo(Button, renderData=prefab)
+        return CreateInfo(Clickwrapper, renderData=prefab)
+
+    # -------------------- active-state --------------------
+
+    @override
+    def setButtonActive(self, buttonActive: bool) -> None:
+        self._core.setButtonActive(buttonActive)
+        return super().setButtonActive(buttonActive)
+
+    @override
+    def toggleButtonActive(self) -> bool:
+        self._core.toggleButtonActive()
+        return super().toggleButtonActive()
+
 
     # -------------------- subscriptions --------------------
 
@@ -162,7 +162,5 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
         """
         assert self._drawer is not None
 
-        if self._core.isPressed():
-            self.__fillBox.render(surface)
-            self.__fillCross[0].render(surface)
-            self.__fillCross[1].render(surface)
+        if self.isActive():
+            self._core.getInner().render(surface)

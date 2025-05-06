@@ -9,4 +9,4 @@ class ButtonCore(InteractableCore, Holdable):
     """
     def __init__(self, rect: Rect, buttonActive: bool=True) -> None:
         InteractableCore.__init__(self, rect)
-        Holdable.__init__(self, buttonActive)
+        Holdable.__init__(self, buttonActive=buttonActive)

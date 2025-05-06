@@ -7,7 +7,7 @@ from .display   import Font, Surface, SurfaceDrawer
 from .rendering import RenderStyle, StyleManager
 from .rendering import StyleMOON, StyleFIRE
 
-from .rendering import LayoutManager
+from .rendering import LayoutManager            # shouldn't be public ?
 from .rendering import Renderer, CreateInfo
 from .rendering import Line, LineCO, LinePrefab
 from .rendering import Box, BoxCO, BoxPrefab
@@ -22,3 +22,5 @@ from .rendering import Button, ButtonCO, ButtonPrefab
 from .rendering import Checkbox, CheckboxCO, CheckboxPrefab
 from .rendering import Slider, SliderCO, SliderPrefab
 from .rendering import TextCycle, TextCycleCO, TextCyclePrefab
+from .rendering import Dropdownselect, DropdownselectCO, DropdownselectPrefab
+from .rendering import Multiselect, MultiselectCO, MultiselectPrefab

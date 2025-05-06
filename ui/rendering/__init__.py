@@ -19,3 +19,5 @@ from .elements import Button, ButtonCO, ButtonPrefab
 from .elements import Checkbox, CheckboxCO, CheckboxPrefab
 from .elements import Slider, SliderCO, SliderPrefab
 from .elements import TextCycle, TextCycleCO, TextCyclePrefab
+from .elements import Dropdownselect, DropdownselectCO, DropdownselectPrefab
+from .elements import Multiselect, MultiselectCO, MultiselectPrefab

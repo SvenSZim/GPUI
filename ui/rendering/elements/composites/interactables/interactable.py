@@ -15,9 +15,9 @@ Prefab       = TypeVar('Prefab'      , bound=InteractablePrefab      )
 
 class Interactable(Generic[Core, Data, CreateOption, Prefab], Composition[Core, Data, CreateOption, Prefab], Clickable, ABC):
 
-    def __init__(self, core: Core, renderData: Data, active: bool = True) -> None:
-        Composition.__init__(self, core, renderData, active)
-        Clickable.__init__(self, active)
+    def __init__(self, core: Core, renderData: Data, renderActive: bool = True, buttonActive: bool=True) -> None:
+        Composition.__init__(self, core, renderData, renderActive)
+        Clickable.__init__(self, buttonActive)
         self._core.addTriggerEvent(self._onclick)
         
         #Default trigger event: LEFTDOWN

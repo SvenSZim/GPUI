@@ -48,4 +48,7 @@ class FramedData(AddonData[FramedCO, FramedPrefab]):
 
     @override
     def __mul__(self, extraData: tuple[FramedPrefab, RenderStyle]) -> 'FramedData':
-        return self
+        return {
+            FramedPrefab.BASIC       : lambda _     : FramedData(),
+            FramedPrefab.BORDERED    : lambda style : FramedData() + (LineCO.COLOR1, extraData[1]),
+        }[extraData[0]](extraData[1])

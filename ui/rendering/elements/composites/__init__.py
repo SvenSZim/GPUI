@@ -8,3 +8,7 @@ from .interactables import Button, ButtonCO, ButtonPrefab
 from .interactables import Checkbox, CheckboxCO, CheckboxPrefab
 from .interactables import Slider, SliderCO, SliderPrefab
 from .interactables import TextCycle, TextCycleCO, TextCyclePrefab
+
+from .dropdownselect import Dropdownselect, DropdownselectCO, DropdownselectPrefab
+from .multiselect    import Multiselect, MultiselectCO, MultiselectPrefab
+

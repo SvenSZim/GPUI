@@ -6,7 +6,7 @@ from .....display import Surface, Font, FontManager
 from ....createinfo     import CreateInfo
 from ..atom             import Atom
 from .textcore          import TextCore
-from .textdata          import TextData, AlignType
+from .textdata          import TextData
 from .textcreateoption  import TextCO
 from .textprefab        import TextPrefab
 

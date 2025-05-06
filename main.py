@@ -15,7 +15,7 @@ from ui import Dropdown
 from ui import Button, ButtonCO
 from ui import Checkbox, CheckboxCO
 from ui import Slider, SliderCO
-from ui import TextCycle
+from ui import TextCycle, Dropdownselect, Multiselect
 
 def main():
     pg.init()
@@ -87,6 +87,21 @@ def main():
     stk2: Stacked = Stacked(Rect(), Rect(size=(90, 50)), (texts3[0], 2.4), *texts3[1:-3], (texts3[-3], 1.5), offset=5)
     sec1: Section = Section(stk2, texts3[-2], texts3[-1], offset=50, renderData=[LineCO.COLOR1, LineCO.PARTIAL_70])
 
+    texts4: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
+                                  offset=10, renderData=[LineCO.COLOR1]) for txt in range(8, 12)]
+    texts5: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
+                                  offset=10, renderData=[LineCO.COLOR1]) for txt in range(8, 12)]
+    dpds: Dropdownselect = Dropdownselect(Rect(size=(150, 80)), *zip(texts4, texts5))
+
+    texts6: list[Framed] = [Framed(Text.fromCreateOptions([TextCO.SIZE_M, TextCO.COLOR1]).createElement(Rect(), content=str(txt)),
+                                  offset=10, renderData=[LineCO.COLOR1]) for txt in 'One Two Three Four Five'.split()]
+    def res(x: int) -> int:
+        b = [bool(x & (1 << s)) for s in range(5)][::-1]
+        if sum(b) > 1:
+            return x #int(''.join([str(int(bit)) for bit in b]), 2)
+        return 0b11111
+    muls: Multiselect = Multiselect(Rect(size=(200, 120)), *texts6, restriction=res)
+
     # ------------------------- layout ------------------------
     f4.alignpoint(Rect(), offset=20)
     ob2.alignpoint(g1, otherPoint=(0,1), offset=(0,20))
@@ -102,6 +117,10 @@ def main():
     dpd.alignnextto(f8, 1, offset=20)
     sec1.alignaxis(dpd, 2)
     sec1.alignnextto(dpd, 1, offset=20)
+    dpds.alignaxis(sec1, 2)
+    dpds.alignnextto(sec1, 1, offset=20)
+    muls.alignaxis(dpds, 2)
+    muls.alignnextto(dpds, 1, offset=20)
 
     LayoutManager.applyLayout()
     # ------------------------- action ------------------------
@@ -148,7 +167,7 @@ def main():
     b2: Box = Box(Rect(size=(100, 100)), renderData=[BoxCO.COLOR2])
     b2.setZIndex(-1)
 
-    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2, f8, dpd, sec1]
+    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2, f8, dpd, sec1, dpds, muls]
     while running:
         InputManager.update()
 

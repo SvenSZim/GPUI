@@ -1,51 +1,38 @@
 from typing import Any, Callable, override
 
-from ......utility   import Rect
 from ......display   import Surface
 from .....createinfo import CreateInfo
-from ....atoms       import AtomCreateOption, Box, Line
+from ....element     import Element
+from ....atoms       import AtomCreateOption
 from ..interactable  import Interactable
 
-from .buttoncore         import ButtonCore
-from .buttondata         import ButtonData
-from .buttoncreateoption import ButtonCO
-from .buttonprefab       import ButtonPrefab
+from .togglewrappercore         import TogglewrapperCore
+from .togglewrapperdata         import TogglewrapperData
+from .togglewrappercreateoption import TogglewrapperCO
+from .togglewrapperprefab       import TogglewrapperPrefab
 
-class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
-
-    __fillBox: Box
-    __fillCross: tuple[Line, Line]
+class Togglewrapper(Interactable[TogglewrapperCore, TogglewrapperData, TogglewrapperCO, TogglewrapperPrefab]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, buttonActive: bool=True,
-                 renderData: ButtonPrefab | list[ButtonCO | AtomCreateOption] | ButtonData=ButtonPrefab.BASIC, active: bool = True) -> None:
+    def __init__(self, inner: Element, numberOfStates: int=2, startState: int=0, buttonActive: bool=True,
+                 renderData: TogglewrapperPrefab | list[TogglewrapperCO | AtomCreateOption] | TogglewrapperData=TogglewrapperPrefab.BASIC, active: bool = True) -> None:
         assert self._renderstyle is not None
 
         if isinstance(renderData, list):
-            myData: ButtonData = ButtonData()
+            myData: TogglewrapperData = TogglewrapperData()
             for createOption in renderData:
                 myData += (createOption, self._renderstyle)
-            myData += (ButtonCO.CREATE, self._renderstyle)
+            myData += (TogglewrapperCO.CREATE, self._renderstyle)
             renderData = myData
-        elif isinstance(renderData, ButtonPrefab):
-            renderData = ButtonData() * (renderData, self._renderstyle)
+        elif isinstance(renderData, TogglewrapperPrefab):
+            renderData = TogglewrapperData() * (renderData, self._renderstyle)
 
-        super().__init__(ButtonCore(rect, buttonActive), renderData, renderActive=active, buttonActive=buttonActive)
-
-        self.__fillBox   = self._renderData.fillData.createElement(rect)
-        self.__fillCross = (self._renderData.crossData[0].createElement(rect),
-                            self._renderData.crossData[1].createElement(rect))
-        self.__fillBox.alignpoint(self)
-        self.__fillBox.alignpoint(self, (1,1),(1,1), keepSize=False)
-        self.__fillCross[0].alignpoint(self)
-        self.__fillCross[0].alignpoint(self, (1,1),(1,1), keepSize=False)
-        self.__fillCross[1].alignpoint(self)
-        self.__fillCross[1].alignpoint(self, (1,1),(1,1), keepSize=False)
+        super().__init__(TogglewrapperCore(inner, numberOfStates, startState, buttonActive), renderData, renderActive=active, buttonActive=buttonActive)
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[ButtonCO]) -> CreateInfo['Button']:
+    def fromCreateOptions(createOptions: list[TogglewrapperCO]) -> CreateInfo['Togglewrapper']:
         """
         fromCreateOptions creates the element from createoptions.
 
@@ -54,11 +41,11 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
 
         Returns (creator for this class): createinfo for this class
         """
-        return CreateInfo(Button, renderData=createOptions)
+        return CreateInfo(Togglewrapper, renderData=createOptions)
 
     @staticmethod
     @override
-    def fromPrefab(prefab: ButtonPrefab) -> CreateInfo['Button']:
+    def fromPrefab(prefab: TogglewrapperPrefab) -> CreateInfo['Togglewrapper']:
         """
         fromPrefab creates the element from a prefab.
 
@@ -67,7 +54,20 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
 
         Returns (creator for this class): createinfo for this class
         """
-        return CreateInfo(Button, renderData=prefab)
+        return CreateInfo(Togglewrapper, renderData=prefab)
+
+    # -------------------- active-state --------------------
+
+    @override
+    def setButtonActive(self, buttonActive: bool) -> None:
+        self._core.setButtonActive(buttonActive)
+        return super().setButtonActive(buttonActive)
+
+    @override
+    def toggleButtonActive(self) -> bool:
+        self._core.toggleButtonActive()
+        return super().toggleButtonActive()
+
 
     # -------------------- subscriptions --------------------
 
@@ -112,43 +112,46 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
         """
         return self._core.quickSubscribeToClick(f, *args)
 
-    def subscribeToHold(self, callback: str) -> bool:
+    def subscribeToToggleState(self, state: int, callback: str) -> bool:
         """
-        subscribeToHold subscribes a Callback to the Event of the button
-        getting pressed down.
+        subscribeToToggleState subscribes a Callback to the triggerEvent of the
+        given toggleState of the Toggle.
 
         Args:
-            callback (str): the id of the callback to subscribe to the click
+            state    (int): the toggleState the Callback should be subscribed to
+            callback (str): the id of the callback to subscribe to toggleState
 
         Returns (bool): returns if the subscription was successful
         """
-        return self._core.subscribeToHold(callback)
-    
-    def unsubscribeToHold(self, callback: str) -> bool:
+        return self._core.subscribeToToggleState(state, callback)
+
+    def unsubscribeToToggleState(self, state: int, callback: str) -> bool:
         """
-        unsubscribeToHold unsubscribes a callback (by id) from the Event of the
-        button getting pressed down.
+        unsubscribeToToggleState unsubscribes a callback (by id) from the Event of the
+        toggle being in a given state.
 
         Args:
+            state    (int): the toggleState the Callback should be unsubscribed from
             callback (str): the id of the callback to unsubscribe
 
         Returns (bool): if the unsubscription was successful
         """
-        return self._core.unsubscribeToHold(callback)
+        return self._core.unsubscribeToToggleState(state, callback)
 
-    def quickSubscribeToHold(self, f: Callable, *args: Any) -> tuple[str, bool]:
+    def quickSubscribeToToggleState(self, state: int, f: Callable, *args: Any) -> tuple[str, bool]:
         """
-        quickSubscribeToHold takes a function and its arguments, creates
-        a Callback and subscribes to the Event of the button getting pressed down.
+        quickSubscribeToToggleState takes a function and its arguments, creates
+        a Callback and subscribes to the Event of the toggle being in a given state.
 
         Args:
+            state (int)      : the toggleState the function should subscribe to
             f     (Callable) : the function to use as callback
             args  (list[Any]): the arguments to use as callback
 
         Returns (tuple[str, bool]): 1. the id of the newly created Callback
                                     2. if the callback was successfully subscribed
         """
-        return self._core.quickSubscribeToHold(f, *args)
+        return self._core.quickSubscribeToToggleState(state, f, *args)
 
     # -------------------- rendering --------------------
 
@@ -162,7 +165,7 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
         """
         assert self._drawer is not None
 
-        if self._core.isPressed():
-            self.__fillBox.render(surface)
-            self.__fillCross[0].render(surface)
-            self.__fillCross[1].render(surface)
+        if self.isActive():
+            if self._core.getCurrentToggleState():
+                self._drawer.drawrect(surface, self.getRect(), 'green')
+            self._core.getInner().render(surface)
