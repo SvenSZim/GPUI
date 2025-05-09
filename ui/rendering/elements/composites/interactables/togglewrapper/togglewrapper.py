@@ -1,7 +1,6 @@
 from typing import Any, Callable, override
 
 from ......display   import Surface
-from .....createinfo import CreateInfo
 from ....element     import Element
 from ....atoms       import AtomCreateOption
 from ..interactable  import Interactable
@@ -23,7 +22,6 @@ class Togglewrapper(Interactable[TogglewrapperCore, TogglewrapperData, Togglewra
             myData: TogglewrapperData = TogglewrapperData()
             for createOption in renderData:
                 myData += (createOption, self._renderstyle)
-            myData += (TogglewrapperCO.CREATE, self._renderstyle)
             renderData = myData
         elif isinstance(renderData, TogglewrapperPrefab):
             renderData = TogglewrapperData() * (renderData, self._renderstyle)
@@ -32,29 +30,8 @@ class Togglewrapper(Interactable[TogglewrapperCore, TogglewrapperData, Togglewra
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[TogglewrapperCO]) -> CreateInfo['Togglewrapper']:
-        """
-        fromCreateOptions creates the element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Togglewrapper, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: TogglewrapperPrefab) -> CreateInfo['Togglewrapper']:
-        """
-        fromPrefab creates the element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Togglewrapper, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Togglewrapper':
+        return Togglewrapper(args['inner'])
 
     # -------------------- active-state --------------------
 

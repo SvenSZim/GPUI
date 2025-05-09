@@ -16,8 +16,8 @@ class ClickwrapperCore(InteractableCore, Holdable):
         InteractableCore.__init__(self, self.__inner.getRect())
         Holdable.__init__(self, buttonActive=buttonActive)
 
-        self.__inner.alignpoint(self)
-        self.__inner.alignpoint(self, (1,1), (1,1), keepSize=False)
+        self.__inner.align(self)
+        self.__inner.alignSize(self)
 
     def getInner(self) -> Element:
         return self.__inner

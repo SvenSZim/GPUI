@@ -1,9 +1,8 @@
-from typing import override
+from typing import Any, override
 
 from .....utility import Rect
 from .....display import Surface, Font, FontManager
 
-from ....createinfo     import CreateInfo
 from ..atom             import Atom
 from .textcore          import TextCore
 from .textdata          import TextData
@@ -36,29 +35,10 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
 
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[TextCO]) -> CreateInfo['Text']:
-        """
-        fromCreateOptions creates the atom-element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Text, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: TextPrefab) -> CreateInfo['Text']:
-        """
-        fromPrefab creates the atom-element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Text, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Text':
+        if not args.get('content'):
+            args['content'] = ''
+        return Text(Rect(), args['content'])
 
     # -------------------- content-modification --------------------
 

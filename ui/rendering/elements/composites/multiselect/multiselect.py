@@ -2,7 +2,6 @@ from typing import Any, Callable, Optional, override
 
 from .....utility   import Rect
 from .....display   import Surface
-from ....createinfo import CreateInfo
 from ...element     import Element
 from ..composition  import Composition
 
@@ -24,7 +23,6 @@ class Multiselect(Composition[MultiselectCore, MultiselectData, MultiselectCO, M
             myData: MultiselectData = MultiselectData()
             for createOption in renderData:
                 myData += (createOption, self._renderstyle)
-            myData += (MultiselectCO.CREATE, self._renderstyle)
             renderData = myData
         elif isinstance(renderData, MultiselectPrefab):
             renderData = MultiselectData() * (renderData, self._renderstyle)
@@ -33,29 +31,8 @@ class Multiselect(Composition[MultiselectCore, MultiselectData, MultiselectCO, M
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[MultiselectCO]) -> CreateInfo['Multiselect']:
-        """
-        fromCreateOptions creates the element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Multiselect, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: MultiselectPrefab) -> CreateInfo['Multiselect']:
-        """
-        fromPrefab creates the element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Multiselect, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Multiselect':
+        return Multiselect(Rect())
 
     # -------------------- subscriptions --------------------
     

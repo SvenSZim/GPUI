@@ -54,7 +54,7 @@ class EventManager:
         while EventManager.__d_events.get(random_hashstring):
             random_hashstring = getHashstring()
 
-        event: Event = Event(random_hashstring) # create Event
+        event: Event = Event() # create Event
         EventManager.__d_events[random_hashstring] = event # store Event
         return random_hashstring
 

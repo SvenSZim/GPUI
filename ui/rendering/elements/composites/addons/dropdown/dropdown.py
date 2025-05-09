@@ -1,9 +1,7 @@
-from typing import override
+from typing import Any, override
 
 from ......display      import Surface
 from ......interaction  import InputManager, InputEvent,Clickable
-from .....createinfo    import CreateInfo
-from ....body           import LayoutManager
 from ....element        import Element
 from ..addon            import Addon
 
@@ -13,8 +11,6 @@ from .dropdowncreateoption import DropdownCO
 from .dropdownprefab       import DropdownPrefab
 
 class Dropdown(Addon[Element, DropdownCore, DropdownData, DropdownCO, DropdownPrefab], Clickable):
-
-    __outer: Element
 
     # -------------------- creation --------------------
 
@@ -26,48 +22,21 @@ class Dropdown(Addon[Element, DropdownCore, DropdownData, DropdownCO, DropdownPr
             myData: DropdownData = DropdownData()
             for createOption in renderData:
                 myData += (createOption, self._renderstyle)
-            myData += (DropdownCO.CREATE, self._renderstyle)
             renderData = myData
         elif isinstance(renderData, DropdownPrefab):
             renderData = DropdownData() * (renderData, self._renderstyle)
 
         Clickable.__init__(self, active)
-        Addon.__init__(self, DropdownCore(outer.getRect(), *inner, verticalDropdown=verticalDropdown, offset=offset, buttonActive=dropdownActive), renderData, active)
+        Addon.__init__(self, DropdownCore(outer, *inner, verticalDropdown=verticalDropdown, offset=offset, buttonActive=dropdownActive), renderData, active)
         
         self._core.addGlobalTriggerEvent(self._onclick)
         #Default trigger event: LEFTDOWN
         self.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
-        
-        self.__outer = outer
-
-        LayoutManager.addConnection((True, True), self.__outer.getCore().getBody(), self.getCore().getBody(), (0.0, 0.0), (0.0, 0.0))
-        LayoutManager.addConnection((True, True), self.__outer.getCore().getBody(), self.getCore().getBody(), (1.0, 1.0), (1.0, 1.0), keepSizeFix=False)
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[DropdownCO]) -> CreateInfo['Dropdown']:
-        """
-        fromCreateOptions creates the element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Dropdown, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: DropdownPrefab) -> CreateInfo['Dropdown']:
-        """
-        fromPrefab creates the element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Dropdown, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Dropdown':
+        return Dropdown(args['outer'])
 
     # -------------------- rendering --------------------
 
@@ -82,7 +51,7 @@ class Dropdown(Addon[Element, DropdownCore, DropdownData, DropdownCO, DropdownPr
         assert self._drawer is not None
 
         if self._active:
-            self.__outer.render(surface)
+            self._core.getOuter().render(surface)
 
             if self._core.getCurrentToggleState():
                 self.addPostRenderElement(self._core.getInner())

@@ -1,7 +1,6 @@
 from typing import Any, Callable, override
 
 from ......display   import Surface
-from .....createinfo import CreateInfo
 from ....element     import Element
 from ....atoms       import AtomCreateOption
 from ..interactable  import Interactable
@@ -23,7 +22,6 @@ class Clickwrapper(Interactable[ClickwrapperCore, ClickwrapperData, Clickwrapper
             myData: ClickwrapperData = ClickwrapperData()
             for createOption in renderData:
                 myData += (createOption, self._renderstyle)
-            myData += (ClickwrapperCO.CREATE, self._renderstyle)
             renderData = myData
         elif isinstance(renderData, ClickwrapperPrefab):
             renderData = ClickwrapperData() * (renderData, self._renderstyle)
@@ -32,29 +30,8 @@ class Clickwrapper(Interactable[ClickwrapperCore, ClickwrapperData, Clickwrapper
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[ClickwrapperCO]) -> CreateInfo['Clickwrapper']:
-        """
-        fromCreateOptions creates the element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Clickwrapper, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: ClickwrapperPrefab) -> CreateInfo['Clickwrapper']:
-        """
-        fromPrefab creates the element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Clickwrapper, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Clickwrapper':
+        return Clickwrapper(args['inner'])
 
     # -------------------- active-state --------------------
 

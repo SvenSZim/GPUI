@@ -9,8 +9,6 @@ class FramedCO(AddonCreateOption):
 
     # value range 0x8000 - 0x87ff
 
-    CREATE              = 0x8000
-
     USEBORDER_L         = 0x8001
     USEBORDER_R         = 0x8002
     USEBORDER_LR        = 0x8003

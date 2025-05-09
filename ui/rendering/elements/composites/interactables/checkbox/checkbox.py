@@ -2,7 +2,6 @@ from typing import Any, Callable, override
 
 from ......utility   import Rect
 from ......display   import Surface
-from .....createinfo import CreateInfo
 from ....atoms       import AtomCreateOption, Box, Line
 from ..interactable  import Interactable
 
@@ -33,41 +32,20 @@ class Checkbox(Interactable[CheckboxCore, CheckboxData, CheckboxCO, CheckboxPref
 
         super().__init__(CheckboxCore(rect, startState, checkboxActive), renderData, active)
 
-        self.__fillBox   = self._renderData.fillData.createElement(rect)
-        self.__fillCross = (self._renderData.crossData[0].createElement(rect),
-                            self._renderData.crossData[1].createElement(rect))
-        self.__fillBox.alignpoint(self)
-        self.__fillBox.alignpoint(self, (1,1),(1,1), keepSize=False)
-        self.__fillCross[0].alignpoint(self)
-        self.__fillCross[0].alignpoint(self, (1,1),(1,1), keepSize=False)
-        self.__fillCross[1].alignpoint(self)
-        self.__fillCross[1].alignpoint(self, (1,1),(1,1), keepSize=False)
+        self.__fillBox   = Box(Rect(), renderData=self._renderData.fillData)
+        self.__fillCross = (Line(Rect(), renderData=self._renderData.crossData[0]),
+                            Line(Rect(), renderData=self._renderData.crossData[1]))
+        self.__fillBox.align(self)
+        self.__fillBox.alignSize(self)
+        self.__fillCross[0].align(self)
+        self.__fillCross[0].alignSize(self)
+        self.__fillCross[1].align(self)
+        self.__fillCross[1].alignSize(self)
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[CheckboxCO]) -> CreateInfo['Checkbox']:
-        """
-        fromCreateOptions creates the element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Checkbox, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: CheckboxPrefab) -> CreateInfo['Checkbox']:
-        """
-        fromPrefab creates the element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Checkbox, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Checkbox':
+        return Checkbox(Rect())
 
     # -------------------- subscriptions --------------------
     
@@ -117,7 +95,7 @@ class Checkbox(Interactable[CheckboxCore, CheckboxData, CheckboxCO, CheckboxPref
 
         Returns (bool): returns if the subscription was successful
         """
-        return self._core.subscribeToSelect(callback)
+        return self._core.subscribeToToggleState(1, callback)
 
     def unsubscribeToSelect(self, callback: str) -> bool:
         """
@@ -127,7 +105,7 @@ class Checkbox(Interactable[CheckboxCore, CheckboxData, CheckboxCO, CheckboxPref
 
         Returns (bool): if the unsubscription was successful
         """
-        return self._core.unsubscribeToSelect(callback)
+        return self._core.unsubscribeToToggleState(1, callback)
 
     def quickSubscribeToSelect(self, f: Callable, *args: Any) -> tuple[str, bool]:
         """
@@ -141,7 +119,7 @@ class Checkbox(Interactable[CheckboxCore, CheckboxData, CheckboxCO, CheckboxPref
         Returns (tuple[str, bool]): 1. the id of the newly created Callback
                                     2. if the callback was successfully subscribed
         """
-        return self._core.quickSubscribeToSelect(f, *args)
+        return self._core.quickSubscribeToToggleState(1, f, *args)
 
     def subscribeToDeselect(self, callback: str) -> bool:
         """
@@ -152,7 +130,7 @@ class Checkbox(Interactable[CheckboxCore, CheckboxData, CheckboxCO, CheckboxPref
 
         Returns (bool): returns if the subscription was successful
         """
-        return self._core.subscribeToDeselect(callback)
+        return self._core.subscribeToToggleState(0, callback)
 
     def unsubscribeToDeselect(self, callback: str) -> bool:
         """
@@ -163,7 +141,7 @@ class Checkbox(Interactable[CheckboxCore, CheckboxData, CheckboxCO, CheckboxPref
 
         Returns (bool): if the unsubscription was successful
         """
-        return self._core.unsubscribeToDeselect(callback)
+        return self._core.unsubscribeToToggleState(0, callback)
 
     def quickSubscribeToDeselect(self, f: Callable, *args: Any) -> tuple[str, bool]:
         """
@@ -177,7 +155,7 @@ class Checkbox(Interactable[CheckboxCore, CheckboxData, CheckboxCO, CheckboxPref
         Returns (tuple[str, bool]): 1. the id of the newly created Callback
                                     2. if the callback was successfully subscribed
         """
-        return self._core.quickSubscribeToDeselect(f, *args)
+        return self._core.quickSubscribeToToggleState(0, f, *args)
 
     # -------------------- rendering --------------------
 

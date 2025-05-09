@@ -1,10 +1,9 @@
-from typing import override
+from typing import Any, override
 from math import sqrt
 
 from .....utility import Rect
 from .....display import Surface
 
-from ....createinfo     import CreateInfo
 from ..atom             import Atom
 from .linecore          import LineCore
 from .linedata          import LineData
@@ -35,29 +34,8 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
 
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[LineCO]) -> CreateInfo['Line']:
-        """
-        fromCreateOptions creates the atom-element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Line, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: LinePrefab) -> CreateInfo['Line']:
-        """
-        fromPrefab creates the atom-element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Line, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Line':
+        return Line(Rect())
 
     # -------------------- rendering --------------------
 

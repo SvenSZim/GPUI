@@ -1,8 +1,7 @@
 from typing import Any, Callable, override
 
-from ......utility   import Rect
+from ......utility   import Rect, AlignType
 from ......display   import Surface
-from .....createinfo import CreateInfo
 from ....atoms       import AtomCreateOption, Box, Line
 from ..interactable  import Interactable
 
@@ -13,6 +12,8 @@ from .sliderprefab       import SliderPrefab
 
 class Slider(Interactable[SliderCore, SliderData, SliderCO, SliderPrefab]):
 
+    __prevRenderState: float
+
     __fillBox: Box
     __fillLine: Line
 
@@ -21,6 +22,8 @@ class Slider(Interactable[SliderCore, SliderData, SliderCO, SliderPrefab]):
     def __init__(self, rect: Rect, sliderStart: float=0.5, horizontalSlider: bool=True, sliderActive: bool=True,
                  renderData: SliderPrefab | list[SliderCO | AtomCreateOption] | SliderData=SliderPrefab.BASIC, active: bool = True) -> None:
         assert self._renderstyle is not None
+
+        self.__prevRenderState = 0.0
 
         if isinstance(renderData, list):
             myData: SliderData = SliderData()
@@ -33,41 +36,20 @@ class Slider(Interactable[SliderCore, SliderData, SliderCO, SliderPrefab]):
 
         super().__init__(SliderCore(rect, sliderStartState=sliderStart, horizontalSlider=horizontalSlider, sliderActive=sliderActive), renderData, active)
 
-        self.__fillBox = self._renderData.fillData.createElement(Rect())
-        self.__fillLine = self._renderData.lineData.createElement(Rect())
-        self.__fillBox.alignpoint(self)
+        self.__fillBox = Box(Rect(), renderData=self._renderData.fillData)
+        self.__fillLine = Line(Rect(), renderData=self._renderData.lineData)
+        self.__fillBox.align(self)
         if horizontalSlider:
-            self.__fillBox.alignaxis(self, 3, keepSize=False)
-            self.__fillLine.alignpoint(self, otherPoint=(0.0, 0.5), keepSize=False)
+            self.__fillBox.alignSize(self, alignX=False)
+            self.__fillLine.align(self, AlignType.iMiL)
         else:
-            self.__fillBox.alignaxis(self, 1, keepSize=False)
-            self.__fillLine.alignpoint(self, otherPoint=(0.5, 0.0), keepSize=False)
+            self.__fillBox.alignSize(self, alignY=False)
+            self.__fillLine.align(self, AlignType.iTiM)
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[SliderCO]) -> CreateInfo['Slider']:
-        """
-        fromCreateOptions creates the element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Slider, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: SliderPrefab) -> CreateInfo['Slider']:
-        """
-        fromPrefab creates the element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Slider, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Slider':
+        return Slider(Rect())
 
     # -------------------- getter --------------------
 
@@ -133,14 +115,18 @@ class Slider(Interactable[SliderCore, SliderData, SliderCO, SliderPrefab]):
         if not self._active:
             return
 
-        if self._core.isHorizontalSlider():
-            self.__fillBox.setWidth(int(self.getWidth() * self._core.getSliderState()))
-        else:
-            self.__fillBox.setHeight(int(self.getHeight() * self._core.getSliderState()))
-        if self._core.isHorizontalSlider():
-            self.__fillLine.setWidth(int(self.getWidth() * self._core.getSliderState()))
-        else:
-            self.__fillLine.setHeight(int(self.getHeight() * self._core.getSliderState()))
+        if self.__prevRenderState != self._core.getSliderState():
+            if self._core.isHorizontalSlider():
+                size: int = int(self.getWidth() * self._core.getSliderState())
+                self.__fillBox.alignSize(Rect(size=(size, 0)), alignY=False)
+                self.__fillLine.alignSize(Rect(size=(size, 0)), alignY=False)
+            else:
+                size: int = int(self.getHeight() * self._core.getSliderState())
+                self.__fillBox.alignSize(Rect(size=(0, size)), alignX=False)
+                self.__fillLine.alignSize(Rect(size=(0, size)), alignX=False)
+            self.__fillBox._core._body.forceUpdate()
+            self.__fillLine._core._body.forceUpdate()
+            self.__prevRenderState = self._core.getSliderState()
 
         self.__fillBox.render(surface)
         self.__fillLine.render(surface)

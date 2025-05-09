@@ -16,8 +16,8 @@ class TogglewrapperCore(InteractableCore, Togglable):
         InteractableCore.__init__(self, self.__inner.getRect())
         Togglable.__init__(self, numberOfStates=numberOfStates, startState=startState, buttonActive=buttonActive)
 
-        self.__inner.alignpoint(self)
-        self.__inner.alignpoint(self, (1,1), (1,1), keepSize=False)
+        self.__inner.align(self)
+        self.__inner.alignSize(self)
 
     def getInner(self) -> Element:
         return self.__inner

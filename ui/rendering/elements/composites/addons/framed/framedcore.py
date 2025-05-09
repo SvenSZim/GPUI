@@ -17,5 +17,5 @@ class FramedCore(AddonCore[Element]):
 
     @override
     def _alignInner(self) -> None:
-        self._inner.alignpoint(self, offset=self.__offset)
-        self._inner.alignpoint(self, (1,1), (1,1), offset=-self.__offset, keepSize=False)
+        self._inner.align(self, offset=self.__offset)
+        self._inner.alignSize(self, absoluteOffset=-2 * self.__offset)

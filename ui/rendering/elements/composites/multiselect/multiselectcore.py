@@ -41,8 +41,8 @@ class MultiselectCore(CompositionCore):
         self.__inner = Stacked(rect, rect, *innerSelectors, alignVertical=alignVertical, offset=offset)
         CompositionCore.__init__(self, self.__inner.getRect())
 
-        self.__inner.alignpoint(self)
-        self.__inner.alignpoint(self, (1,1), (1,1), keepSize=False)
+        self.__inner.align(self)
+        self.__inner.alignSize(self)
 
     def getInner(self) -> Stacked:
         return self.__inner

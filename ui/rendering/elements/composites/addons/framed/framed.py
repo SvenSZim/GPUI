@@ -1,8 +1,7 @@
-from typing import override
+from typing import Any, override
 
-from ......utility   import Rect
+from ......utility   import Rect, AlignType
 from ......display   import Surface
-from .....createinfo import CreateInfo
 from ....element     import Element
 from ....atoms       import AtomCreateOption, Box, Line
 from ..addon         import Addon
@@ -26,54 +25,32 @@ class Framed(Addon[Element, FramedCore, FramedData, FramedCO, FramedPrefab]):
             myData: FramedData = FramedData()
             for createOption in renderData:
                 myData += (createOption, self._renderstyle)
-            myData += (FramedCO.CREATE, self._renderstyle)
             renderData = myData
         elif isinstance(renderData, FramedPrefab):
             renderData = FramedData() * (renderData, self._renderstyle)
 
         super().__init__(FramedCore(inner, offset=offset), renderData, active)
         
-        self.__background = self._renderData.fillData.createElement(Rect())
-        self.__borders = (self._renderData.borderData[0].createElement(Rect()),
-                          self._renderData.borderData[1].createElement(Rect()),
-                          self._renderData.borderData[2].createElement(Rect()),
-                          self._renderData.borderData[3].createElement(Rect()))
-        self.__background.alignpoint(self)
-        self.__background.alignpoint(self, (1,1),(1,1), keepSize=False)
-        self.__borders[0].alignpoint(self)
-        self.__borders[0].alignpoint(self, (1,1),(0,1), keepSize=False)
-        self.__borders[1].alignpoint(self, (0,0), (1,0))
-        self.__borders[1].alignpoint(self, (1,1),(1,1), keepSize=False)
-        self.__borders[2].alignpoint(self)
-        self.__borders[2].alignpoint(self, (1,1),(1,0), keepSize=False)
-        self.__borders[3].alignpoint(self, (0,0), (0,1))
-        self.__borders[3].alignpoint(self, (1,1),(1,1), keepSize=False)
+        self.__background = Box(Rect(), renderData=self._renderData.fillData)
+        self.__borders = (Line(Rect(), renderData=self._renderData.borderData[0]),
+                          Line(Rect(), renderData=self._renderData.borderData[1]),
+                          Line(Rect(), renderData=self._renderData.borderData[2]),
+                          Line(Rect(), renderData=self._renderData.borderData[3]))
+        self.__background.align(self)
+        self.__background.alignSize(self)
+        self.__borders[0].align(self)
+        self.__borders[0].align(self, AlignType.iBL, keepSize=False)
+        self.__borders[1].align(self, AlignType.iTiR)
+        self.__borders[1].align(self, AlignType.iBR, keepSize=False)
+        self.__borders[2].align(self)
+        self.__borders[2].align(self, AlignType.TiR, keepSize=False)
+        self.__borders[3].align(self, AlignType.iBiL)
+        self.__borders[3].align(self, AlignType.BiR, keepSize=False)
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[FramedCO]) -> CreateInfo['Framed']:
-        """
-        fromCreateOptions creates the element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Framed, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: FramedPrefab) -> CreateInfo['Framed']:
-        """
-        fromPrefab creates the element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Framed, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Framed':
+        return Framed(args['inner'])
 
     # -------------------- rendering --------------------
 

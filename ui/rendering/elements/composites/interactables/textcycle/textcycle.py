@@ -2,7 +2,6 @@ from typing import Any, Callable, override
 
 from ......utility   import Rect
 from ......display   import Surface
-from .....createinfo import CreateInfo
 from ....atoms       import AtomCreateOption, Text
 from ..interactable  import Interactable
 
@@ -13,7 +12,6 @@ from .textcycleprefab       import TextCyclePrefab
 
 class TextCycle(Interactable[TextCycleCore, TextCycleData, TextCycleCO, TextCyclePrefab]):
 
-    __contents: list[str]
     __text: Text
 
     # -------------------- creation --------------------
@@ -26,43 +24,20 @@ class TextCycle(Interactable[TextCycleCore, TextCycleData, TextCycleCO, TextCycl
             myData: TextCycleData = TextCycleData()
             for createOption in renderData:
                 myData += (createOption, self._renderstyle)
-            myData += (TextCycleCO.CREATE, self._renderstyle)
             renderData = myData
         elif isinstance(renderData, TextCyclePrefab):
             renderData = TextCycleData() * (renderData, self._renderstyle)
 
-        super().__init__(TextCycleCore(rect, len(contents), startState, textcycleActive), renderData, active)
-        self.__contents = contents
+        super().__init__(TextCycleCore(rect, contents, startState, textcycleActive), renderData, active)
 
-        self.__text = self._renderData.textData.createElement(rect, contents[self._core.getCurrentToggleState()])
-        self.__text.alignpoint(self)
-        self.__text.alignpoint(self, (1,1),(1,1))
+        self.__text = Text(Rect(), self._core.getContent(), renderData=self._renderData.textData)
+        self.__text.align(self)
+        self.__text.alignSize(self)
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[TextCycleCO]) -> CreateInfo['TextCycle']:
-        """
-        fromCreateOptions creates the element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(TextCycle, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: TextCyclePrefab) -> CreateInfo['TextCycle']:
-        """
-        fromPrefab creates the element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(TextCycle, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'TextCycle':
+        return TextCycle(Rect(), [])
 
     # -------------------- subscriptions --------------------
     
@@ -158,5 +133,5 @@ class TextCycle(Interactable[TextCycleCore, TextCycleData, TextCycleCO, TextCycl
         if not self._active:
             return
     
-        self.__text.updateContent(self.__contents[self._core.getCurrentToggleState()])
+        self.__text.updateContent(self._core.getContent())
         self.__text.render(surface)

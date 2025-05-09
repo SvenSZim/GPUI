@@ -9,8 +9,6 @@ class SectionCO(AddonCreateOption):
 
     # value range 0xa000 - 0xa7ff
 
-    CREATE              = 0xa000
-
     USEBORDER_HEADER    = 0xa001
     USEBORDER_FOOTER    = 0xa002
     USEBORDER_DEFAULT   = 0xa003

@@ -8,5 +8,3 @@ class TextCycleCO(InteractableCreateOption):
     """
 
     # value range 0x10600 - 0x106ff
-
-    CREATE              = 0x10600

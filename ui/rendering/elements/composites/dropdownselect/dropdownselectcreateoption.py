@@ -8,5 +8,3 @@ class DropdownselectCO(CompositionCreateOption):
     """
 
     # value range 0x10200 - 0x102ff
-
-    CREATE              = 0x10200

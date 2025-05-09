@@ -7,6 +7,11 @@ class TextCycleCore(InteractableCore, Togglable):
     """
     TextCycleCore is the core object of the interactable 'TextCycle'.
     """
-    def __init__(self, rect: Rect, numberOfStates: int, startState: int=0, buttonActive: bool=True) -> None:
+    __contents: list[str]
+    def __init__(self, rect: Rect, contents: list[str], startState: int=0, buttonActive: bool=True) -> None:
+        self.__contents = contents
         InteractableCore.__init__(self, rect)
-        Togglable.__init__(self, numberOfStates=numberOfStates, startState=startState, buttonActive=buttonActive)
+        Togglable.__init__(self, numberOfStates=len(contents), startState=startState, buttonActive=buttonActive)
+
+    def getContent(self) -> str:
+        return self.__contents[self._currentState]

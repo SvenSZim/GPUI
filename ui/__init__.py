@@ -1,14 +1,13 @@
 from .interaction import EventManager
 from .interaction import InputEvent, InputManager
 
-from .utility   import Color, tColor, Rect
+from .utility   import Color, tColor, Rect, AlignType
 from .display   import Font, Surface, SurfaceDrawer
 
 from .rendering import RenderStyle, StyleManager
 from .rendering import StyleMOON, StyleFIRE
 
-from .rendering import LayoutManager            # shouldn't be public ?
-from .rendering import Renderer, CreateInfo
+from .rendering import Renderer
 from .rendering import Line, LineCO, LinePrefab
 from .rendering import Box, BoxCO, BoxPrefab
 from .rendering import Text, TextCO, TextPrefab

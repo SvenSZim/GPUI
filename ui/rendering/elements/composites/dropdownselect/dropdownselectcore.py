@@ -1,7 +1,7 @@
 
 from typing import override
 from .....utility      import Rect
-from .....interaction  import Togglable, EventManager
+from .....interaction  import Togglable
 from ...element        import Element
 from ...atoms          import Box, BoxPrefab, Text, TextCO
 from ..addons          import Framed, FramedPrefab, Dropdown
@@ -39,8 +39,8 @@ class DropdownselectCore(CompositionCore, Togglable):
             self.__outer.append(head)
  
         for el in self.__outer:
-            el.alignpoint(self)
-            el.alignpoint(self, (1,1), (1,1), keepSize=False)
+            el.align(self)
+            el.alignSize(self)
 
         self.__dropdown = Dropdown(Box(rect, renderData=BoxPrefab.INVISIBLE), *innerSelectors, verticalDropdown=verticalDropdown, offset=offset, dropdownActive=buttonActive)
 
@@ -52,8 +52,8 @@ class DropdownselectCore(CompositionCore, Togglable):
             else:
                 self.__dropdown.quickSubscribeToClick(iS[0].toggleButtonActive)
 
-        self.__dropdown.alignpoint(self)
-        self.__dropdown.alignpoint(self, (1,1), (1,1), keepSize=False)
+        self.__dropdown.align(self)
+        self.__dropdown.alignSize(self)
     
     def getOuter(self) -> Element:
         return self.__outer[self.getCurrentToggleState()]

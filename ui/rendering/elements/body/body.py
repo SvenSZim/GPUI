@@ -1,75 +1,61 @@
 from dataclasses import dataclass
 from typing import override
 
-from ....utility import Rect, iRect
+from ....utility import Rect, iRect, AlignType
+from ....interaction import EventManager
 
 @dataclass
-class GlobalFix:
-    """
-    GlobalFix is a dataclass to store information
-    about a global fix of a relative-position to a
-    absolute coordinate in a single dimension.
-    """
-    relativePosition: float
-    absolutePosition: int
+class RelPoint:
+    isGlobal: bool
+    myP: float
+    otherP: float
+    offset: int
+    other: iRect
 
 @dataclass
-class LocalFix:
-    """
-    LocalFix is a dataclass to store information
-    about a local fixed offset-position to a absolute 
-    offset in a single dimension.
-    """
-    relativePosition: float
-    absolutePosition: int
+class RelativePoints:
+    dim: int # 0: x, 1: y
+    relpoint1: RelPoint # newest
+    relpoint2: RelPoint
 
-@dataclass
-class FixedPoints:
-    """
-    FixedPoints is a dataclass to store the defining size
-    and position information for a rectangle in one dimension.
-    """
-
-    fixpoint1: GlobalFix | LocalFix # first fixpoint
-    fixpoint2: GlobalFix            # second fixpoint (there cant be 2 local fixes)
-
-    def setFixPoint(self, newFix: GlobalFix | LocalFix, keepSizeFix: bool=True):
-        """
-        setFixPoint sets a new fixpoint in the set dimension.
-
-        Args:
-            newFix   (GlobalFix | LocalFix): the new fixpoint to store.
-            keepSize (bool)                : boolean if the localfix should be kept
-        """
-        if isinstance(newFix, LocalFix):
-            if newFix.relativePosition != 0.0: # there cant be a local fix with relativePos = 0
-                self.fixpoint1 = newFix
-        else:
-            if not (isinstance(self.fixpoint1, LocalFix) and keepSizeFix) and \
-              self.fixpoint2.relativePosition != newFix.relativePosition:
-                self.fixpoint1 = self.fixpoint2
-            self.fixpoint2 = newFix
-
+    def setRelpoint(self, ref: iRect, myP: float, otherP: float, offset: int=0, globalFix: bool=True, keepSize: bool=True):
+        if not (not self.relpoint2.isGlobal and keepSize or not globalFix and not self.relpoint1.isGlobal or (self.relpoint1.isGlobal and globalFix and self.relpoint1.myP == myP)):
+            # Exclude: overwriting local fix if keepSize, 2 local fixes, fixing same point twice
+            self.relpoint2 = self.relpoint1
+        self.relpoint1 = RelPoint(globalFix, myP, otherP, offset, ref)
 
     def getDimension(self) -> tuple[int, int]:
         """
         getDimension returns the start pos and the length of the 'line' defined
-        by the stored fix-points.
+        by the stored points.
 
-        Returns (tuple[int, int]): (start, length) ~ the 'line' defined by the fix-points.
+        Returns (tuple[int, int]): (start, length) ~ the 'line' defined by the points.
         """
+        abspos1: int
+        if self.relpoint1.isGlobal:
+            abspos1 = int(self.relpoint1.other.getPoint((self.relpoint1.otherP, self.relpoint1.otherP))[self.dim] + self.relpoint1.offset)
+        else:
+            abspos1 = int(self.relpoint1.other.getSize()[self.dim] * self.relpoint1.otherP + self.relpoint1.offset)
+        abspos2: int
+        if self.relpoint2.isGlobal:
+            abspos2 = int(self.relpoint2.other.getPoint((self.relpoint2.otherP, self.relpoint2.otherP))[self.dim] + self.relpoint2.offset)
+        else:
+            abspos2 = int(self.relpoint2.other.getSize()[self.dim] * self.relpoint2.otherP + self.relpoint2.offset)
+
+        
         length: int = 0
         start: int = 0
-        # check for local positioned fixes
-        if isinstance(self.fixpoint1, LocalFix):
-            length = int(self.fixpoint1.absolutePosition / self.fixpoint1.relativePosition)
-            start = int(self.fixpoint2.absolutePosition - length * self.fixpoint2.relativePosition)
+        if self.relpoint1.isGlobal and self.relpoint2.isGlobal:
+            length = int((abspos2 - abspos1) / (self.relpoint2.myP - self.relpoint1.myP))
+            start = int(abspos1 - length * self.relpoint1.myP)
+        elif self.relpoint1.isGlobal:
+            length = int(abspos2 / self.relpoint2.myP)
+            start = int(abspos1 - length * self.relpoint1.myP)
         else:
-            length = int((self.fixpoint2.absolutePosition - self.fixpoint1.absolutePosition) / 
-                         (self.fixpoint2.relativePosition - self.fixpoint1.relativePosition))
-            start = int(self.fixpoint1.absolutePosition - length * self.fixpoint1.relativePosition)
+            length = int(abspos1 / self.relpoint1.myP)
+            start = int(abspos2 - length * self.relpoint2.myP)
         return (start, length)
-
+            
 
 Point = tuple[float, float]
 
@@ -80,10 +66,24 @@ class Body(iRect):
     relative positions of the body to fixed coordinates. These can then be used to
     calculte the actual rect of the body.
     """
+    __resetBodyUpdateStatusEvent: str = EventManager.createEvent()
+    __updateBodyEvent: str = EventManager.createEvent()
 
-    # fixed points are relative positions of the body that are fixed to a fixed coordinate
-    __fixedXPoints: FixedPoints
-    __fixedYPoints: FixedPoints
+    __updating: bool
+    __updated: bool
+
+    __setXRelations: RelativePoints
+    __setYRelations: RelativePoints
+
+    __position: tuple[int, int]
+    __size: tuple[int, int]
+
+    # -------------------- static --------------------
+
+    @staticmethod
+    def updateBodys() -> None:
+        EventManager.triggerEvent(Body.__resetBodyUpdateStatusEvent)
+        EventManager.triggerEvent(Body.__updateBodyEvent)
 
     # -------------------- creation --------------------
 
@@ -94,8 +94,25 @@ class Body(iRect):
         """
         super().__init__()
 
-        self.__fixedXPoints = FixedPoints(LocalFix(1.0, rect.width), GlobalFix(0.0, rect.left))
-        self.__fixedYPoints = FixedPoints(LocalFix(1.0, rect.height), GlobalFix(0.0, rect.top))
+        EventManager.quickSubscribe(Body.__resetBodyUpdateStatusEvent, self.__unsetUpdated)
+        EventManager.quickSubscribe(Body.__updateBodyEvent, self.update)
+
+        self.__setXRelations = RelativePoints(0, RelPoint(False, 1.0, 1.0, 0, rect), RelPoint(True, 0.0, 0.0, 0, rect))
+        self.__setYRelations = RelativePoints(1, RelPoint(False, 1.0, 1.0, 0, rect), RelPoint(True, 0.0, 0.0, 0, rect))
+
+        self.__updateDimensions()
+
+    def __updateDimensions(self) -> None:
+        self.__updating = True
+
+        dimX = self.__setXRelations.getDimension()
+        dimY = self.__setYRelations.getDimension()
+
+        self.__position = (dimX[0], dimY[0])
+        self.__size = (dimX[1], dimY[1])
+        self.__updated = True
+        self.__updating = False
+
 
     # -------------------- iRect-implementation --------------------
 
@@ -106,7 +123,14 @@ class Body(iRect):
 
         Returns (tuple[int, int]) ~ (width, height): size of the element
         """
-        return (self.__fixedXPoints.getDimension()[1], self.__fixedYPoints.getDimension()[1])
+        if self.__updated:
+            return self.__size
+        if self.__updating:
+            raise ReferenceError('UI Layout references itself!')
+        
+        self.update()
+
+        return self.__size
 
     @override
     def getPosition(self) -> tuple[int, int]:
@@ -115,7 +139,14 @@ class Body(iRect):
 
         Returns (tuple[int, int]) ~ (x-pos, y-pos): position of the element
         """
-        return (self.__fixedXPoints.getDimension()[0], self.__fixedYPoints.getDimension()[0])
+        if self.__updated:
+            return self.__position
+        if self.__updating:
+            raise ReferenceError('UI Layout references itself!')
+        
+        self.update()
+
+        return self.__position
 
     # -------------------- additional-getter --------------------
 
@@ -125,27 +156,24 @@ class Body(iRect):
 
         Returns (Rect): Rect object containing the pos and size of the element
         """
-        left, width = self.__fixedXPoints.getDimension()
-        top, height = self.__fixedYPoints.getDimension()
-        return Rect((left, top), (width, height))
-        
-    def setRect(self, rect: Rect) -> None:
-        """
-        setRect force-sets the rect of the body object.
-
-        Args:
-            rect (Rect): the rect to be stored.
-        """
-        self.__fixedXPoints.setFixPoint(GlobalFix(0.0, rect.left))
-        self.__fixedXPoints.setFixPoint(LocalFix(1.0, rect.width))
-        self.__fixedYPoints.setFixPoint(GlobalFix(0.0, rect.top))
-        self.__fixedYPoints.setFixPoint(LocalFix(1.0, rect.height))
+        return Rect(self.__position, self.__size)
 
     # -------------------- positional-setter --------------------
 
-    def applyConnection(self, other: iRect, connectionDimension: tuple[bool, bool],
-                        myFixPoint: Point, otherFixPoint: Point, offset: int | tuple[int, int],
-                        fixedGlobal: tuple[bool, bool]=(True, True), keepSizeFix: tuple[bool, bool]=(True, True)) -> None:
+    def __unsetUpdated(self) -> None:
+        self.__updated = False
+
+    def update(self) -> None:
+        if not self.__updated:
+            self.__updateDimensions()
+
+    def forceUpdate(self) -> None:
+        self.__updated = False
+        self.update()
+
+    def addReferenceConnection(self, other: iRect, connectionDimension: tuple[bool, bool],
+                        myFixPoint: Point, otherFixPoint: Point, offset: tuple[int, int]=(0,0),
+                        fixedGlobal: tuple[bool, bool]=(True, True), keepSize: tuple[bool, bool]=(True, True)) -> None:
         """
         applyConnection is a function to set a new connection of the body.
         (should only be accessed by the LayoutManager)
@@ -155,33 +183,40 @@ class Body(iRect):
             connectionDimension (tuple[bool, bool]) ~ (x-axis, y-axis)  : the dimensions to use when fixing
             myFixPoint          (Point) ~ tuple[float, float]           : the relative positions of the body to fix
             otherFixPoint       (Point) ~ tuple[float, float]           : the relative positions of the other rect to use as fixed coordinates
-            offset              (int or tuple[int, int])                : a offset to use when fixing. int applys to all dimensions
+            offset              (tuple[int, int])                       : a offset to use when fixing. int applys to all dimensions
             fixedGlobal         (tuple[bool, bool])                     : boolean if the fixations are global positioned or locally
                                                                             (in reference to the object itself)
-            keepSizeFix         (tuple[bool, bool])                     : boolean if the fixations should keep relative-fixes and just
+            keepSize            (tuple[bool, bool])                     : boolean if the fixations should keep relative-fixes and just
                                                                             override global fixes
         """
-        newX: int = int(other.getLeft() + otherFixPoint[0] * other.getWidth() )
-        newY: int = int(other.getTop()  + otherFixPoint[1] * other.getHeight())
-        
-        # apply offset
-        if isinstance(offset, int):
-            newX += offset
-            newY += offset
-        else:
-            newX += offset[0]
-            newY += offset[1]
-        
         # set new x-axis fixpoints
         if connectionDimension[0]:
-            if fixedGlobal[0]:
-                self.__fixedXPoints.setFixPoint(GlobalFix(myFixPoint[0], newX), keepSizeFix=keepSizeFix[0])
-            else:
-                self.__fixedXPoints.setFixPoint(LocalFix(myFixPoint[0], newX), keepSizeFix=keepSizeFix[0])
+            self.__setXRelations.setRelpoint(other, myFixPoint[0], otherFixPoint[0], offset=offset[0], globalFix=fixedGlobal[0], keepSize=keepSize[0])
 
         # set new y-axis fixpoints
         if connectionDimension[1]:
-            if fixedGlobal[1]:
-                self.__fixedYPoints.setFixPoint(GlobalFix(myFixPoint[1], newY), keepSizeFix=keepSizeFix[1])
+            self.__setYRelations.setRelpoint(other, myFixPoint[1], otherFixPoint[1], offset=offset[1], globalFix=fixedGlobal[1], keepSize=keepSize[1])
+    
+    
+    def align(self, alignagainst: iRect, align: AlignType, ignoreX: bool=False, ignoreY: bool=False,
+              offset: tuple[int, int]=(0, 0), keepSize: bool=True) -> None:
+        """
+        align creates a LayoutRequest to align the element with the given one.
+
+        Args:
+            other   (Element or Core or Rect)   : the reference to align against
+            align   (Align)                     : the type of alignment to use
+        """
+        kSize: tuple[bool, bool] = (keepSize, keepSize)
+        xalign, xi, yalign, yi = (align.value & 0b11, (align.value & 0b100) >> 2, (align.value & 0b11000) >> 3, (align.value & 0b100000) >> 5)
+        if not ignoreX:
+            if xi:
+                self.addReferenceConnection(alignagainst, (True, False), (xalign * 0.5, 0.0), (xalign * 0.5, 0.0), offset=offset, keepSize=kSize)
             else:
-                self.__fixedYPoints.setFixPoint(LocalFix(myFixPoint[1], newY), keepSizeFix=keepSizeFix[1])
+                self.addReferenceConnection(alignagainst, (True, False), ((2 - xalign) * 0.5, 0.0), (xalign * 0.5, 0.0), offset=(offset[0], offset[1]), keepSize=kSize)
+        if not ignoreY:
+            if yi:
+                self.addReferenceConnection(alignagainst, (False, True), (0.0, yalign * 0.5), (0.0, yalign * 0.5), offset=offset, keepSize=kSize)
+            else:
+                self.addReferenceConnection(alignagainst, (False, True), (0.0, (2 - yalign) * 0.5), (0.0, yalign * 0.5), offset=(offset[0], offset[1]), keepSize=kSize)
+

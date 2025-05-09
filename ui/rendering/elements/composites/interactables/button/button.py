@@ -2,7 +2,6 @@ from typing import Any, Callable, override
 
 from ......utility   import Rect
 from ......display   import Surface
-from .....createinfo import CreateInfo
 from ....atoms       import AtomCreateOption, Box, Line
 from ..interactable  import Interactable
 
@@ -31,43 +30,22 @@ class Button(Interactable[ButtonCore, ButtonData, ButtonCO, ButtonPrefab]):
         elif isinstance(renderData, ButtonPrefab):
             renderData = ButtonData() * (renderData, self._renderstyle)
 
-        super().__init__(ButtonCore(rect, buttonActive), renderData, renderActive=active, buttonActive=buttonActive)
+        super().__init__(ButtonCore(rect, buttonActive), renderData, active)
 
-        self.__fillBox   = self._renderData.fillData.createElement(rect)
-        self.__fillCross = (self._renderData.crossData[0].createElement(rect),
-                            self._renderData.crossData[1].createElement(rect))
-        self.__fillBox.alignpoint(self)
-        self.__fillBox.alignpoint(self, (1,1),(1,1), keepSize=False)
-        self.__fillCross[0].alignpoint(self)
+        self.__fillBox   = Box(Rect(), renderData=self._renderData.fillData)
+        self.__fillCross = (Line(Rect(), renderData=self._renderData.crossData[0]),
+                            Line(Rect(), renderData=self._renderData.crossData[1]))
+        self.__fillBox.align(self)
+        self.__fillBox.alignSize(self)
+        self.__fillCross[0].align(self)
         self.__fillCross[0].alignpoint(self, (1,1),(1,1), keepSize=False)
         self.__fillCross[1].alignpoint(self)
         self.__fillCross[1].alignpoint(self, (1,1),(1,1), keepSize=False)
     
     @staticmethod
     @override
-    def fromCreateOptions(createOptions: list[ButtonCO]) -> CreateInfo['Button']:
-        """
-        fromCreateOptions creates the element from createoptions.
-
-        Args:
-            createoptions (list[CreateOption]): the list of create-options to be used for creating
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Button, renderData=createOptions)
-
-    @staticmethod
-    @override
-    def fromPrefab(prefab: ButtonPrefab) -> CreateInfo['Button']:
-        """
-        fromPrefab creates the element from a prefab.
-
-        Args:
-            prefab (Prefab): the prefab to be created
-
-        Returns (creator for this class): createinfo for this class
-        """
-        return CreateInfo(Button, renderData=prefab)
+    def parseFromArgs(args: dict[str, Any]) -> 'Button':
+        return Button(Rect())
 
     # -------------------- subscriptions --------------------
 

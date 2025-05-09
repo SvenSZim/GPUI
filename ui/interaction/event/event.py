@@ -9,25 +9,24 @@ class Event:
     
     __l_subscriptions: list[str] # list of the id's of the callbacks to call when triggered
 
-    def __init__(self, name: str) -> None:
+    def __init__(self) -> None:
         """
         __init__ intializes the instance of Event
 
         Args:
             name (str): the name of the event
         """
-        self.__name = name
         self.__l_subscriptions = []
 
-    def subscribe(self, callback: str) -> None:
+    def subscribe(self, id: str) -> None:
         """
         subscribe takes a callback, that should
         be called when the event is triggered. 
 
         Args:
-            callback (str): the callback that should be subscribed to the event
+            id (str): the callback that should be subscribed to the event
         """
-        self.__l_subscriptions.append(callback)
+        self.__l_subscriptions.append(id)
 
     def unsubscribe(self, id: str) -> bool:
         """

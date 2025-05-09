@@ -8,5 +8,3 @@ class TogglewrapperCO(InteractableCreateOption):
     """
 
     # value range 0x10100 - 0x101ff
-
-    CREATE              = 0x10100
