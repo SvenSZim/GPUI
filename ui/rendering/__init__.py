@@ -4,6 +4,8 @@ from .style import StyleMOON, StyleFIRE
 
 from .renderer import Renderer
 
+from .elements import Element
+
 from .elements import Line, LineCO, LinePrefab
 from .elements import Box, BoxCO, BoxPrefab
 from .elements import Text, TextCO, TextPrefab

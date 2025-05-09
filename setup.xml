@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<box color="2" fillmode="checkerboard" fillsize="l">
+  <line>
+    <button></button>
+  </line>
+  <framed></framed>
+</box>
+

@@ -1,19 +1,7 @@
 import pygame as pg
 from drawer import PygameDrawer, PygameSurface, PygameFont
 
-from ui import Rect, AlignType
-from ui import InputEvent, InputManager
-from ui import Renderer, RenderStyle
-from ui import Line, LinePrefab, LineCO
-from ui import Box, BoxPrefab, BoxCO
-from ui import Text, TextPrefab, TextCO
-
-from ui import Framed, FramedCO, Stacked, Grouped, Section
-from ui import Dropdown
-from ui import Button, ButtonCO
-from ui import Checkbox, CheckboxCO
-from ui import Slider, SliderCO
-from ui import TextCycle, Dropdownselect, Multiselect
+from ui import Rect, Parser, InputManager, InputEvent, Renderer, RenderStyle, Element
 
 def main():
     pg.init()
@@ -32,140 +20,18 @@ def main():
     InputManager.quickSubscribe(InputEvent.QUIT, quit)
     
     screen_size = (1280, 720)
-    screen_size = (1800, 1200)
     main_screen = pg.display.set_mode(screen_size)
     background_color = 'black'
 
-    # ------------------------- line ------------------------
-    l1: Line = Line(Rect(size=(100, 100)), renderData=LinePrefab.DOTTED)
-    l2: Line = Line(Rect(size=(100, 100)), renderData=[LineCO.COLOR1, LineCO.DOTTED, LineCO.FLIPPED, LineCO.ALTLENGTH20])
-
-    # ------------------------- box ------------------------
-    ob1: Box = Box(Rect((20,20),(100,100)), renderData=BoxPrefab.BASIC)
-    ob2: Box = Box(Rect(size=(100,100)), renderData=[BoxCO.COLOR2, BoxCO.ALTCHECKERBOARD, BoxCO.ALTLENGTH20])
-
-
-    # ------------------------- text ------------------------
-    txt1: Text = Text(Rect(size=(220,100)), 'Hello World!', renderData=TextPrefab.DYNAMIC_BASIC)
+    ui: Element = Parser.fromXML('setup.xml')
+    ui.alignSize(Rect(size=screen_size))
+    ui.updateLayout()
     
-    
-    # ----------------------- composite-elements ----------------------
-    txt2: Text = Text(Rect(size=(144, 84)), 'WRAPPED :)', renderData=[TextCO.SIZE_SM ,TextCO.COLOR1, TextCO.ALIGNTOP])
-    f1: Framed = Framed(txt2, offset=0, renderData=[BoxCO.COLOR2, LineCO.COLOR1, FramedCO.USEBORDER_RB, LineCO.DOTTED, FramedCO.USEBORDER_R, LineCO.ALTLENGTH20])
-
-    b1: Button = Button(Rect(size=(100,100)), renderData=[BoxCO.COLOR2, BoxCO.PARTIAL_80])
-    f2: Framed = Framed(b1, renderData=[LineCO.COLOR1])
-
-    cb1: Checkbox = Checkbox(Rect(size=(100,100)), renderData=[CheckboxCO.USECROSS, LineCO.COLOR1])
-    f3: Framed = Framed(cb1, renderData=[LineCO.COLOR1])
-
-    g1: Grouped = Grouped(Rect(size=(340, 90)), ob1, (f2, 0.2), (f3, 0.5), alignVertical=False, offset=20)
-    f4: Framed = Framed(g1, offset=5, renderData=[LineCO.COLOR1, FramedCO.USEBORDER_LR, LineCO.DOTTED])
-    
-    s1: Slider = Slider(Rect(size=(440,80)), renderData=[BoxCO.COLOR1])
-    f5: Framed = Framed(s1, offset=10, renderData=[LineCO.COLOR1])
-
-    tc1: TextCycle = TextCycle(Rect(size=(200, 80)), contents=str("State1 State2 State3 State4 STATEABCDEFGHIJKL").split(),
-                               renderData=[TextCO.COLOR1, TextCO.SIZEDYNAMIC])
-    f6: Framed = Framed(tc1, offset=10, renderData=[LineCO.COLOR1])
-
-    texts: list[Framed] = [Framed(Text(Rect(), str(txt), renderData=[TextCO.SIZE_M, TextCO.COLOR1]),
-                                  offset=10, renderData=[LineCO.COLOR1]) for txt in range(5)]
-    stk1: Stacked = Stacked(Rect(), Rect(size=(90, 50)), texts[0], (texts[1], 2), (texts[2], 0.3), *texts[3:], offset=5)
-    f8: Framed = Framed(stk1, offset=5, renderData=[LineCO.COLOR2, BoxCO.ALTCHECKERBOARD, BoxCO.COLOR2])
-    
-    f7: Framed = Framed(Text(Rect(size=(150, 80)), content="SELECT", renderData=[TextCO.COLOR1]), renderData=[BoxCO.COLOR2])
-    texts2: list[Framed] = [Framed(Text(Rect(), str(txt), renderData=[TextCO.SIZE_M, TextCO.COLOR1]),
-                                  offset=10, renderData=[LineCO.COLOR1, BoxCO.COLOR2]) for txt in range(5)]
-    dpd: Dropdown = Dropdown(f7, (texts2[0], 0.4), (texts2[1], 1.2), *texts2[2:], offset=10)
-
-    texts3: list[Framed] = [Framed(Text(Rect(), str(txt), renderData=[TextCO.SIZE_M, TextCO.COLOR1]),
-                                  offset=10, renderData=[LineCO.COLOR1]) for txt in range(3, 8)]
-    stk2: Stacked = Stacked(Rect(), Rect(size=(90, 50)), (texts3[0], 2.4), *texts3[1:-3], (texts3[-3], 1.5), offset=5)
-    sec1: Section = Section(stk2, texts3[-2], texts3[-1], offset=50, renderData=[LineCO.COLOR1, LineCO.PARTIAL_70])
-
-    texts4: list[Framed] = [Framed(Text(Rect(), str(txt), renderData=[TextCO.SIZE_M, TextCO.COLOR1]),
-                                  offset=10, renderData=[LineCO.COLOR1]) for txt in range(8, 12)]
-    texts5: list[Framed] = [Framed(Text(Rect(), str(txt), renderData=[TextCO.SIZE_M, TextCO.COLOR1]),
-                                  offset=10, renderData=[LineCO.COLOR1]) for txt in range(8, 12)]
-    dpds: Dropdownselect = Dropdownselect(Rect(size=(150, 80)), *zip(texts4, texts5))
-
-    texts6: list[Framed] = [Framed(Text(Rect(), str(txt), renderData=[TextCO.SIZE_M, TextCO.COLOR1]),
-                                  offset=10, renderData=[LineCO.COLOR1]) for txt in 'One Two Three Four Five'.split()]
-    def res(x: int) -> int:
-        b = [bool(x & (1 << s)) for s in range(5)][::-1]
-        if sum(b) > 1:
-            return x #int(''.join([str(int(bit)) for bit in b]), 2)
-        return 0b11111
-    muls: Multiselect = Multiselect(Rect(size=(200, 120)), *texts6, restriction=res)
-
-    # ------------------------- layout ------------------------
-    f4.align(Rect(), offset=20)
-    ob2.align(f4, AlignType.BiL, offset=(0,20))
-    l1.align(ob2, AlignType.iTR, offset=(20,0))
-    l2.align(ob2, AlignType.iTR, offset=(20,0))
-    txt1.align(ob2, AlignType.BiL, offset=(0,20))
-    f1.align(txt1, AlignType.BiL, offset=(0,20))
-    f5.align(f1, AlignType.iTR, offset=(20,0))
-    f6.align(l2, AlignType.iTR, offset=(20,0))
-    f8.align(f4, AlignType.iTM, ignoreX=True)
-    f8.align(f6, AlignType.MR, ignoreY=True, offset=20)
-    dpd.align(f8, AlignType.iTR, offset=(20,0))
-    sec1.align(dpd, AlignType.iTR, offset=(20,0))
-    dpds.align(sec1, AlignType.iTR, offset=(20,0))
-    muls.align(dpds, AlignType.iTR, offset=(20,0))
-
-    f4.updateLayout()
-    # ------------------------- action ------------------------
-
-    def flashbang():
-        nonlocal background_color
-        background_color = 'darkred'
-    
-    def getSliderValue():
-        nonlocal txt2, s1
-        txt2.updateContent(str(round(s1.getSliderState(), 2)))
-
-    b1.quickSubscribeToHold(flashbang)
-    b1.quickSubscribeToClick(getSliderValue)
-
-    def stretch():
-        nonlocal f4
-        f4.alignSize(Rect(size=(465,0)), alignY=False)
-        f4.updateLayout()
-
-    def shrink():
-        nonlocal f4
-        f4.alignSize(Rect(size=(340,0)), alignY=False)
-        f4.updateLayout()
-
-
-    cb1.quickSubscribeToSelect(stretch)
-    cb1.quickSubscribeToDeselect(shrink)
-
-    toggle: bool = False
-    def layoutMove():
-        nonlocal toggle, f4
-        if toggle:
-            f4.alignpoint(Rect(), offset=20)
-        else:
-            f4.alignpoint(Rect(), offset=(200, 40))
-        toggle = not toggle
-        f4.updateLayout()
-
-    tc1.quickSubscribeToState(3, layoutMove)
-
-    # ------------------------- render ------------------------
-
-    b2: Box = Box(Rect(size=(100, 100)), renderData=[BoxCO.COLOR2])
-    b2.setZIndex(-1)
-
-    allObjects: list[Renderer] = [l1, l2, ob2, txt1, f1, f4, f5, f6, b2, f8, dpd, sec1, dpds, muls]
     while running:
         InputManager.update()
 
         main_screen.fill(background_color)
-        allObjects = Renderer.renderAll(PygameSurface(main_screen), allObjects)
+        ui.render(PygameSurface(main_screen))
 
         pg.display.flip()
         background_color = 'black'

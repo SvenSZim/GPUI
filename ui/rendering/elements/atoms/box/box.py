@@ -33,6 +33,27 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Box':
+        createOptions: list[BoxCO] = []
+        for arg, value in args.items():
+            match arg:
+                case 'color':
+                    createOptions.append(BoxCO(0x1020 + int(value)))
+                case 'fillmode':
+                    match value:
+                        case 'inv' | 'invisible':
+                            createOptions.append(BoxCO.FILL_NOFILL)
+                        case 'checkerboard':
+                            createOptions.extend([BoxCO.FILL_ALT, BoxCO.ALTCHECKERBOARD])
+                        case _:
+                            createOptions.append(BoxCO.FILL_SOLID)
+                case 'fillsize':
+                    match value:
+                        case 's':
+                            createOptions.append(BoxCO.ALTLENGTH10)
+                        case 'l':
+                            createOptions.append(BoxCO.ALTLENGTH20)
+        if len(createOptions) > 0:
+            return Box(Rect(), renderData=createOptions)
         return Box(Rect())
 
     # -------------------- rendering --------------------
