@@ -1,16 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 from .color import Color
-
-def extractNum(s: str) -> int:
-    nn = ''
-    for c in s:
-        if c.isnumeric():
-            nn += c
-    if len(nn) > 0:
-        return int(nn)
-    return 0
 
 def parseList(s: str, separator: str=',') -> list[str]:
     ret: list[str] = []
@@ -31,6 +22,16 @@ def parseList(s: str, separator: str=',') -> list[str]:
 class Parsable(ABC):
 
     @staticmethod
+    def extractNum(s: str) -> str:
+        nn = ''
+        for c in s:
+            if c.isnumeric():
+                nn += c
+        if len(nn) > 0:
+            return nn
+        return '0'
+
+    @staticmethod
     def parseLabel(s: str) -> str:
         s = s.strip()
         if s[0].isnumeric():
@@ -47,13 +48,13 @@ class Parsable(ABC):
             return (0,0)
         else:
             if '.' in s:
-                vk, nk = list(map(lambda x: extractNum(x), s.split('.')))[:2]
-                return float(vk) + nk / 10**len(str(nk))
+                vk, nk = [Parsable.extractNum(x) for x in s.split('.')][:2]
+                return int(vk) + int(nk) / 10**len(nk)
             else:
-                return extractNum(s)
+                return int(Parsable.extractNum(s))
 
     @staticmethod
-    def parseColor(s: str) -> Color:
+    def parseColor(s: str) -> Optional[Color]:
         s = s.strip()
         if s[0] == '(':
             vals = [v.strip() for v in s[1:-1].split(',')]
@@ -63,6 +64,8 @@ class Parsable(ABC):
             s = s.lower()
             if s in ['white', 'black', 'red', 'green', 'blue']:
                 return s
+            if s in ['none', 'inv']:
+                return None
         raise ValueError(f'Unparsable color: {s}!')
 
     @staticmethod
@@ -72,7 +75,8 @@ class Parsable(ABC):
         y: int = 1
         for c in ['x', '*', '-', '/']:
             if c in size:
-                x, y = map(lambda x: int(x), size.split(c))
+                x, y = list(map(lambda x: int(x), size.split(c)))[:2]
+        x, y = max(1, x), max(1, y)
         ret: tuple[int, int, list[str]] = (x, y, ['' for _ in range(x * y)])
         if len(rem) > 0:
             labels = rem[0].strip()
@@ -82,19 +86,17 @@ class Parsable(ABC):
             while i < n:
                 c = labels[i]
                 if c == '[':
-                    if crow >= y:
-                        continue
                     cont = parseList(labels[i:labels[i:].index(']')+i+1])
                     rr = 0
                     for c in cont:
                         z = c
                         if '=' in c:
                             ci, l = c.split('=')
-                            ri = extractNum(ci) - 1
+                            ri = int(Parsable.extractNum(ci)) - 1
                             if ri < x:
                                 rr = ri
                             z = l
-                        if rr < x:
+                        if rr < x and crow < y:
                             ret[2][crow * x + rr] = z
                         rr += 1
                     crow += 1
