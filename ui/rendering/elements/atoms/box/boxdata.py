@@ -23,12 +23,12 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
     BoxData is the storage class for all render-information
     for the atom 'Box'.
     """
-    partitioning: tuple[int, int, list[str]]    = field(default_factory=lambda:(1, 1, ['']))
-    mainColor   : dict[str, Optional[Color]]    = field(default_factory=lambda:{'': None})
-    altMode     : dict[str, AltMode]            = field(default_factory=lambda:{'': AltMode.DEFAULT})
-    altColor    : dict[str, Optional[Color]]    = field(default_factory=lambda:{'': None})
-    altLen      : dict[str, float | int]        = field(default_factory=lambda:{'': 10})
+    colors      : dict[str, Optional[Color]]    = field(default_factory=lambda:{'': None})
     partialInset: dict[str, tuple[float, float] | float | tuple[int, int] | int] = field(default_factory=lambda:{'': 0})
+    partitioning: tuple[int, int, list[str]]    = field(default_factory=lambda:(1, 1, ['']))
+    altMode     : dict[str, AltMode]            = field(default_factory=lambda:{'': AltMode.DEFAULT})
+    orders      : dict[str, list[str]]          = field(default_factory=lambda:{'': ['']})
+    altLen      : dict[str, float | int]        = field(default_factory=lambda:{'': 10})
 
     @override
     def __add__(self, extraData: tuple[BoxCO, RenderStyle]) -> 'BoxData':

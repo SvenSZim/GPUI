@@ -24,10 +24,21 @@ def main():
     screen_size = (1280, 720)
     main_screen = pg.display.set_mode(screen_size)
     background_color = 'black'
+    
+    def loadLayout(path):
+        layout = Parser.fromXML(path)
+        layout.alignSize(Rect(size=screen_size))
+        layout.updateLayout()
+        return layout
+    
+    layouts = [loadLayout(pp) for pp in ['boxexample.xml','lineexample.xml']]
+    li, ln = 0, len(layouts)
 
-    ui: Element = Parser.fromXML('setup.xml')
-    ui.alignSize(Rect(size=screen_size))
-    ui.updateLayout()
+    def switchUI():
+        nonlocal li, ln
+        li = (li + 1) % ln
+
+    InputManager.quickSubscribe(InputEvent.M_DOWN, switchUI)
     
     rt = 0
     fc = 0
@@ -37,7 +48,7 @@ def main():
 
         main_screen.fill(background_color)
         s = perf_counter_ns()
-        ui.render(PygameSurface(main_screen))
+        layouts[li].render(PygameSurface(main_screen))
         rt += perf_counter_ns() - s
         fc += 1
 

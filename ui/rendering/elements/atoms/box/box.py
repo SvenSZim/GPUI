@@ -53,12 +53,10 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                         label = Box.parseLabel(vv[0])
                         value = vv[1]
                     match arg:
-                        case 'partial':
+                        case 'inset':
                             data.partialInset[label] = Box.parsePartial(value)
-                        case 'color':
-                            data.mainColor[label] = Box.parseColor(value)
-                        case 'altcolor':
-                            data.altColor[label] = Box.parseColor(value)
+                        case 'colors':
+                            data.colors[label] = Box.parseColor(value)
                         case 'fillmode':
                             match value:
                                 case 'checkerboard' | 'cb':
@@ -79,6 +77,8 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                                         data.altLen[label] = int(vk) + int(nk) / 10**len(nk)
                                     else:
                                         data.altLen[label] = int(Box.extractNum(value))
+                        case 'sectionorders':
+                            data.orders[label] = Box.parseList(value)
             else:
                 match arg:
                     case 'partitioning':
@@ -136,103 +136,82 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                 partitionpartialInset: tuple[float, float] | float | tuple[int, int] | int = self._renderData.partialInset[label] if label != '' and label in self._renderData.partialInset else 0.0
                 partitionRect = applyPartial(partitionRect, partitionpartialInset)
 
-                color: Optional[Color] = self._renderData.mainColor[label] if label in self._renderData.mainColor else self._renderData.mainColor['']
+                order: list[str] = self._renderData.orders[label] if label in self._renderData.orders else self._renderData.orders['']
+                if len(order) == 0:
+                    order = ['']
                 altmode: AltMode = self._renderData.altMode[label] if label in self._renderData.altMode else self._renderData.altMode['']
-                altcolor: Optional[Color] = self._renderData.altColor[label] if label in self._renderData.altColor else self._renderData.altColor['']
                 altsize: float | int = self._renderData.altLen[label] if label in self._renderData.altLen else self._renderData.altLen['']
+                color: Optional[Color] = self._renderData.colors[order[0]] if order[0] in self._renderData.colors else self._renderData.colors['']
 
                 #apply altmodes
                 match altmode:
                     case AltMode.CHECKERBOARD:
-                        rowStartFirstColor: bool = True
+                        rowStartFirstColor: int = 0
+                        firstColor: int = rowStartFirstColor
                         if isinstance(altsize, float):
                             altsize = altsize * min(partitionRect.width, partitionRect.height)
                         top: float = partitionRect.top
                         tile: Rect
                         while top + altsize < partitionRect.bottom:
-                            firstColor: bool = rowStartFirstColor
+                            firstColor = rowStartFirstColor
                             left: float = partitionRect.left
                             while left + altsize < partitionRect.right:
+                                color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
                                 tile = Rect((int(left), int(top)), (int(altsize), int(altsize)))
-                                if firstColor:
-                                    if color is not None:
-                                        self.__renderCache.append((tile, color))
-                                else:
-                                    if altcolor is not None:
-                                        self.__renderCache.append((tile, altcolor))
-                                firstColor = not firstColor
-                                left += altsize
-                            tile = Rect((int(left), int(top)), (partitionRect.right - int(left), int(altsize)))
-                            if firstColor:
                                 if color is not None:
                                     self.__renderCache.append((tile, color))
-                            else:
-                                if altcolor is not None:
-                                    self.__renderCache.append((tile, altcolor))
-                            rowStartFirstColor = not rowStartFirstColor
+                                firstColor = (firstColor + 1) % len(order)
+                                left += altsize
+                            tile = Rect((int(left), int(top)), (partitionRect.right - int(left), int(altsize)))
+                            color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
+                            if color is not None:
+                                self.__renderCache.append((tile, color))
+                            rowStartFirstColor = (rowStartFirstColor + 1) % len(order)
                             top += altsize
                         missing_height: int = partitionRect.bottom - int(top)
                         left: float = partitionRect.left
                         while left + altsize < partitionRect.right:
+                            color = self._renderData.colors[order[rowStartFirstColor]] if order[rowStartFirstColor] in  self._renderData.colors else self._renderData.colors['']
                             tile = Rect((int(left), int(top)), (int(altsize), missing_height))
-                            if rowStartFirstColor:
-                                if color is not None:
-                                    self.__renderCache.append((tile, color))
-                            else:
-                                if altcolor is not None:
-                                    self.__renderCache.append((tile, altcolor))
-                            rowStartFirstColor = not rowStartFirstColor
-                            left += altsize
-                        if rowStartFirstColor:
                             if color is not None:
-                                self.__renderCache.append((Rect((int(left), int(top)), (partitionRect.right - int(left), missing_height)), color))
-                        else:
-                            if altcolor is not None:
-                                self.__renderCache.append((Rect((int(left), int(top)), (partitionRect.right - int(left), missing_height)), altcolor))
+                                self.__renderCache.append((tile, color))
+                            rowStartFirstColor = (rowStartFirstColor + 1) % len(order)
+                            left += altsize
+                        color = self._renderData.colors[order[rowStartFirstColor]] if order[rowStartFirstColor] in  self._renderData.colors else self._renderData.colors['']
+                        if color is not None:
+                            self.__renderCache.append((Rect((int(left), int(top)), (partitionRect.right - int(left), missing_height)), color))
 
                     case AltMode.STRIPED_V:
                         if isinstance(altsize, float):
                             altsize = altsize * partitionRect.width
-                        firstColor: bool = True
+                        firstColor: int = 0
                         left: float = partitionRect.left
                         while left + altsize < partitionRect.right:
+                            color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
                             stripe: Rect = Rect((int(left), partitionRect.top), (int(altsize), partitionRect.height))
-                            if firstColor:
-                                if color is not None:
-                                    self.__renderCache.append((stripe, color))
-                            else:
-                                if altcolor is not None:
-                                    self.__renderCache.append((stripe, altcolor))
-                            firstColor = not firstColor
-                            left += altsize
-                        if firstColor:
                             if color is not None:
-                                self.__renderCache.append((Rect((int(left), partitionRect.top), (partitionRect.right - int(left), partitionRect.height)), color))
-                        else:
-                            if altcolor is not None:
-                                self.__renderCache.append((Rect((int(left), partitionRect.top), (partitionRect.right - int(left), partitionRect.height)), altcolor))
+                                self.__renderCache.append((stripe, color))
+                            firstColor = (firstColor + 1) % len(order)
+                            left += altsize
+                        color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
+                        if color is not None:
+                            self.__renderCache.append((Rect((int(left), partitionRect.top), (partitionRect.right - int(left), partitionRect.height)), color))
 
                     case AltMode.STRIPED_H:
                         if isinstance(altsize, float):
                             altsize = altsize * partitionRect.height
-                        firstColor: bool = True
+                        firstColor: int = 0
                         top: float = partitionRect.top
                         while top + altsize < partitionRect.bottom:
+                            color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
                             stripe: Rect = Rect((partitionRect.left, int(top)), (partitionRect.width, int(altsize)))
-                            if firstColor:
-                                if color is not None:
-                                    self.__renderCache.append((stripe, color))
-                            else:
-                                if altcolor is not None:
-                                    self.__renderCache.append((stripe, altcolor))
-                            firstColor = not firstColor
-                            top += altsize
-                        if firstColor:
                             if color is not None:
-                                self.__renderCache.append((Rect((partitionRect.left, int(top)), (partitionRect.width, partitionRect.bottom - int(top))), color))
-                        else:
-                            if altcolor is not None:
-                                self.__renderCache.append((Rect((partitionRect.left, int(top)), (partitionRect.width, partitionRect.bottom - int(top))), altcolor))
+                                self.__renderCache.append((stripe, color))
+                            firstColor = (firstColor + 1) % len(order)
+                            top += altsize
+                        color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
+                        if color is not None:
+                            self.__renderCache.append((Rect((partitionRect.left, int(top)), (partitionRect.width, partitionRect.bottom - int(top))), color))
 
                     case _:
                         if color is not None:
