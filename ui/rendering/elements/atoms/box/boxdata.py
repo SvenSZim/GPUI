@@ -15,9 +15,7 @@ class AltMode(Enum):
     DEFAULT         = 0x00
     STRIPED_V       = 0x01
     STRIPED_H       = 0x02
-    STRIPED_D       = 0x03
-    STRIPED_DR      = 0x04
-    CHECKERBOARD    = 0x05
+    CHECKERBOARD    = 0x03
 
 @dataclass
 class BoxData(AtomData[BoxCO, BoxPrefab]):
@@ -27,10 +25,10 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
     """
     partitioning: tuple[int, int, list[str]]    = field(default_factory=lambda:(1, 1, ['']))
     mainColor   : dict[str, Optional[Color]]    = field(default_factory=lambda:{'': None})
-    altMode     : dict[str, Optional[AltMode]]  = field(default_factory=lambda:{'': None})
+    altMode     : dict[str, AltMode]            = field(default_factory=lambda:{'': AltMode.DEFAULT})
     altColor    : dict[str, Optional[Color]]    = field(default_factory=lambda:{'': None})
     altLen      : dict[str, float | int]        = field(default_factory=lambda:{'': 10})
-    partialInset: dict[str, tuple[float, float] | float | tuple[int, int] | int] = field(default_factory=lambda:{'': 1.0})
+    partialInset: dict[str, tuple[float, float] | float | tuple[int, int] | int] = field(default_factory=lambda:{'': 0})
 
     @override
     def __add__(self, extraData: tuple[BoxCO, RenderStyle]) -> 'BoxData':

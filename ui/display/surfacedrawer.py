@@ -12,7 +12,7 @@ class SurfaceDrawer(ABC):
 
     @staticmethod
     @abstractmethod
-    def drawline(surface: Surface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Color) -> None:
+    def drawline(surface: Surface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Color, thickness: int=1) -> None:
         """
         drawline draws a line from startpoint to endpoint with the given color on the surface
 

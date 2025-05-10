@@ -40,7 +40,7 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
     def parseFromArgs(args: dict[str, Any]) -> 'Box':
         data: BoxData = BoxData()
         for arg, v in args.items():
-            if arg not in {'partitioning'}:
+            if arg not in ['partitioning']:
                 values = v.split(';')
                 labelValuePairs: list[str | tuple[str, str]] = [vv.split(':') for vv in values]
                 for vv in labelValuePairs:
@@ -63,9 +63,9 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                             match value:
                                 case 'checkerboard' | 'cb':
                                     data.altMode[label] = AltMode.CHECKERBOARD
-                                case 'vertical' | 'vert':
+                                case 'striped_vert' | 'strv':
                                     data.altMode[label] = AltMode.STRIPED_V
-                                case 'horizontal' | 'horz':
+                                case 'striped_hor' | 'strh':
                                     data.altMode[label] = AltMode.STRIPED_H
                         case 'fillsize':
                             match value:
@@ -87,7 +87,7 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
 
     # -------------------- rendering --------------------
 
-    __renderCache: list[tuple[Rect | tuple[tuple[int, int], tuple[int, int]], Color]]
+    __renderCache: list[tuple[Rect | tuple[tuple[int, int], tuple[int, int], int], Color]]
 
     def updateRenderData(self) -> None:
         self.__renderCache = []
@@ -137,7 +137,7 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                 partitionRect = applyPartial(partitionRect, partitionpartialInset)
 
                 color: Optional[Color] = self._renderData.mainColor[label] if label in self._renderData.mainColor else self._renderData.mainColor['']
-                altmode: Optional[AltMode] = self._renderData.altMode[label] if label in self._renderData.altMode else self._renderData.altMode['']
+                altmode: AltMode = self._renderData.altMode[label] if label in self._renderData.altMode else self._renderData.altMode['']
                 altcolor: Optional[Color] = self._renderData.altColor[label] if label in self._renderData.altColor else self._renderData.altColor['']
                 altsize: float | int = self._renderData.altLen[label] if label in self._renderData.altLen else self._renderData.altLen['']
 
@@ -234,12 +234,6 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                             if altcolor is not None:
                                 self.__renderCache.append((Rect((partitionRect.left, int(top)), (partitionRect.width, partitionRect.bottom - int(top))), altcolor))
 
-                    case AltMode.STRIPED_D:
-                        pass
-
-                    case AltMode.STRIPED_DR:
-                        pass
-
                     case _:
                         if color is not None:
                             self.__renderCache.append((partitionRect, color))
@@ -261,4 +255,4 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                 if isinstance(ob, Rect):
                     self._drawer.drawrect(surface, ob, color)
                 elif isinstance(ob, tuple):
-                    self._drawer.drawline(surface, ob[0], ob[1], color)
+                    self._drawer.drawline(surface, ob[0], ob[1], color, thickness=ob[2])

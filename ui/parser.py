@@ -22,6 +22,8 @@ class Parser:
             currentNode = nodeStack[i]
             newEl = None
             match currentNode.tag:
+                case 'line':
+                    newEl = Line.parseFromArgs(currentNode.attrib)
                 case 'box':
                     newEl = Box.parseFromArgs(currentNode.attrib)
             elementStack[i] = newEl

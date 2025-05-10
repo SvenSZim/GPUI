@@ -3,24 +3,11 @@ from typing import Any, Optional
 
 from .color import Color
 
-def parseList(s: str, separator: str=',') -> list[str]:
-    ret: list[str] = []
-    s = s.strip()
-    n = len(s)
-    if not n:
-        return ret
-    content = s
-    if '[' in s and ']' in s:
-        i = s.index('[')
-        j = n-1 - s[::-1].index(']')
-        if j > i:
-            content = s[i+1:j]
-    return [s.strip() for s in content.split(separator)]
 
 
 
 class Parsable(ABC):
-
+    
     @staticmethod
     def extractNum(s: str) -> str:
         nn = ''
@@ -30,6 +17,21 @@ class Parsable(ABC):
         if len(nn) > 0:
             return nn
         return '0'
+
+    @staticmethod
+    def parseList(s: str, separator: str=',') -> list[str]:
+        ret: list[str] = []
+        s = s.strip()
+        n = len(s)
+        if not n:
+            return ret
+        content = s
+        if '[' in s and ']' in s:
+            i = s.index('[')
+            j = n-1 - s[::-1].index(']')
+            if j > i:
+                content = s[i+1:j]
+        return [s.strip() for s in content.split(separator)]
 
     @staticmethod
     def parseLabel(s: str) -> str:
@@ -86,7 +88,7 @@ class Parsable(ABC):
             while i < n:
                 c = labels[i]
                 if c == '[':
-                    cont = parseList(labels[i:labels[i:].index(']')+i+1])
+                    cont = Parsable.parseList(labels[i:labels[i:].index(']')+i+1])
                     rr = 0
                     for c in cont:
                         z = c

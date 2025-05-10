@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Optional, override
 
 from .....utility import Color
@@ -7,6 +8,9 @@ from ..atomdata   import AtomData
 from .linecreateoption import LineCO
 from .lineprefab  import LinePrefab
 
+class AltMode(Enum):
+    DEFAULT = 0x00
+    CROSS   = 0x01
 
 @dataclass
 class LineData(AtomData[LineCO, LinePrefab]):
@@ -14,16 +18,18 @@ class LineData(AtomData[LineCO, LinePrefab]):
     LineData is the storage class for all render-information
     for the atom 'Line'.
     """
-
-    mainColor   : Optional[Color]   = None
-    partial     : float             = 1.0
-    doAlt       : bool              = False
-    altAbsLen   : Optional[float]   = None
-    altColor    : Optional[Color]   = None
-    flip        : bool              = False
+    
+    colors      : dict[str, Optional[Color]]                            = field(default_factory=lambda: {'': None})
+    sizes       : dict[str, int | float]                                = field(default_factory=lambda: {'': 1.0})
+    thickness   : dict[str, int]                                        = field(default_factory=lambda: {'': 1})
+    altmode     : dict[str, AltMode]                                    = field(default_factory=lambda: {'': AltMode.DEFAULT})
+    inset       : tuple[float, float] | float | tuple[int, int] | int   = 0
+    flip        : bool                                                  = False
+    order       : list[str]                                             = field(default_factory=lambda: [''])
 
     @override
     def __add__(self, extraData: tuple[LineCO, RenderStyle]) -> 'LineData':
+        return self
         style: RenderStyle = extraData[1]
         createOption: LineCO = extraData[0]
         if 0x021 <= createOption.value <= 0x030:
@@ -83,6 +89,7 @@ class LineData(AtomData[LineCO, LinePrefab]):
 
     @override
     def __mul__(self, extraData: tuple[LinePrefab, RenderStyle]) -> 'LineData':
+        return self
         return {
             LinePrefab.INVISIBLE   : lambda _     : LineData(),
             LinePrefab.SOLID       : lambda style : LineData(StyleManager.getStyleColor(0, style)),

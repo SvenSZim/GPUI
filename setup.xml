@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<box partitioning="3x2; [c1,c2,c1][c2=c3]" color="inv;c1:(40,10,10);c3:(40,10,10)" altcolor="c2:(40,10,10)" partial="50" fillmode="c1:horz; c2:cb; c3:vert" fillsize="20">
-  <line>
-    <button></button>
-  </line>
-  <framed></framed>
-</box>
+<line color="inv;w:white;r:red;b:blue" thickness="1;w:2;r:5" flip="" sizes="0.01;b:0.02;n:0.02" inset="60" sectionorder="r:n:w:b:n" altmode="r:cross">
+</line>
 

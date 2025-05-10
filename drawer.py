@@ -41,11 +41,11 @@ class PygameFont(Font):
 class PygameDrawer(SurfaceDrawer):
     @override
     @staticmethod
-    def drawline(surface: Surface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Color) -> None:
+    def drawline(surface: Surface, startpoint: tuple[int, int], endpoint: tuple[int, int], color: Color, thickness: int=1) -> None:
         if isinstance(color, tColor):
             color = color.value
         if isinstance(surface, PygameSurface):
-            pg.draw.line(surface.surface, color, startpoint, endpoint)
+            pg.draw.line(surface.surface, color, startpoint, endpoint, width=thickness)
 
 
     @override

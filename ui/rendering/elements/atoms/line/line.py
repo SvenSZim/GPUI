@@ -1,12 +1,14 @@
-from typing import Any, override
+from typing import Any, Optional, override
 from math import sqrt
 
-from .....utility import Rect
+from .....utility import Rect, Color
 from .....display import Surface
+from .....interaction import EventManager
 
+from ...body    import Body
 from ..atom             import Atom
 from .linecore          import LineCore
-from .linedata          import LineData
+from .linedata          import LineData, AltMode
 from .linecreateoption  import LineCO
 from .lineprefab        import LinePrefab
 
@@ -31,13 +33,219 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
 
         assert isinstance(renderData, LineData)
         super().__init__(LineCore(rect), renderData, active)
+        
+        self.__renderCache = []
+        EventManager.quickSubscribe(Body.getLayoutUpdateEvent(), self.updateRenderData)
 
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Line':
-        return Line(Rect())
+        data: LineData = LineData()
+        for arg, v in args.items():
+            if arg not in ['inset', 'flip', 'sectionorder']:
+                values = v.split(';')
+                labelValuePairs: list[str | tuple[str, str]] = [vv.split(':') for vv in values]
+                for vv in labelValuePairs:
+                    label: str
+                    value: str
+                    if len(vv) == 1:
+                        label = ''
+                        value = vv[0]
+                    else:
+                        label = Line.parseLabel(vv[0])
+                        value = vv[1]
+                    match arg:
+                        case 'color':
+                            data.colors[label] = Line.parseColor(value)
+                        case 'thickness':
+                            data.thickness[label] = int(Line.extractNum(value))
+                        case 'sizes':
+                            match value:
+                                case 's':
+                                    data.sizes[label] = 10
+                                case 'l':
+                                    data.sizes[label] = 20
+                                case _:
+                                    if '.' in value:
+                                        vk, nk = [Line.extractNum(vvv) for vvv in value.split('.')][:2]
+                                        data.sizes[label] = int(vk) + int(nk) / 10**len(nk)
+                                    else:
+                                        data.sizes[label] = int(Line.extractNum(value))
+                        case 'altmode':
+                            match value:
+                                case 'cross':
+                                    data.altmode[label] = AltMode.CROSS
+            else:
+                match arg:
+                    case 'inset':
+                        if '.' in v:
+                            vk, nk = [Line.extractNum(vvv) for vvv in v.split('.')][:2]
+                            data.inset = int(vk) + int(nk) / 10**len(nk)
+                        else:
+                            data.inset = int(Line.extractNum(v))
+                    case 'flip':
+                        data.flip = True
+                    case 'sectionorder':
+                        data.order = Line.parseList(v, separator=':')
+        return Line(Rect(), renderData=data)
 
     # -------------------- rendering --------------------
+
+    __renderCache: list[tuple[Rect | tuple[tuple[int, int], tuple[int, int], int], Color]]
+
+    def updateRenderData(self) -> None:
+        self.__renderCache = []
+
+        #calculate render borderbox
+        rect: Rect = self.getRect()
+
+        #check for errors in boxsize
+        if rect.isZero():
+            return
+        if rect.width < 0:
+            rect = Rect((rect.left + rect.width, rect.top), (-rect.width, rect.height))
+        if rect.height < 0:
+            rect = Rect((rect.left, rect.top + rect.height), (rect.width, -rect.height))
+        
+        #apply partialInset
+        def applyPartial(rect: Rect, partialInset: tuple[float, float] | float | tuple[int, int] | int) -> Rect:
+            if isinstance(partialInset, tuple):
+                if isinstance(partialInset[0], float):
+                    rect = Rect((rect.left + int(rect.width * (1.0 - partialInset[0])),
+                                 rect.top + int(rect.height * (1.0 - partialInset[1]))),
+                                (int(rect.width * (1.0 - 2 * partialInset[0])), int(rect.height * (1.0 - 2 * partialInset[1]))))
+                else:
+                    assert isinstance(partialInset[1], int)
+                    rect = Rect((rect.left + partialInset[0], rect.top + partialInset[1]), (max(0, rect.width - 2 * partialInset[0]), max(0, rect.height - 2 * partialInset[1])))
+            elif isinstance(partialInset, float):
+                inset: int = int(min(rect.width, rect.height) * partialInset)
+                rect = Rect((rect.left + inset, rect.top + inset),
+                            (max(0, rect.width - 2 * inset), max(0, rect.height - 2 * inset)))
+            else:
+                rect = Rect((rect.left + partialInset, rect.top + partialInset), (max(0, rect.width - 2 * partialInset), max(0, rect.height - 2 * partialInset)))
+            return rect
+        
+        globalInset: tuple[float, float] | float | tuple[int, int] | int = self._renderData.inset
+        rect = applyPartial(rect, globalInset)
+            
+        sectionOrder: list[str] = self._renderData.order
+        if len(sectionOrder) == 0:
+            sectionOrder = ['']
+
+        orderIndex: int = 0
+
+        JIGGLE: int = max(1, int(0.003 * max(rect.width, rect.height)))
+        whratio: float = rect.width/rect.height if rect.height > 0 else 1
+        absNormalizer: float = 1/sqrt(1 + whratio*whratio) if rect.height > 0 and rect.width > 0 else 1
+
+        nextStep: int | float = self._renderData.sizes[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.sizes else self._renderData.sizes['']
+        stepSizeX: float
+        stepSizeY: float
+        if isinstance(nextStep, float):
+            stepSizeX = rect.width*nextStep
+            stepSizeY = rect.height*nextStep
+        else:
+            stepSizeX = nextStep*whratio*absNormalizer if rect.width > 0 else 0
+            stepSizeY = nextStep*absNormalizer if rect.height > 0 else 0
+
+        cline: list[float] = [float(x) for x in rect.getPosition()]
+        color: Optional[Color]
+        thickness: int
+        altmode: AltMode
+        while rect.collidepoint((int(cline[0] + stepSizeX), int(cline[1] + stepSizeY))):
+            color = self._renderData.colors[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.colors else self._renderData.colors['']
+            thickness = self._renderData.thickness[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.thickness else self._renderData.thickness['']
+            altmode = self._renderData.altmode[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.altmode else self._renderData.altmode['']
+            match altmode:
+                case AltMode.CROSS:
+                    if color is not None:
+                        if rect.width > JIGGLE and rect.height > JIGGLE:
+                            if self._renderData.flip:
+                                self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1])), (int(cline[0] + stepSizeX), rect.bottom + rect.top - int(cline[1] + stepSizeY)), thickness), color))
+                                self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1] + stepSizeY)), (int(cline[0] + stepSizeX), rect.bottom + rect.top - int(cline[1])), thickness), color))
+                            else:
+                                self.__renderCache.append((((int(cline[0]), int(cline[1])), (int(cline[0] + stepSizeX), int(cline[1] + stepSizeY)), thickness), color))
+                                self.__renderCache.append((((int(cline[0]), int(cline[1] + stepSizeY)), (int(cline[0] + stepSizeX), int(cline[1])), thickness), color))
+                        else:
+                            if rect.width > JIGGLE:
+                                pJIGGLE = JIGGLE - rect.height
+                                if self._renderData.flip:
+                                    self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1])             + pJIGGLE), (int(cline[0] + stepSizeX), rect.bottom + rect.top - int(cline[1] + stepSizeY) - pJIGGLE), thickness), color))
+                                    self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1] + stepSizeY) - pJIGGLE), (int(cline[0] + stepSizeX), rect.bottom + rect.top - int(cline[1])             + pJIGGLE), thickness), color))
+                                else:
+                                    self.__renderCache.append((((int(cline[0]), int(cline[1])             + pJIGGLE), (int(cline[0] + stepSizeX), int(cline[1] + stepSizeY) - pJIGGLE), thickness), color))
+                                    self.__renderCache.append((((int(cline[0]), int(cline[1] + stepSizeY) - pJIGGLE), (int(cline[0] + stepSizeX), int(cline[1])             + pJIGGLE), thickness), color))
+                            elif rect.height > JIGGLE:
+                                pJIGGLE = JIGGLE - rect.width
+                                if self._renderData.flip:
+                                    self.__renderCache.append((((int(cline[0]) - pJIGGLE, rect.bottom + rect.top - int(cline[1])), (int(cline[0] + stepSizeX) + pJIGGLE, rect.bottom + rect.top - int(cline[1] + stepSizeY)), thickness), color))
+                                    self.__renderCache.append((((int(cline[0]) - pJIGGLE, rect.bottom + rect.top - int(cline[1] + stepSizeY)), (int(cline[0] + stepSizeX) + pJIGGLE, rect.bottom + rect.top - int(cline[1])), thickness), color))
+                                else:
+                                    self.__renderCache.append((((int(cline[0]) - pJIGGLE, int(cline[1])), (int(cline[0] + stepSizeX) + pJIGGLE, int(cline[1] + stepSizeY)), thickness), color))
+                                    self.__renderCache.append((((int(cline[0]) - pJIGGLE, int(cline[1] + stepSizeY)), (int(cline[0] + stepSizeX) + pJIGGLE, int(cline[1])), thickness), color))
+                            else:
+                                if self._renderData.flip:
+                                    self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1])), (int(cline[0] + stepSizeX), rect.bottom + rect.top - int(cline[1] + stepSizeY)), thickness), color))
+                                else:
+                                    self.__renderCache.append((((int(cline[0]), int(cline[1])), (int(cline[0] + stepSizeX), int(cline[1] + stepSizeY)), thickness), color))
+                case _:
+                    if color is not None:
+                        if self._renderData.flip:
+                            self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1])), (int(cline[0] + stepSizeX), rect.bottom + rect.top - int(cline[1] + stepSizeY)), thickness), color))
+                        else:
+                            self.__renderCache.append((((int(cline[0]), int(cline[1])), (int(cline[0] + stepSizeX), int(cline[1] + stepSizeY)), thickness), color))
+            cline[0] += stepSizeX
+            cline[1] += stepSizeY
+            orderIndex = (orderIndex + 1) % len(sectionOrder)
+            nextStep = self._renderData.sizes[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.sizes else self._renderData.sizes['']
+            stepSizeX: float
+            stepSizeY: float
+            if isinstance(nextStep, float):
+                stepSizeX = rect.width*nextStep
+                stepSizeY = rect.height*nextStep
+            else:
+                stepSizeX = nextStep*whratio*absNormalizer if rect.width > 0 else 0
+                stepSizeY = nextStep*absNormalizer if rect.height > 0 else 0
+        color = self._renderData.colors[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.colors else self._renderData.colors['']
+        thickness = self._renderData.thickness[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.thickness else self._renderData.thickness['']
+        altmode = self._renderData.altmode[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.altmode else self._renderData.altmode['']
+        match altmode:
+            case AltMode.CROSS:
+                if color is not None:
+                    if rect.width > JIGGLE and rect.height > JIGGLE:
+                        if self._renderData.flip:
+                            self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1])), (rect.right, rect.top), thickness), color))
+                            self.__renderCache.append((((int(cline[0]), rect.top), (rect.right, rect.bottom + rect.top - int(cline[1])), thickness), color))
+                        else:
+                            self.__renderCache.append((((int(cline[0]), int(cline[1])), (rect.right, rect.bottom), thickness), color))
+                            self.__renderCache.append((((int(cline[0]), rect.bottom), (rect.right, int(cline[1])), thickness), color))
+                    elif rect.width > JIGGLE:
+                        pJIGGLE = JIGGLE - rect.height
+                        if self._renderData.flip:
+                            self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1]) + pJIGGLE), (rect.right, rect.top - pJIGGLE), thickness), color))
+                            self.__renderCache.append((((int(cline[0]), rect.top - pJIGGLE), (rect.right, rect.bottom + rect.top - int(cline[1]) + pJIGGLE), thickness), color))
+                        else:
+                            self.__renderCache.append((((int(cline[0]), int(cline[1]) + pJIGGLE), (rect.right, rect.bottom - pJIGGLE), thickness), color))
+                            self.__renderCache.append((((int(cline[0]), rect.bottom - pJIGGLE), (rect.right, int(cline[1]) + pJIGGLE), thickness), color))
+                    elif rect.height > JIGGLE:
+                        pJIGGLE = JIGGLE - rect.width
+                        if self._renderData.flip:
+                            self.__renderCache.append((((int(cline[0]) - pJIGGLE, rect.bottom + rect.top - int(cline[1])), (rect.right + pJIGGLE, rect.top), thickness), color))
+                            self.__renderCache.append((((int(cline[0]) - pJIGGLE, rect.top), (rect.right + pJIGGLE, rect.bottom + rect.top - int(cline[1])), thickness), color))
+                        else:
+                            self.__renderCache.append((((int(cline[0]) - pJIGGLE, int(cline[1])), (rect.right + pJIGGLE, rect.bottom), thickness), color))
+                            self.__renderCache.append((((int(cline[0]) - pJIGGLE, rect.bottom), (rect.right + pJIGGLE, int(cline[1])), thickness), color))
+                    else:
+                        if self._renderData.flip:
+                            self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1])), (rect.right, rect.top), thickness), color))
+                        else:
+                            self.__renderCache.append((((int(cline[0]), int(cline[1])), (rect.right, rect.bottom), thickness), color))
+            case _:
+                if color is not None:
+                    if self._renderData.flip:
+                        self.__renderCache.append((((int(cline[0]), rect.bottom + rect.top - int(cline[1])), (rect.right, rect.top), thickness), color))
+                    else:
+                        self.__renderCache.append((((int(cline[0]), int(cline[1])), (rect.right, rect.bottom), thickness), color))
 
     @override
     def render(self, surface: Surface) -> None:
@@ -48,57 +256,11 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
             surface (Surface): the surface the Line should be drawn on
         """
         assert self._drawer is not None
-        rect: Rect = self.getRect()
 
-        # check if Element should be rendered
-        if not self._active or (rect.width == 0 and rect.height == 0):
-            return
-
-        partial: float = self._renderData.partial
-        rect_offset: tuple[int, int] = (int(0.5 * (1 - partial) * rect.width),
-                                        int(0.5 * (1 - partial) * rect.height))
-        rect = Rect((rect.left + rect_offset[0], rect.top + rect_offset[1]), (int(rect.width * partial), int(rect.height * partial)))
-
-        # make rect have positive sizes
-        if rect.width < 0:
-            rect = Rect((rect.left + rect.width, rect.top), (-rect.width, rect.height))
-        if rect.height < 0:
-            rect = Rect((rect.left, rect.top + rect.height), (rect.width, -rect.height))
-        boundRect: Rect = rect
-
-        # flip -> mirror rect on y-axis
-        if self._renderData.flip:
-            rect = Rect((rect.left + rect.width, rect.top), (-rect.width, rect.height))
-
-        if self._renderData.doAlt:
-            assert self._renderData.altAbsLen is not None
-            stepLength: float = self._renderData.altAbsLen
-            normalizer: float = stepLength/sqrt(rect.width*rect.width + rect.height*rect.height)
-            stepSizeX: float = rect.width*normalizer
-            stepSizeY: float = rect.height*normalizer
-
-            cline: list[float] = [float(x) for x in rect.getPosition()]
-            firstColor: bool = True
-            while boundRect.collidepoint((int(cline[0] + stepSizeX), int(cline[1] + stepSizeY))):
-                if firstColor:
-                    if self._renderData.mainColor is not None:
-                        self._drawer.drawline(surface, (int(cline[0]), int(cline[1])), (int(cline[0] + stepSizeX), int(cline[1] + stepSizeY)), self._renderData.mainColor)
-                else:
-                    if self._renderData.altColor is not None:
-                        self._drawer.drawline(surface, (int(cline[0]), int(cline[1])), (int(cline[0] + stepSizeX), int(cline[1] + stepSizeY)), self._renderData.altColor)
-                firstColor = not firstColor
-                cline[0] += stepSizeX
-                cline[1] += stepSizeY
-            if firstColor:
-                if self._renderData.mainColor is not None:
-                    self._drawer.drawline(surface, (int(cline[0]), int(cline[1])), (rect.right, rect.bottom), self._renderData.mainColor)
-            else:
-                if self._renderData.altColor is not None:
-                    self._drawer.drawline(surface, (int(cline[0]), int(cline[1])), (rect.right, rect.bottom), self._renderData.altColor)
-
-
-
-        elif self._renderData.mainColor is not None:
-            self._drawer.drawline(surface, (rect.left, rect.top), (rect.right, rect.bottom), self._renderData.mainColor)
-
+        if self._active:
+            for ob, color in self.__renderCache:
+                if isinstance(ob, Rect):
+                    self._drawer.drawrect(surface, ob, color)
+                elif isinstance(ob, tuple):
+                    self._drawer.drawline(surface, ob[0], ob[1], color, thickness=ob[2])
 
