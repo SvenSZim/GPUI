@@ -68,6 +68,7 @@ class Body(iRect):
     """
     __resetBodyUpdateStatusEvent: str = EventManager.createEvent()
     __updateBodyEvent: str = EventManager.createEvent()
+    __updateLayoutEvent: str = EventManager.createEvent()
 
     __updating: bool
     __updated: bool
@@ -81,6 +82,10 @@ class Body(iRect):
     # -------------------- static --------------------
 
     @staticmethod
+    def getLayoutUpdateEvent() -> str:
+        return Body.__updateLayoutEvent
+
+    @staticmethod
     def updateBodys() -> None:
         EventManager.triggerEvent(Body.__resetBodyUpdateStatusEvent)
         EventManager.triggerEvent(Body.__updateBodyEvent)
@@ -88,10 +93,6 @@ class Body(iRect):
     # -------------------- creation --------------------
 
     def __init__(self, rect: Rect=Rect()) -> None:
-        """
-        Body objects should only be created by the BodyManager!!!
-        (because they need to be registered in the LayoutManager)
-        """
         super().__init__()
 
         EventManager.quickSubscribe(Body.__resetBodyUpdateStatusEvent, self.__unsetUpdated)
@@ -220,3 +221,5 @@ class Body(iRect):
             else:
                 self.addReferenceConnection(alignagainst, (False, True), (0.0, (2 - yalign) * 0.5), (0.0, yalign * 0.5), offset=(offset[0], offset[1]), keepSize=kSize)
 
+
+EventManager.quickSubscribe(Body.getLayoutUpdateEvent(), Body.updateBodys)

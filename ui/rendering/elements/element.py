@@ -29,7 +29,7 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, Parsable, iRe
 
     @staticmethod
     def updateLayout() -> None:
-        Body.updateBodys()
+        EventManager.triggerEvent(Body.getLayoutUpdateEvent())
 
     # -------------------- creation --------------------
 

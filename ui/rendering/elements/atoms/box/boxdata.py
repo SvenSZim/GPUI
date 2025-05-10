@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, override
 
@@ -25,14 +25,16 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
     BoxData is the storage class for all render-information
     for the atom 'Box'.
     """
-    mainColor   : Optional[Color]   = None
-    altMode     : Optional[AltMode] = None
-    altColor    : Optional[Color]   = None
-    altAbsLen   : Optional[float]   = None
-    partial     : float             = 1.0
+    partitioning: tuple[int, int, list[str]]    = field(default_factory=lambda:(1, 1, ['']))
+    mainColor   : dict[str, Optional[Color]]    = field(default_factory=lambda:{'': None})
+    altMode     : dict[str, Optional[AltMode]]  = field(default_factory=lambda:{'': None})
+    altColor    : dict[str, Optional[Color]]    = field(default_factory=lambda:{'': None})
+    altLen      : dict[str, float | int]        = field(default_factory=lambda:{'': 10})
+    partialInset: dict[str, tuple[float, float] | float | tuple[int, int] | int] = field(default_factory=lambda:{'': 1.0})
 
     @override
     def __add__(self, extraData: tuple[BoxCO, RenderStyle]) -> 'BoxData':
+        return self
         createOption: BoxCO = extraData[0]
         style: RenderStyle = extraData[1]
         if 0x1031 <= createOption.value < 0x103a:
@@ -83,6 +85,7 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
 
     @override
     def __mul__(self, extraData: tuple[BoxPrefab, RenderStyle]) -> 'BoxData':
+        return self
         return {
             BoxPrefab.INVISIBLE     : lambda _     : BoxData(),
             BoxPrefab.BASIC         : lambda style : BoxData(mainColor=StyleManager.getStyleColor(0, style)),
