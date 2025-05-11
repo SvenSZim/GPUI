@@ -26,6 +26,10 @@ class Parser:
                     newEl = Line.parseFromArgs(currentNode.attrib)
                 case 'box':
                     newEl = Box.parseFromArgs(currentNode.attrib)
+                case 'text':
+                    allAttr = currentNode.attrib
+                    allAttr['content'] = str(currentNode.text).strip()
+                    newEl = Text.parseFromArgs(currentNode.attrib)
             elementStack[i] = newEl
 
         assert isinstance(elementStack[0], Element)

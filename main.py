@@ -3,7 +3,7 @@ import pygame as pg
 
 from drawer import PygameDrawer, PygameSurface, PygameFont
 
-from ui import Rect, Parser, InputManager, InputEvent, Renderer, RenderStyle, Element
+from ui import Rect, Parser, InputManager, InputEvent, Renderer, RenderStyle
 
 def main():
     pg.init()
@@ -31,7 +31,7 @@ def main():
         layout.updateLayout()
         return layout
     
-    layouts = [loadLayout(pp) for pp in ['boxexample.xml','lineexample.xml']]
+    layouts = [loadLayout(pp) for pp in ['layouts/boxexample.xml','layouts/lineexample.xml','layouts/textexample.xml']]
     li, ln = 0, len(layouts)
 
     def switchUI():

@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from enum import Enum
+from dataclasses import dataclass, field
 from typing import Callable, Optional, override
 
 from .....utility import Color
@@ -7,17 +6,6 @@ from ....style import RenderStyle, StyleManager
 from ..atomdata import AtomData
 from .textcreateoption import TextCO
 from .textprefab import TextPrefab
-
-class AlignType(Enum):
-    TOPLEFT         = 0x00
-    TOPCENTER       = 0x01
-    TOPRIGHT        = 0x02
-    CENTERLEFT      = 0x10
-    CENTERCENTER    = 0x11
-    CENTERRIGHT     = 0x12
-    BOTTOMLEFT      = 0x20
-    BOTTOMCENTER    = 0x21
-    BOTTOMRIGHT     = 0x22
 
 def adjustedFontSizeFunction(medium: int, mediumFontSize: int, differenceAroundMedium: int, minFontSize: int) -> Callable[[int], int]:
     medium -= 1
@@ -34,14 +22,16 @@ class TextData(AtomData[TextCO, TextPrefab]):
     TextData is the storage class for all render-information
     for the atom 'Text'.
     """
-    dynamicText : bool              = False
-    textColor   : Optional[Color]   = None
-    sysFontName : str               = 'Arial'
-    fontSize    : Optional[int]     = 24
-    fontAlign   : AlignType         = AlignType.CENTERCENTER
+    inset       : tuple[float, float] | float | tuple[int, int] | int = 0
+    dynamicText : bool                  = False
+    textColor   : Optional[Color]       = None
+    sysFontName : str                   = 'Arial'
+    fontSize    : Optional[int]         = 24
+    fontAlign   : tuple[float, float]   = field(default_factory=lambda: (0.5, 0.5))
 
     @override
     def __add__(self, extraData: tuple[TextCO, RenderStyle]) -> 'TextData':
+        return self
         createOption: TextCO = extraData[0]
         style: RenderStyle = extraData[1]
 
@@ -78,6 +68,7 @@ class TextData(AtomData[TextCO, TextPrefab]):
 
     @override
     def __mul__(self, extraData: tuple[TextPrefab, RenderStyle]) -> 'TextData':
+        return self
         return {
             TextPrefab.BASIC           : lambda style : TextData(textColor=StyleManager.getStyleColor(0, style)),
             TextPrefab.DYNAMIC_BASIC   : lambda style : TextData(dynamicText=True, textColor=StyleManager.getStyleColor(0, style)),
