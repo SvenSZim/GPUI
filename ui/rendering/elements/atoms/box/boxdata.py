@@ -17,6 +17,11 @@ class AltMode(Enum):
     STRIPED_H       = 0x02
     CHECKERBOARD    = 0x03
 
+class Filters(Enum):
+    DEFAULT         = 0x00
+    LINEAR          = 0x01
+    QUADRATIC       = 0x03
+
 @dataclass
 class BoxData(AtomData[BoxCO, BoxPrefab]):
     """
@@ -29,6 +34,7 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
     altMode     : dict[str, AltMode]            = field(default_factory=lambda:{'': AltMode.DEFAULT})
     orders      : dict[str, list[str]]          = field(default_factory=lambda:{'': ['']})
     altLen      : dict[str, float | int]        = field(default_factory=lambda:{'': 10})
+    filters     : dict[str, Filters | tuple[Filters, tuple[float, float, tuple[float, float]], bool]] = field(default_factory=lambda:{'': Filters.DEFAULT})
 
     @override
     def __add__(self, extraData: tuple[BoxCO, RenderStyle]) -> 'BoxData':

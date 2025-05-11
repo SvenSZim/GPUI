@@ -7,9 +7,11 @@ from .....interaction import EventManager
 from ...body           import Body
 from ..atom            import Atom
 from .boxcore          import BoxCore
-from .boxdata          import BoxData, AltMode
+from .boxdata          import BoxData, AltMode, Filters
 from .boxcreateoption  import BoxCO
 from .boxprefab        import BoxPrefab
+
+filtertype = Filters | tuple[Filters, tuple[float, float, tuple[float, float]], bool]
 
 class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
     """
@@ -57,6 +59,8 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                             data.partialInset[label] = Box.parsePartial(value)
                         case 'colors':
                             data.colors[label] = Box.parseColor(value)
+                        case 'sectionorders':
+                            data.orders[label] = Box.parseList(value)
                         case 'fillmode':
                             match value:
                                 case 'checkerboard' | 'cb':
@@ -72,13 +76,24 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                                 case 'l':
                                     data.altLen[label] = 20
                                 case _:
-                                    if '.' in value:
-                                        vk, nk = [Box.extractNum(vvv) for vvv in value.split('.')][:2]
-                                        data.altLen[label] = int(vk) + int(nk) / 10**len(nk)
-                                    else:
-                                        data.altLen[label] = int(Box.extractNum(value))
-                        case 'sectionorders':
-                            data.orders[label] = Box.parseList(value)
+                                    data.altLen[label] = Box.parseNum(value)
+                        case 'filter':
+                            filtype, *options = [vvv.strip() for vvv in value.split('=')]
+                            if len(options) == 0:
+                                continue
+                            inv: bool = False
+                            if filtype[0] == 'i':
+                                inv = True
+                                filtype = filtype[1:]
+                            match filtype[0].lower():
+                                case 'l' | 't':
+                                    #linear/triangle filter
+                                    data.filters[label] = (Filters.LINEAR, Box.parseFilterArgs(options[0]), inv)
+                                case 'q' | 'c':
+                                    #quadratic/circle filter
+                                    data.filters[label] = (Filters.QUADRATIC, Box.parseFilterArgs(options[0]), inv)
+                                case _:
+                                    pass
             else:
                 match arg:
                     case 'partitioning':
@@ -107,8 +122,8 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
         def applyPartial(rect: Rect, partialInset: tuple[float, float] | float | tuple[int, int] | int) -> Rect:
             if isinstance(partialInset, tuple):
                 if isinstance(partialInset[0], float):
-                    rect = Rect((rect.left + int(rect.width * (1.0 - partialInset[0])),
-                                 rect.top + int(rect.height * (1.0 - partialInset[1]))),
+                    rect = Rect((rect.left + int(rect.width * partialInset[0]),
+                                 rect.top + int(rect.height * partialInset[1])),
                                 (int(rect.width * (1.0 - 2 * partialInset[0])), int(rect.height * (1.0 - 2 * partialInset[1]))))
                 else:
                     assert isinstance(partialInset[1], int)
@@ -124,6 +139,38 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
         globalInset: tuple[float, float] | float | tuple[int, int] | int = self._renderData.partialInset['']
         rect = applyPartial(rect, globalInset)
 
+        #apply filters
+        USE_POINT_TO_CHECK_FILTER = (0.5, 0.5)
+        def isInsideFilter(rect: Rect, filt: filtertype, point: tuple[int, int]):
+            if not isinstance(filt, tuple):
+                return True
+            match filt[0]:
+                case Filters.LINEAR:
+                    x, y, d = filt[1]
+                    xx, yy = rect.getPoint((x, y))
+                    dd: float
+                    if d[0] > 0.0 and d[1] > 0.0:
+                        dd = max(d[0] * rect.width, d[1] * rect.height)
+                    else:
+                        dd = d[0] * rect.width + d[1] * rect.height
+                    if filt[2]:
+                        return abs(point[0] - xx) + abs(point[1] - yy) >= dd
+                    else:
+                        return abs(point[0] - xx) + abs(point[1] - yy) <= dd
+                case Filters.QUADRATIC:
+                    x, y, d = filt[1]
+                    xx, yy = rect.getPoint((x, y))
+                    dd: float
+                    if d[0] > 0.0 and d[1] > 0.0:
+                        dd = max(d[0] * rect.width, d[1] * rect.height)
+                    else:
+                        dd = d[0] * rect.width + d[1] * rect.height
+                    if filt[2]:
+                        return (point[0] - xx)**2 + (point[1] - yy)**2 >= dd**2
+                    else:
+                        return (point[0] - xx)**2 + (point[1] - yy)**2 <= dd**2
+            return False
+
         #apply partitioning
         partitionSizeX, partitionSizeY, partitionLabels = self._renderData.partitioning
         partitionSize: tuple[float, float] = (rect.width / partitionSizeX, rect.height / partitionSizeY)
@@ -136,86 +183,154 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                 partitionpartialInset: tuple[float, float] | float | tuple[int, int] | int = self._renderData.partialInset[label] if label != '' and label in self._renderData.partialInset else 0.0
                 partitionRect = applyPartial(partitionRect, partitionpartialInset)
 
-                order: list[str] = self._renderData.orders[label] if label in self._renderData.orders else self._renderData.orders['']
+                order: list[str] = self._renderData.orders[label] if label in self._renderData.orders else []
                 if len(order) == 0:
-                    order = ['']
+                    order = ['asiujdbfnoiasdjf']
                 altmode: AltMode = self._renderData.altMode[label] if label in self._renderData.altMode else self._renderData.altMode['']
                 altsize: float | int = self._renderData.altLen[label] if label in self._renderData.altLen else self._renderData.altLen['']
-                color: Optional[Color] = self._renderData.colors[order[0]] if order[0] in self._renderData.colors else self._renderData.colors['']
+                partitionColor: Optional[Color] = self._renderData.colors[label] if label in self._renderData.colors else self._renderData.colors['']
+                partitionFilter: filtertype = self._renderData.filters[label] if label in self._renderData.filters else self._renderData.filters['']
+                
+                color: Optional[Color] = self._renderData.colors[order[0]] if order[0] in self._renderData.colors else partitionColor
+                filter: filtertype = self._renderData.filters[order[0]] if order[0] in self._renderData.filters else partitionFilter
 
+                if isinstance(altsize, float):
+                    altsize = altsize * min(partitionRect.width, partitionRect.height)
+                rowStartOrderIndex: int = 0
+                orderIndex: int = rowStartOrderIndex
+                top: float = partitionRect.top
+                tile: Rect
                 #apply altmodes
                 match altmode:
                     case AltMode.CHECKERBOARD:
-                        rowStartFirstColor: int = 0
-                        firstColor: int = rowStartFirstColor
-                        if isinstance(altsize, float):
-                            altsize = altsize * min(partitionRect.width, partitionRect.height)
-                        top: float = partitionRect.top
-                        tile: Rect
                         while top + altsize < partitionRect.bottom:
-                            firstColor = rowStartFirstColor
+                            orderIndex = rowStartOrderIndex
                             left: float = partitionRect.left
                             while left + altsize < partitionRect.right:
-                                color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
+                                color = self._renderData.colors[order[orderIndex]] if order[orderIndex] in self._renderData.colors else partitionColor
+                                filter = self._renderData.filters[order[orderIndex]] if order[orderIndex] in self._renderData.filters else partitionFilter
                                 tile = Rect((int(left), int(top)), (int(altsize), int(altsize)))
-                                if color is not None:
+                                if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
                                     self.__renderCache.append((tile, color))
-                                firstColor = (firstColor + 1) % len(order)
+                                orderIndex = (orderIndex + 1) % len(order)
                                 left += altsize
+                            color = self._renderData.colors[order[orderIndex]] if order[orderIndex] in  self._renderData.colors else partitionColor
+                            filter = self._renderData.filters[order[orderIndex]] if order[orderIndex] in self._renderData.filters else partitionFilter
                             tile = Rect((int(left), int(top)), (partitionRect.right - int(left), int(altsize)))
-                            color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
-                            if color is not None:
+                            if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
                                 self.__renderCache.append((tile, color))
-                            rowStartFirstColor = (rowStartFirstColor + 1) % len(order)
+                            rowStartOrderIndex = (rowStartOrderIndex + 1) % len(order)
                             top += altsize
                         missing_height: int = partitionRect.bottom - int(top)
                         left: float = partitionRect.left
                         while left + altsize < partitionRect.right:
-                            color = self._renderData.colors[order[rowStartFirstColor]] if order[rowStartFirstColor] in  self._renderData.colors else self._renderData.colors['']
+                            color = self._renderData.colors[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in  self._renderData.colors else partitionColor
+                            filter = self._renderData.filters[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in self._renderData.filters else partitionFilter
                             tile = Rect((int(left), int(top)), (int(altsize), missing_height))
-                            if color is not None:
+                            if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
                                 self.__renderCache.append((tile, color))
-                            rowStartFirstColor = (rowStartFirstColor + 1) % len(order)
+                            rowStartOrderIndex = (rowStartOrderIndex + 1) % len(order)
                             left += altsize
-                        color = self._renderData.colors[order[rowStartFirstColor]] if order[rowStartFirstColor] in  self._renderData.colors else self._renderData.colors['']
-                        if color is not None:
-                            self.__renderCache.append((Rect((int(left), int(top)), (partitionRect.right - int(left), missing_height)), color))
+                        color = self._renderData.colors[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in  self._renderData.colors else partitionColor
+                        filter = self._renderData.filters[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in self._renderData.filters else partitionFilter
+                        tile = Rect((int(left), int(top)), (partitionRect.right - int(left), missing_height))
+                        if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                            self.__renderCache.append((tile, color))
 
                     case AltMode.STRIPED_V:
-                        if isinstance(altsize, float):
-                            altsize = altsize * partitionRect.width
-                        firstColor: int = 0
+                        while top + altsize < partitionRect.bottom:
+                            orderIndex = rowStartOrderIndex
+                            left: float = partitionRect.left
+                            while left + altsize < partitionRect.right:
+                                color = self._renderData.colors[order[orderIndex]] if order[orderIndex] in self._renderData.colors else partitionColor
+                                filter = self._renderData.filters[order[orderIndex]] if order[orderIndex] in self._renderData.filters else partitionFilter
+                                tile = Rect((int(left), int(top)), (int(altsize), int(altsize)))
+                                if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                                    self.__renderCache.append((tile, color))
+                                orderIndex = (orderIndex + 1) % len(order)
+                                left += altsize
+                            color = self._renderData.colors[order[orderIndex]] if order[orderIndex] in  self._renderData.colors else partitionColor
+                            filter = self._renderData.filters[order[orderIndex]] if order[orderIndex] in self._renderData.filters else partitionFilter
+                            tile = Rect((int(left), int(top)), (partitionRect.right - int(left), int(altsize)))
+                            if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                                self.__renderCache.append((tile, color))
+                            top += altsize
+                        missing_height: int = partitionRect.bottom - int(top)
                         left: float = partitionRect.left
                         while left + altsize < partitionRect.right:
-                            color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
-                            stripe: Rect = Rect((int(left), partitionRect.top), (int(altsize), partitionRect.height))
-                            if color is not None:
-                                self.__renderCache.append((stripe, color))
-                            firstColor = (firstColor + 1) % len(order)
+                            color = self._renderData.colors[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in  self._renderData.colors else partitionColor
+                            filter = self._renderData.filters[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in self._renderData.filters else partitionFilter
+                            tile = Rect((int(left), int(top)), (int(altsize), missing_height))
+                            if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                                self.__renderCache.append((tile, color))
+                            rowStartOrderIndex = (rowStartOrderIndex + 1) % len(order)
                             left += altsize
-                        color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
-                        if color is not None:
-                            self.__renderCache.append((Rect((int(left), partitionRect.top), (partitionRect.right - int(left), partitionRect.height)), color))
+                        color = self._renderData.colors[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in  self._renderData.colors else partitionColor
+                        filter = self._renderData.filters[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in self._renderData.filters else partitionFilter
+                        tile = Rect((int(left), int(top)), (partitionRect.right - int(left), missing_height))
+                        if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                            self.__renderCache.append((tile, color))
 
                     case AltMode.STRIPED_H:
-                        if isinstance(altsize, float):
-                            altsize = altsize * partitionRect.height
-                        firstColor: int = 0
-                        top: float = partitionRect.top
                         while top + altsize < partitionRect.bottom:
-                            color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
-                            stripe: Rect = Rect((partitionRect.left, int(top)), (partitionRect.width, int(altsize)))
-                            if color is not None:
-                                self.__renderCache.append((stripe, color))
-                            firstColor = (firstColor + 1) % len(order)
+                            orderIndex = rowStartOrderIndex
+                            left: float = partitionRect.left
+                            while left + altsize < partitionRect.right:
+                                color = self._renderData.colors[order[orderIndex]] if order[orderIndex] in self._renderData.colors else partitionColor
+                                filter = self._renderData.filters[order[orderIndex]] if order[orderIndex] in self._renderData.filters else partitionFilter
+                                tile = Rect((int(left), int(top)), (int(altsize), int(altsize)))
+                                if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                                    self.__renderCache.append((tile, color))
+                                left += altsize
+                            color = self._renderData.colors[order[orderIndex]] if order[orderIndex] in  self._renderData.colors else partitionColor
+                            filter = self._renderData.filters[order[orderIndex]] if order[orderIndex] in self._renderData.filters else partitionFilter
+                            tile = Rect((int(left), int(top)), (partitionRect.right - int(left), int(altsize)))
+                            if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                                self.__renderCache.append((tile, color))
+                            rowStartOrderIndex = (rowStartOrderIndex + 1) % len(order)
                             top += altsize
-                        color = self._renderData.colors[order[firstColor]] if order[firstColor] in  self._renderData.colors else self._renderData.colors['']
-                        if color is not None:
-                            self.__renderCache.append((Rect((partitionRect.left, int(top)), (partitionRect.width, partitionRect.bottom - int(top))), color))
+                        missing_height: int = partitionRect.bottom - int(top)
+                        left: float = partitionRect.left
+                        while left + altsize < partitionRect.right:
+                            color = self._renderData.colors[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in  self._renderData.colors else partitionColor
+                            filter = self._renderData.filters[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in self._renderData.filters else partitionFilter
+                            tile = Rect((int(left), int(top)), (int(altsize), missing_height))
+                            if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                                self.__renderCache.append((tile, color))
+                            left += altsize
+                        color = self._renderData.colors[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in  self._renderData.colors else partitionColor
+                        filter = self._renderData.filters[order[rowStartOrderIndex]] if order[rowStartOrderIndex] in self._renderData.filters else partitionFilter
+                        tile = Rect((int(left), int(top)), (partitionRect.right - int(left), missing_height))
+                        if color is not None and isInsideFilter(partitionRect, filter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                            self.__renderCache.append((tile, color))
 
                     case _:
-                        if color is not None:
-                            self.__renderCache.append((partitionRect, color))
+                        if partitionColor is None:
+                            continue
+                        if not isinstance(partitionFilter, tuple):
+                            self.__renderCache.append((partitionRect, partitionColor))
+                            continue
+                        while top + altsize < partitionRect.bottom:
+                            left: float = partitionRect.left
+                            while left + altsize < partitionRect.right:
+                                tile = Rect((int(left), int(top)), (int(altsize), int(altsize)))
+                                if partitionColor is not None and isInsideFilter(partitionRect, partitionFilter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                                    self.__renderCache.append((tile, partitionColor))
+                                left += altsize
+                            tile = Rect((int(left), int(top)), (partitionRect.right - int(left), int(altsize)))
+                            if partitionColor is not None and isInsideFilter(partitionRect, partitionFilter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                                self.__renderCache.append((tile, partitionColor))
+                            top += altsize
+                        missing_height: int = partitionRect.bottom - int(top)
+                        left: float = partitionRect.left
+                        while left + altsize < partitionRect.right:
+                            tile = Rect((int(left), int(top)), (int(altsize), missing_height))
+                            if partitionColor is not None and isInsideFilter(partitionRect, partitionFilter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                                self.__renderCache.append((tile, partitionColor))
+                            left += altsize
+                        tile = Rect((int(left), int(top)), (partitionRect.right - int(left), missing_height))
+                        if partitionColor is not None and isInsideFilter(partitionRect, partitionFilter, tile.getPoint(USE_POINT_TO_CHECK_FILTER)):
+                            self.__renderCache.append((tile, partitionColor))
 
 
 

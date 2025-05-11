@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<box partitioning="16x9; [a,16=b]9=[c,16=d]" filter="a:c=1.0,1.0,1.0+1.0;b:c=0.0,1.0,1.0+1.0;c:c=1.0,0.0,1.0+1.0;d:c=0.0,0.0,1.0+1.0" inset="0.1,0.1" colors="(80,0,0)" fillsize="1">
+</box>

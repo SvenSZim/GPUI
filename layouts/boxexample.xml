@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<box partitioning="4x2; [a,b,a,b][2=c,4=c]" inset="80" colors="inv;c1:(40,10,10);c2:(20,20,20);c3:(80,10,10)" fillmode="a:strh;b:cb;c:strv" fillsize="40" sectionorders="c3;a:c1,c2;b:c1,c2;c:c1,c2">
+<box partitioning="4x2; [a,b,a,b][2=c,4=c]" filter="b:it=0.5,0.0,0.5+0.0" inset="80" colors="(80,10,10);c1:(40,10,10);c2:(20,20,20)" fillmode="a:strh;b:cb;c:strv" fillsize="40" sectionorders="c3;a:c1,c2;b:c1,c2;c:c1,c2">
 </box>
 

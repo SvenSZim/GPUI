@@ -66,11 +66,7 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
                                 case 'l':
                                     data.sizes[label] = 20
                                 case _:
-                                    if '.' in value:
-                                        vk, nk = [Line.extractNum(vvv) for vvv in value.split('.')][:2]
-                                        data.sizes[label] = int(vk) + int(nk) / 10**len(nk)
-                                    else:
-                                        data.sizes[label] = int(Line.extractNum(value))
+                                    data.sizes[label] = Line.parseNum(value)
                         case 'altmode':
                             match value:
                                 case 'cross':
@@ -78,11 +74,7 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
             else:
                 match arg:
                     case 'inset':
-                        if '.' in v:
-                            vk, nk = [Line.extractNum(vvv) for vvv in v.split('.')][:2]
-                            data.inset = int(vk) + int(nk) / 10**len(nk)
-                        else:
-                            data.inset = int(Line.extractNum(v))
+                        data.inset = Line.parseNum(v)
                     case 'flip':
                         data.flip = True
                     case 'sectionorder':

@@ -9,6 +9,16 @@ from .color import Color
 class Parsable(ABC):
     
     @staticmethod
+    def parseBinary(s: str) -> int:
+        nn = ''
+        for c in s:
+            if c == '0' or c == '1':
+                nn += c
+        if len(nn) > 0:
+            return int(nn, 2)
+        return 0
+
+    @staticmethod
     def extractNum(s: str) -> str:
         nn = ''
         for c in s:
@@ -17,6 +27,13 @@ class Parsable(ABC):
         if len(nn) > 0:
             return nn
         return '0'
+
+    @staticmethod
+    def parseNum(s: str) -> int | float:
+        if '.' in s:
+            vk, nk = [Parsable.extractNum(x) for x in s.split('.')][:2]
+            return int(vk) + int(nk)/10**len(nk)
+        return int(Parsable.extractNum(s))
 
     @staticmethod
     def parseList(s: str, separator: str=',') -> list[str]:
@@ -34,6 +51,33 @@ class Parsable(ABC):
         return [s.strip() for s in content.split(separator)]
 
     @staticmethod
+    def parseFilterArgs(s: str) -> tuple[float, float, tuple[float, float]]:
+        s = s.strip()
+        n = len(s)
+        if not n:
+            return (0.0, 0.0, (0.0, 0.0))
+        content = s
+        if '(' in s and ')' in s:
+            i = s.index('(')
+            j = n-1 - s[::-1].index(')')
+            if j > i:
+                content = s[i+1:j]
+        l = [v for v in Parsable.parseList(content)]
+        match len(l):
+            case 1:
+                return (Parsable.parseNum(l[0]), 0.0, (0.0, 0.0))
+            case 2:
+                return (Parsable.parseNum(l[0]), Parsable.parseNum(l[1]), (0.0, 0.0))
+            case _:
+                if '+' in l[2]:
+                    u, v = [Parsable.parseNum(m) for m in l[2].split('+')][:2]
+                    return (Parsable.parseNum(l[0]), Parsable.parseNum(l[1]), (u, v))
+                elif l[2][-1] == 'y':
+                    return (Parsable.parseNum(l[0]), Parsable.parseNum(l[1]), (0.0, Parsable.parseNum(l[2])))
+                else:
+                    return (Parsable.parseNum(l[0]), Parsable.parseNum(l[1]), (Parsable.parseNum(l[2]), 0.0))
+
+    @staticmethod
     def parseLabel(s: str) -> str:
         s = s.strip()
         if s[0].isnumeric():
@@ -47,13 +91,10 @@ class Parsable(ABC):
     def parsePartial(s: str) -> tuple[float, float] | float | tuple[int, int] | int:
         s = s.strip()
         if ',' in s:
-            return (0,0)
+            x, y = [Parsable.parseNum(x) for x in s.split(',')][:2]
+            return (x, y)
         else:
-            if '.' in s:
-                vk, nk = [Parsable.extractNum(x) for x in s.split('.')][:2]
-                return int(vk) + int(nk) / 10**len(nk)
-            else:
-                return int(Parsable.extractNum(s))
+            return Parsable.parseNum(s)
 
     @staticmethod
     def parseColor(s: str) -> Optional[Color]:
