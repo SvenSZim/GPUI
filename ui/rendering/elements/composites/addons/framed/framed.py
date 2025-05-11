@@ -18,24 +18,13 @@ class Framed(Addon[Element, FramedCore, FramedData, FramedCO, FramedPrefab]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, inner: Element, offset: int=0, renderData: FramedPrefab | list[FramedCO | AtomCreateOption] | FramedData=FramedPrefab.BASIC, active: bool = True) -> None:
+    def __init__(self, inner: Element, renderData: tuple[tuple[Line, Line, Line, Line], Box], offset: int=0, active: bool = True) -> None:
         assert self._renderstyle is not None
 
-        if isinstance(renderData, list):
-            myData: FramedData = FramedData()
-            for createOption in renderData:
-                myData += (createOption, self._renderstyle)
-            renderData = myData
-        elif isinstance(renderData, FramedPrefab):
-            renderData = FramedData() * (renderData, self._renderstyle)
+        super().__init__(FramedCore(inner, offset=offset), FramedData(), active)
 
-        super().__init__(FramedCore(inner, offset=offset), renderData, active)
+        self.__borders, self.__background = renderData
         
-        self.__background = Box(Rect(), renderData=self._renderData.fillData)
-        self.__borders = (Line(Rect(), renderData=self._renderData.borderData[0]),
-                          Line(Rect(), renderData=self._renderData.borderData[1]),
-                          Line(Rect(), renderData=self._renderData.borderData[2]),
-                          Line(Rect(), renderData=self._renderData.borderData[3]))
         self.__background.align(self)
         self.__background.alignSize(self)
         self.__borders[0].align(self)
@@ -50,7 +39,9 @@ class Framed(Addon[Element, FramedCore, FramedData, FramedCO, FramedPrefab]):
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Framed':
-        return Framed(args['inner'])
+        if 'offset' in args:
+            return Framed(args['inner'], ((args['border0'], args['border1'], args['border2'], args['border3']), args['fill']), offset=int(Framed.extractNum(args['offset'])))
+        return Framed(args['inner'], ((args['border0'], args['border1'], args['border2'], args['border3']), args['fill']))
 
     # -------------------- rendering --------------------
 
@@ -65,13 +56,11 @@ class Framed(Addon[Element, FramedCore, FramedData, FramedCO, FramedPrefab]):
         assert self._drawer is not None
         
         # background
-        if self._renderData.fillData is not None:
-            self.__background.render(surface)
+        self.__background.render(surface)
 
         # inner element
         self._core.getInner().render(surface)
 
         # outlines
-        if self._renderData.borderData is not None:
-            for border in self.__borders:
-                border.render(surface)
+        for border in self.__borders:
+            border.render(surface)

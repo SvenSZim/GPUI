@@ -74,7 +74,7 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
             else:
                 match arg:
                     case 'inset':
-                        data.inset = Line.parseNum(v)
+                        data.inset = Line.parsePartial(v)
                     case 'flip':
                         data.flip = True
                     case 'sectionorder':
@@ -103,19 +103,16 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
         def applyPartial(rect: Rect, partialInset: tuple[float, float] | float | tuple[int, int] | int) -> Rect:
             if isinstance(partialInset, tuple):
                 if isinstance(partialInset[0], float):
-                    rect = Rect((rect.left + int(rect.width * (1.0 - partialInset[0])),
-                                 rect.top + int(rect.height * (1.0 - partialInset[1]))),
+                    return Rect((rect.left + int(rect.width * partialInset[0]),
+                                 rect.top + int(rect.height * partialInset[1])),
                                 (int(rect.width * (1.0 - 2 * partialInset[0])), int(rect.height * (1.0 - 2 * partialInset[1]))))
                 else:
                     assert isinstance(partialInset[1], int)
-                    rect = Rect((rect.left + partialInset[0], rect.top + partialInset[1]), (max(0, rect.width - 2 * partialInset[0]), max(0, rect.height - 2 * partialInset[1])))
-            elif isinstance(partialInset, float):
-                inset: int = int(min(rect.width, rect.height) * partialInset)
-                rect = Rect((rect.left + inset, rect.top + inset),
-                            (max(0, rect.width - 2 * inset), max(0, rect.height - 2 * inset)))
+                    insetX = min(partialInset[0], int(rect.width*0.5))
+                    insetY = min(partialInset[1], int(rect.height*0.5))
+                    return Rect((rect.left + insetX, rect.top + insetY), (rect.width - 2 * insetX, rect.height - 2 * insetY))
             else:
-                rect = Rect((rect.left + partialInset, rect.top + partialInset), (max(0, rect.width - 2 * partialInset), max(0, rect.height - 2 * partialInset)))
-            return rect
+                return applyPartial(rect, (partialInset, partialInset))
         
         globalInset: tuple[float, float] | float | tuple[int, int] | int = self._renderData.inset
         rect = applyPartial(rect, globalInset)

@@ -46,7 +46,7 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
                 case 'inset':
                     data.inset = Text.parsePartial(value)
                 case 'color':
-                    data.textColor = value
+                    data.textColor = Text.parseColor(value)
                 case 'fontsize':
                     if 'd' in value:
                         data.dynamicText = True

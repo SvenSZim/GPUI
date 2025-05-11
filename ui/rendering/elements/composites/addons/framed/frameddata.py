@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import override
 
 from .....style      import RenderStyle
-from ....atoms       import AtomCreateOption, Line, LineCO, LinePrefab, Box, BoxCO, BoxPrefab
+from ....atoms       import AtomCreateOption, LineCO, BoxCO
 from ..addondata     import AddonData
 from .framedcreateoption import FramedCO
 from .framedprefab   import FramedPrefab
@@ -20,6 +20,7 @@ class FramedData(AddonData[FramedCO, FramedPrefab]):
 
     @override
     def __add__(self, extraData: tuple[FramedCO | AtomCreateOption, RenderStyle]) -> 'FramedData':
+        return self
         createOption: FramedCO | AtomCreateOption = extraData[0]
         if createOption.value < 0x1000:
             for active, data in zip(self.createActiveBorder, self.borderData):
@@ -37,6 +38,7 @@ class FramedData(AddonData[FramedCO, FramedPrefab]):
 
     @override
     def __mul__(self, extraData: tuple[FramedPrefab, RenderStyle]) -> 'FramedData':
+        return self
         return {
             FramedPrefab.BASIC       : lambda _     : FramedData(),
             FramedPrefab.BORDERED    : lambda style : FramedData() + (LineCO.COLOR1, extraData[1]),
