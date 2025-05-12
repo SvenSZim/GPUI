@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<group spacing="80" hor="">
-  <group spacing="20">
+<group spacing="40" hor="" sizings="0.5,0.3,0.2">
+  <group spacing="20" sizing="c2=1.4">
     <box color="red"></box>
     <box color="(160,0,0)"></box>
     <box color="(80,0,0)"></box>

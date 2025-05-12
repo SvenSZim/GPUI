@@ -31,7 +31,7 @@ class Parsable(ABC):
     @staticmethod
     def parseNum(s: str) -> int | float:
         if '.' in s:
-            vk, nk = [Parsable.extractNum(x) for x in s.split('.')][:2]
+            vk, nk = list(map(Parsable.extractNum, s.split('.')))[:2]
             return int(vk) + int(nk)/10**len(nk)
         return int(Parsable.extractNum(s))
 
@@ -91,7 +91,7 @@ class Parsable(ABC):
     def parsePartial(s: str) -> tuple[float, float] | float | tuple[int, int] | int:
         s = s.strip()
         if ',' in s:
-            x, y = [Parsable.parseNum(x) for x in s.split(',')][:2]
+            x, y = list(map(Parsable.parseNum, s.split(',')))[:2]
             return (x, y)
         else:
             return Parsable.parseNum(s)
@@ -112,13 +112,29 @@ class Parsable(ABC):
         raise ValueError(f'Unparsable color: {s}!')
 
     @staticmethod
+    def adjustList(l: list[str], adjustments: list[str]) -> list[str]:
+        currentIdx = 0
+        for adj in adjustments:
+            if '=' in adj:
+                jumpToStr, value = adj.split('=')
+                jumpTo = int(Parsable.extractNum(jumpToStr)) - 1
+                if jumpTo < len(l):
+                    currentIdx = jumpTo
+                adj = value
+            if currentIdx < len(l):
+                l[currentIdx] = adj
+            currentIdx += 1
+        return l
+
+
+    @staticmethod
     def parsePartition(s: str) -> tuple[int, int, list[str]]:
         size, *rem = s.split(';')
         x: int = 1
         y: int = 1
         for c in ['x', '*', '-', '/']:
             if c in size:
-                x, y = list(map(lambda x: int(x), size.split(c)))[:2]
+                x, y = list(map(int, size.split(c)))[:2]
         x, y = max(1, x), max(1, y)
         ret: tuple[int, int, list[str]] = (x, y, ['' for _ in range(x * y)])
         if len(rem) > 0:
@@ -130,18 +146,8 @@ class Parsable(ABC):
                 c = labels[i]
                 if c == '[':
                     cont = Parsable.parseList(labels[i:labels[i:].index(']')+i+1])
-                    rr = 0
-                    for c in cont:
-                        z = c
-                        if '=' in c:
-                            ci, l = c.split('=')
-                            ri = int(Parsable.extractNum(ci)) - 1
-                            if ri < x:
-                                rr = ri
-                            z = l
-                        if rr < x and crow < y:
-                            ret[2][crow * x + rr] = z
-                        rr += 1
+                    if crow < y:
+                        ret[2][crow*x:(crow+1)*x] = Parsable.adjustList(ret[2][crow*x:(crow+1)*x], cont)
                     crow += 1
                     i = labels[i:].index(']') + i
                 elif c.isnumeric():
