@@ -17,25 +17,24 @@ class Grouped(Addon[list[Element], GroupedCore, GroupedData, GroupedCO, GroupedP
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, *inner: Element | tuple[Element, float], alignVertical: bool=True, offset: int=0,
-                 renderData: GroupedPrefab | list[GroupedCO | AtomCreateOption] | GroupedData=GroupedPrefab.BASIC, active: bool = True) -> None:
+    def __init__(self, rect: Rect, *inner: Element | tuple[Element, float], alignVertical: bool=True, offset: int=0, active: bool = True) -> None:
         assert self._renderstyle is not None
-
-        if isinstance(renderData, list):
-            myData: GroupedData = GroupedData()
-            for createOption in renderData:
-                myData += (createOption, self._renderstyle)
-            myData += (GroupedCO.CREATE, self._renderstyle)
-            renderData = myData
-        elif isinstance(renderData, GroupedPrefab):
-            renderData = GroupedData() * (renderData, self._renderstyle)
-
-        super().__init__(GroupedCore(rect, *inner, alignVertical=alignVertical, offset=offset), renderData, active)
+        super().__init__(GroupedCore(rect, *inner, alignVertical=alignVertical, offset=offset), GroupedData(), active)
     
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Grouped':
-        return Grouped(Rect())
+        alignVertical = True
+        offset = 0
+        for arg, v in args.items():
+            match arg:
+                case 'vertical' | 'vert':
+                    alignVertical = True
+                case 'horizontal' | 'hor':
+                    alignVertical = False
+                case 'offset' | 'spacing' | 'distances':
+                    offset = int(Grouped.extractNum(v))
+        return Grouped(Rect(), *args['inner'], alignVertical=alignVertical, offset=offset)
 
     # -------------------- rendering --------------------
 
@@ -49,5 +48,6 @@ class Grouped(Addon[list[Element], GroupedCore, GroupedData, GroupedCO, GroupedP
         """
         assert self._drawer is not None
 
-        for el in self._core.getInner():
-            el.render(surface)
+        if self.isActive():
+            for el in self._core.getInner():
+                el.render(surface)

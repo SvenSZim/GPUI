@@ -55,7 +55,7 @@ class RelativePoints:
         else:
             length = int(abspos1 / self.relpoint1.myP)
             start = int(abspos2 - length * self.relpoint2.myP)
-        return (start, length)
+        return (start, max(0,length))
             
 
 Point = tuple[float, float]

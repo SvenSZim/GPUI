@@ -46,7 +46,7 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
     def parseFromArgs(args: dict[str, Any]) -> 'Box':
         data: BoxData = BoxData()
         for arg, v in args.items():
-            if arg not in ['partitioning']:
+            if arg not in ['partitioning', 'part']:
                 values = v.split(';')
                 labelValuePairs: list[str | tuple[str, str]] = [vv.split(':') for vv in values]
                 for vv in labelValuePairs:
@@ -59,13 +59,13 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                         label = Box.parseLabel(vv[0])
                         value = vv[1]
                     match arg:
-                        case 'inset':
+                        case 'inset' | 'partial' | 'shrink':
                             data.partialInset[label] = Box.parsePartial(value)
-                        case 'colors':
+                        case 'colors' | 'color' | 'col':
                             data.colors[label] = Box.parseColor(value)
-                        case 'sectionorders':
+                        case 'sectionorders' | 'orders' | 'ord':
                             data.orders[label] = Box.parseList(value)
-                        case 'fillmode':
+                        case 'fillmodes' | 'fillmode' | 'altmodes' | 'altmode' | 'modes' | 'mode':
                             match value:
                                 case 'checkerboard' | 'cb':
                                     data.altMode[label] = AltMode.CHECKERBOARD
@@ -73,7 +73,7 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                                     data.altMode[label] = AltMode.STRIPED_V
                                 case 'striped_hor' | 'strh':
                                     data.altMode[label] = AltMode.STRIPED_H
-                        case 'fillsize':
+                        case 'fillsizes' | 'fillsize' | 'innersizings' | 'innersizing' | 'sizes' | 'size':
                             match value:
                                 case 's':
                                     data.altLen[label] = 10
@@ -81,7 +81,7 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                                     data.altLen[label] = 20
                                 case _:
                                     data.altLen[label] = Box.parseNum(value)
-                        case 'filter':
+                        case 'filters' | 'filter' | 'filt':
                             filtype, *options = [vvv.strip() for vvv in value.split('=')]
                             if len(options) == 0:
                                 continue
@@ -100,7 +100,7 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                                     pass
             else:
                 match arg:
-                    case 'partitioning':
+                    case 'partitioning' | 'part':
                         data.partitioning = Box.parsePartition(v)
         return Box(Rect(), renderData=data)
 

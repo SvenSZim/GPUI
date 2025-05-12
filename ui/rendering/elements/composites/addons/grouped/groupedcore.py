@@ -1,7 +1,8 @@
 from typing import override
 
-from ......utility import Rect
+from ......utility import Rect, AlignType
 from ....element   import Element
+from ....atoms     import Box
 from ..addoncore   import AddonCore
 
 class GroupedCore(AddonCore[list[Element]]):
@@ -37,26 +38,27 @@ class GroupedCore(AddonCore[list[Element]]):
     def _alignInner(self) -> None:
         if len(self._inner) == 0:
             return
+
+        virtualBox = Box.parseFromArgs({})
         
         if self.__alignVertical:
-            availableHeight: float = self.getHeight() - self.__offset * (len(self._inner) - 1)
+            virtualBox.align(self, offset=(0, -int(0.5*self.__offset)))
+            virtualBox.align(self, align=AlignType.iBiR, offset=(0, int(0.5*self.__offset)), keepSize=False)
+                                  
             usedHeightPercent: float = 0.0
 
             for nr, el in enumerate(self._inner):
-                if nr > 0:
-                    usedHeightPercent += self.__offset / self.getHeight()
-                el.alignpoint(self, otherPoint=(0,usedHeightPercent))
+                el.alignpoint(virtualBox, otherPoint=(0,usedHeightPercent), offset=(0,int(0.5*self.__offset)))
+                usedHeightPercent += self.__relativeSizing[nr]
+                el.alignpoint(virtualBox, (1,1), (1,usedHeightPercent), offset=(0,-int(0.5*self.__offset)), keepSize=False)
 
-                usedHeightPercent += (availableHeight * self.__relativeSizing[nr]) / self.getHeight()
-                el.alignpoint(self, (1,1), (1,usedHeightPercent), keepSize=False)
         else:
-            availableWidth: float = self.getWidth() - self.__offset * (len(self._inner) - 1)
+            virtualBox.align(self, offset=(-int(0.5*self.__offset),0))
+            virtualBox.align(self, align=AlignType.iBiR, offset=(int(0.5*self.__offset),0), keepSize=False)
+
             usedWidthPercent: float = 0.0
 
             for nr, el in enumerate(self._inner):
-                if nr > 0:
-                    usedWidthPercent += self.__offset / self.getWidth()
-                el.alignpoint(self, otherPoint=(usedWidthPercent,0))
-                
-                usedWidthPercent += (availableWidth * self.__relativeSizing[nr]) / self.getWidth()
-                el.alignpoint(self, (1,1), (usedWidthPercent,1), keepSize=False)
+                el.alignpoint(virtualBox, otherPoint=(usedWidthPercent,0), offset=(int(0.5*self.__offset),0))
+                usedWidthPercent += self.__relativeSizing[nr]
+                el.alignpoint(virtualBox, (1,1), (usedWidthPercent,1), offset=(-int(0.5*self.__offset),1), keepSize=False)

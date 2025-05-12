@@ -1,7 +1,7 @@
 from typing import Any, Optional
 import xml.etree.ElementTree as ET
 
-from .rendering import Element, Line, Box, Text, Framed
+from .rendering import Element, Line, Box, Text, Framed, Grouped
 
 class Parser:
     
@@ -100,6 +100,13 @@ class Parser:
                                 attributes['border2'] = childs[b2i + types[b2i+1:].index(0) + 1]
                                 attributes['border3'] = Line.parseFromArgs({})
                 return Framed.parseFromArgs(attributes)
+            
+            case 'group' | 'grouped':
+                if not len(childs):
+                    return None
+                attributes['inner'] = childs
+                return Grouped.parseFromArgs(attributes)
+
 
 
 

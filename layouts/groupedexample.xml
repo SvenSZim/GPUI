@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<group spacing="80" hor="">
+  <group spacing="20">
+    <box color="red"></box>
+    <box color="(160,0,0)"></box>
+    <box color="(80,0,0)"></box>
+  </group>
+  <box color="green"></box>
+  <box color="blue"></box>
+</group>
