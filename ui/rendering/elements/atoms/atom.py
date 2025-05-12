@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
 from ..element         import Element
@@ -21,3 +21,7 @@ class Atom(Generic[Core, RenderData, CreateOption, Prefab], Element[Core, Render
     
     def __init__(self, core: Core, renderData: RenderData, active: bool) -> None:
         super().__init__(core, renderData, active)
+
+    @abstractmethod
+    def copy(self) -> 'Atom':
+        pass

@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from copy import deepcopy
 from enum import Enum
 from typing import Optional, override
 
@@ -35,6 +36,13 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
     orders      : dict[str, list[str]]          = field(default_factory=lambda:{'': ['']})
     altLen      : dict[str, float | int]        = field(default_factory=lambda:{'': 10})
     filters     : dict[str, Filters | tuple[Filters, tuple[float, float, tuple[float, float]], bool]] = field(default_factory=lambda:{'': Filters.DEFAULT})
+
+    @override
+    def copy(self) -> 'BoxData':
+        return BoxData(deepcopy(self.colors), deepcopy(self.partialInset),
+                       deepcopy(self.partitioning), deepcopy(self.altMode),
+                       deepcopy(self.orders), deepcopy(self.altLen),
+                       deepcopy(self.filters))
 
     @override
     def __add__(self, extraData: tuple[BoxCO, RenderStyle]) -> 'BoxData':

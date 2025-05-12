@@ -37,6 +37,10 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
         self.__renderCache = None
         EventManager.quickSubscribe(Body.getLayoutUpdateEvent(), self.updateRenderData)
 
+    @override
+    def copy(self) -> 'Text':
+        return Text(Rect(), self._core.getContent(), renderData=self._renderData.copy(), active=self.isActive())
+
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, str]) -> 'Text':

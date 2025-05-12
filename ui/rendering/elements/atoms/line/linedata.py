@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, override
@@ -26,6 +27,12 @@ class LineData(AtomData[LineCO, LinePrefab]):
     inset       : tuple[float, float] | float | tuple[int, int] | int   = 0
     flip        : bool                                                  = False
     order       : list[str]                                             = field(default_factory=lambda: [''])
+
+    def copy(self) -> 'LineData':
+        return LineData(deepcopy(self.colors), deepcopy(self.sizes),
+                        deepcopy(self.thickness), deepcopy(self.altmode),
+                        deepcopy(self.inset), deepcopy(self.flip),
+                        deepcopy(self.order))
 
     @override
     def __add__(self, extraData: tuple[LineCO, RenderStyle]) -> 'LineData':

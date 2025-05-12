@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<framed offset="50">
-  <line color="inv;r:red;b:blue" thickness="3" sizes="0.01;b:0.02;n:0.02" inset="0.1" sectionorder="r:n"></line>
-  <box colors="(0,0,80);a:(0,40,0)" inset="0.05" fillmode="strv" sectionorders=",a" filter="c=0.5,0.5,0.5x0.5" fillsize="5"></box>
-  <text inset="50" color="(0,80,0)" fontsize="d">Hello World</text>
-</framed>

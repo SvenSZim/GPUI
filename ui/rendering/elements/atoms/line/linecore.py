@@ -8,3 +8,6 @@ class LineCore(AtomCore):
     """
     def __init__(self, rect: Rect) -> None:
         super().__init__(rect)
+
+    def copy(self) -> 'LineCore':
+        return LineCore(Rect())

@@ -37,6 +37,10 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
         self.__renderCache = []
         EventManager.quickSubscribe(Body.getLayoutUpdateEvent(), self.updateRenderData)
 
+    @override
+    def copy(self) -> 'Box':
+        return Box(Rect(), renderData=self._renderData.copy(), active=self.isActive())
+
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Box':

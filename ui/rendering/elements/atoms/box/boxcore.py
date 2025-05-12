@@ -1,3 +1,4 @@
+from typing import override
 
 from .....utility import Rect
 from ..atomcore import AtomCore
@@ -11,3 +12,7 @@ class BoxCore(AtomCore):
 
     def __init__(self, rect: Rect) -> None:
         super().__init__(rect)
+
+    @override
+    def copy(self) -> 'BoxCore':
+        return BoxCore(Rect())

@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from ....utility  import Rect
 from ..elementcore import ElementCore
@@ -12,3 +12,7 @@ class AtomCore(ElementCore, ABC):
 
     def __init__(self, rect: Rect):
         super().__init__(rect)
+
+    @abstractmethod
+    def copy(self) -> 'AtomCore':
+        pass

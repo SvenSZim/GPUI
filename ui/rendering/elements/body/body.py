@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from copy import deepcopy
 from typing import override
 
 from ....utility import Rect, iRect, AlignType
@@ -113,6 +114,9 @@ class Body(iRect):
         self.__size = (dimX[1], dimY[1])
         self.__updated = True
         self.__updating = False
+
+    def copy(self) -> 'Body':
+        return Body()
 
 
     # -------------------- iRect-implementation --------------------

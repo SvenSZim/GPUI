@@ -32,7 +32,7 @@ def main():
         layout.updateLayout()
         return layout
     
-    layouts = [loadLayout(pp) for pp in ['setup.xml','layouts/boxexample.xml','layouts/boxexample2.xml','layouts/lineexample.xml','layouts/textexample.xml']]
+    layouts = [loadLayout(pp) for pp in ['layouts/framedexample.xml','layouts/boxexample.xml','layouts/boxexample2.xml','layouts/lineexample.xml','layouts/textexample.xml']]
     li, ln = 0, len(layouts)
 
     def switchUI():

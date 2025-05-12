@@ -1,5 +1,4 @@
 from typing import Any, Optional
-from copy import deepcopy
 import xml.etree.ElementTree as ET
 
 from .rendering import Element, Line, Box, Text, Framed
@@ -7,65 +6,107 @@ from .rendering import Element, Line, Box, Text, Framed
 class Parser:
     
     @staticmethod
+    def __fromNode(node: ET.Element) -> Optional[Element]:
+        childs: list[Element] = []
+        for c in node:
+            newEl = Parser.__fromNode(c)
+            if newEl is not None:
+                childs.append(newEl)
+
+        attributes: dict[str, Any] = node.attrib
+        match node.tag:
+            case 'line':
+                return Line.parseFromArgs(attributes)
+            case 'box':
+                return Box.parseFromArgs(attributes)
+            case 'text':
+                attributes['content'] = node.text
+                return Text.parseFromArgs(attributes)
+            case 'framed':
+                types = [0 if isinstance(x, Line) else 1 if isinstance(x, Box) else 2 for x in childs]
+                match len(childs):
+                    case 0:
+                        return None
+                    case 1:
+                        attributes['inner']   = childs[0]
+                        attributes['fill']    = Box.parseFromArgs({})
+                        attributes['border0'] = Line.parseFromArgs({})
+                        attributes['border1'] = Line.parseFromArgs({})
+                        attributes['border2'] = Line.parseFromArgs({})
+                        attributes['border3'] = Line.parseFromArgs({})
+                    case 2:
+                        if 0 in types:
+                            border = childs[types.index(0)]
+                            assert isinstance(border, Line)
+                            attributes['inner']   = childs[1 - types.index(0)]
+                            attributes['fill']    = Box.parseFromArgs({})
+                            attributes['border0'] = border
+                            attributes['border1'] = border.copy()
+                            attributes['border2'] = border.copy()
+                            attributes['border3'] = border.copy()
+                        elif 1 in types:
+                            attributes['inner']   = childs[1 - types.index(1)]
+                            attributes['fill']    = childs[types.index(1)]
+                            attributes['border0'] = Line.parseFromArgs({})
+                            attributes['border1'] = Line.parseFromArgs({})
+                            attributes['border2'] = Line.parseFromArgs({})
+                            attributes['border3'] = Line.parseFromArgs({})
+                        else:
+                            attributes['inner']   = childs[0]
+                            attributes['fill']    = Box.parseFromArgs({})
+                            attributes['border0'] = Line.parseFromArgs({})
+                            attributes['border1'] = Line.parseFromArgs({})
+                            attributes['border2'] = Line.parseFromArgs({})
+                            attributes['border3'] = Line.parseFromArgs({})
+                    case _:
+                        if 2 in types:
+                            attributes['inner'] = childs[types.index(2)]
+                            if 1 in types:
+                                attributes['fill'] = childs[types.index(1)]
+                            else:
+                                attributes['fill'] = Box.parseFromArgs({})
+                        else:
+                            match types.count(1):
+                                case 0:
+                                    return None
+                                case 1:
+                                    attributes['inner'] = childs[types.index(1)]
+                                case _:
+                                    bi = types.index(1)
+                                    attributes['fill'] = childs[bi]
+                                    attributes['inner'] = childs[bi + types[bi+1:].index(1) + 1]
+                        match types.count(0):
+                            case 1:
+                                border = childs[types.index(0)]
+                                assert isinstance(border, Line)
+                                attributes['border0'] = border
+                                attributes['border1'] = border.copy()
+                                attributes['border2'] = border.copy()
+                                attributes['border3'] = border.copy()
+                            case 2:
+                                bi = types.index(0)
+                                border1 = childs[bi]
+                                border2 = childs[bi + types[bi+1:].index(0) + 1]
+                                assert isinstance(border1, Line) and isinstance(border2, Line)
+                                attributes['border0'] = border1
+                                attributes['border1'] = border1.copy()
+                                attributes['border2'] = border2
+                                attributes['border3'] = border2.copy()
+                            case _:
+                                b1i = types.index(0)
+                                b2i = b1i + types[b1i+1:].index(0) + 1
+                                attributes['border0'] = childs[b1i]
+                                attributes['border1'] = childs[b2i]
+                                attributes['border2'] = childs[b2i + types[b2i+1:].index(0) + 1]
+                                attributes['border3'] = Line.parseFromArgs({})
+                return Framed.parseFromArgs(attributes)
+
+
+
+    @staticmethod
     def fromXML(path: str) -> Element:
         tree: ET.ElementTree = ET.parse(path)
-
-        def flattenTree(root):
-            ret = [root]
-            for child in root:
-                ret.extend(flattenTree(child))
-            return ret
-        
-        nodeStack = flattenTree(tree.getroot())
-        elementStack: list[Optional[Element]] = [None for _ in nodeStack]
-        allAttr: dict[str, Any]
-
-        for i in range(len(nodeStack)-1, -1, -1):
-            currentNode = nodeStack[i]
-            newEl = None
-            match currentNode.tag:
-                case 'line':
-                    newEl = Line.parseFromArgs(currentNode.attrib)
-                case 'box':
-                    newEl = Box.parseFromArgs(currentNode.attrib)
-                case 'text':
-                    allAttr = currentNode.attrib
-                    allAttr['content'] = str(currentNode.text).strip()
-                    newEl = Text.parseFromArgs(currentNode.attrib)
-                case 'framed':
-                    allAttr = currentNode.attrib
-                    inners = [x.tag.strip().lower() for x in currentNode]
-                    bc = False
-                    lc = []
-                    for idx, tag in enumerate(inners):
-                        match tag:
-                            case 'box':
-                                if not bc:
-                                    allAttr['fill'] = elementStack[i+idx+1]
-                                    bc = True
-                            case 'line':
-                                if len(lc) < 4:
-                                    allAttr[f'border{len(lc)}'] = elementStack[i+idx+1]
-                                    lc.append(i+idx+1)
-                            case _:
-                                allAttr['inner'] = elementStack[i+idx+1]
-                    if not bc:
-                        allAttr['fill'] = Box.parseFromArgs({})
-                    match len(lc):
-                        case 0 | 3:
-                            for j in range(len(lc), 4):
-                                allAttr[f'border{j}'] = Line.parseFromArgs({})
-                        case 1:
-                            for j in range(len(lc), 4):
-                                allAttr[f'border{j}'] = Line.parseFromArgs(nodeStack[lc[0]].attrib)
-                        case 2:
-                            allAttr['border3'] = allAttr['border1']
-                            allAttr['border1'] = deepcopy(allAttr['border0'])
-                            allAttr['border4'] = deepcopy(allAttr['border3'])
-                            
-                    newEl = Framed.parseFromArgs(allAttr)
-                        
-            elementStack[i] = newEl
-
-        assert isinstance(elementStack[0], Element)
-        return elementStack[0]
+        newEl = Parser.__fromNode(tree.getroot())
+        if newEl is None:
+            raise ValueError('Could not find root element!')
+        return newEl

@@ -37,6 +37,10 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
         self.__renderCache = []
         EventManager.quickSubscribe(Body.getLayoutUpdateEvent(), self.updateRenderData)
 
+    @override
+    def copy(self) -> 'Line':
+        return Line(Rect(), renderData=self._renderData.copy(), active=self.isActive())
+
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Line':
@@ -195,6 +199,7 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
             else:
                 stepSizeX = nextStep*whratio*absNormalizer if rect.width > 0 else 0
                 stepSizeY = nextStep*absNormalizer if rect.height > 0 else 0
+
         color = self._renderData.colors[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.colors else self._renderData.colors['']
         thickness = self._renderData.thickness[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.thickness else self._renderData.thickness['']
         altmode = self._renderData.altmode[sectionOrder[orderIndex]] if sectionOrder[orderIndex] in self._renderData.altmode else self._renderData.altmode['']

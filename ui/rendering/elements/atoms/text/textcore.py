@@ -1,3 +1,4 @@
+from typing import override
 
 from .....utility import Rect
 from ..atomcore import AtomCore
@@ -13,6 +14,10 @@ class TextCore(AtomCore):
     def __init__(self, rect: Rect, content: str) -> None:
         super().__init__(rect)
         self._content = content
+
+    @override
+    def copy(self) -> 'TextCore':
+        return TextCore(Rect(), self._content)
 
     # -------------------- content --------------------
     

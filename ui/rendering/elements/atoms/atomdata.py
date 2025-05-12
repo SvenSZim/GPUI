@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
 from ..elementdata import ElementData
@@ -13,4 +13,6 @@ class AtomData(Generic[CreateOption, Prefab], ElementData[CreateOption, Prefab],
     AtomData is the abstract base class for all render-related
     information of atom-elements.
     """
-    pass
+    @abstractmethod
+    def copy(self) -> 'AtomData':
+        pass

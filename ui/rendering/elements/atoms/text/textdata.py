@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Callable, Optional, override
 
@@ -28,6 +29,12 @@ class TextData(AtomData[TextCO, TextPrefab]):
     sysFontName : str                   = 'Arial'
     fontSize    : Optional[int]         = 24
     fontAlign   : tuple[float, float]   = field(default_factory=lambda: (0.5, 0.5))
+
+    @override
+    def copy(self) -> 'TextData':
+        return TextData(deepcopy(self.inset), deepcopy(self.dynamicText),
+                        deepcopy(self.textColor), deepcopy(self.sysFontName),
+                        deepcopy(self.fontSize), deepcopy(self.fontAlign))
 
     @override
     def __add__(self, extraData: tuple[TextCO, RenderStyle]) -> 'TextData':
