@@ -1,37 +1,45 @@
 from typing import override
 
-from ......utility      import AlignType
+from ......utility      import AlignType, Rect
 from ......interaction  import Togglable
 from ....element import Element
 from ..stacked   import Stacked
 from ..addoncore import AddonCore
 
-class DropdownCore(AddonCore, Togglable):
+class DropdownCore(AddonCore[Element], Togglable):
     """
     DropdownCore is the core object of the addon 'Dropdown'.
     """
-    __outer: Element
+    __inner: Stacked
+    __offset: int
+    __innercount: int
+    __innersize: float
     __verticalDropdown: bool
-    def __init__(self, outer: Element, *inner: Element | tuple[Element, float], verticalDropdown: bool=True, offset: int=0, buttonActive: bool=True) -> None:
-        
-        self.__outer = outer
+
+    def __init__(self, head: Element, *inner: Element | tuple[Element, float], verticalDropdown: bool=True, offset: int=0, buttonActive: bool=True) -> None:
+        self.__offset = offset
+        self.__innercount = len(inner)
+        self.__innersize = sum([i[1] if isinstance(i, tuple) else 1.0 for i in inner])
         self.__verticalDropdown = verticalDropdown
         
-        mStack: Stacked = Stacked(outer.getRect(), outer.getRect(), *inner, alignVertical=verticalDropdown, offset=offset)
-        AddonCore.__init__(self, outer.getRect(), mStack)
+        self.__inner: Stacked = Stacked(head.getRect(), head.getRect(), *inner, alignVertical=verticalDropdown, offset=offset)
+
+        AddonCore.__init__(self, head.getRect(), head)
         Togglable.__init__(self, numberOfStates=2, buttonActive=buttonActive)
  
-    def getOuter(self) -> Element:
-        return self.__outer
+    def getDropdown(self) -> Element:
+        return self.__inner
 
     @override
     def _alignInner(self) -> None:
-        self.__outer.align(self)
-        self.__outer.alignSize(self)
+        self._inner.align(self)
+        self._inner.alignSize(self)
+        if self.__innercount == 0:
+            return
 
         if self.__verticalDropdown:
-            self._inner.alignSize(self, alignY=False)
-            self._inner.align(self, AlignType.BM)
+            self.__inner.alignSize(self, relativeAlign=(1.0, self.__innersize), absoluteOffset=(0, self.__offset * (self.__innercount-1)))
+            self.__inner.align(self, AlignType.BM)
         else:
-            self._inner.alignSize(self, alignX=False)
-            self._inner.align(self, AlignType.MR)
+            self.__inner.alignSize(self, relativeAlign=(self.__innersize, 1.0), absoluteOffset=(self.__offset * (self.__innercount-1), 0))
+            self.__inner.align(self, AlignType.MR)

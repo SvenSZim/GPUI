@@ -1,7 +1,8 @@
 from typing import Any, Optional
 import xml.etree.ElementTree as ET
 
-from .rendering import Element, Line, Box, Text, Framed, Grouped
+from .rendering import Element, Line, Box, Text
+from .rendering import Framed, Grouped, Dropdown
 
 class Parser:
     
@@ -106,6 +107,12 @@ class Parser:
                     return None
                 attributes['inner'] = childs
                 return Grouped.parseFromArgs(attributes)
+            
+            case 'dropdown' | 'dpd':
+                if not len(childs):
+                    return None
+                attributes['inner'] = childs
+                return Dropdown.parseFromArgs(attributes)
 
 
 

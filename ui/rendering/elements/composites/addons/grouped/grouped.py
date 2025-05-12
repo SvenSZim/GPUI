@@ -37,7 +37,6 @@ class Grouped(Addon[list[Element], GroupedCore, GroupedData, GroupedCO, GroupedP
                     offset = int(Grouped.extractNum(v))
                 case 'size' | 'sizes' | 'sizing' | 'sizings':
                     sizings = list(map(Grouped.parseNum, Grouped.adjustList(list(map(str, sizings)), Grouped.parseList(v))))
-                    print(sizings)
         return Grouped(Rect(), *zip(inner, sizings), alignVertical=alignVertical, offset=offset)
 
     # -------------------- rendering --------------------

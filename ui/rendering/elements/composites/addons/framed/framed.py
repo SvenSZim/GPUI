@@ -1,9 +1,9 @@
 from typing import Any, override
 
-from ......utility   import Rect, AlignType
+from ......utility   import AlignType
 from ......display   import Surface
 from ....element     import Element
-from ....atoms       import AtomCreateOption, Box, Line
+from ....atoms       import Box, Line
 from ..addon         import Addon
 
 from .framedcore         import FramedCore

@@ -21,7 +21,7 @@ class GroupedCore(AddonCore[list[Element]]):
         if len(inner) > 0:
             cSum: float = sum([0 if isinstance(x, Element) else abs(x[1]) for x in inner])
             notSized: int = sum([1 if isinstance(x, Element) else 0 for x in inner])
-            if cSum >= 1.0 or notSized == 0:
+            if cSum >= 1.0 or not notSized:
                 for i, x in enumerate(inner):
                     if isinstance(x, tuple):
                         self.__relativeSizing[i] = abs(x[1]) / cSum

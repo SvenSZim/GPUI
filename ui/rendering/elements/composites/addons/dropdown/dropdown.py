@@ -14,20 +14,11 @@ class Dropdown(Addon[Element, DropdownCore, DropdownData, DropdownCO, DropdownPr
 
     # -------------------- creation --------------------
 
-    def __init__(self, outer: Element, *inner: Element | tuple[Element, float], verticalDropdown: bool=True, dropdownActive: bool=True, offset: int=0,
-                 renderData: DropdownPrefab | list[DropdownCO] | DropdownData=DropdownPrefab.BASIC, active: bool = True) -> None:
+    def __init__(self, outer: Element, *inner: Element | tuple[Element, float], verticalDropdown: bool=True, dropdownActive: bool=True, offset: int=0, active: bool = True) -> None:
         assert self._renderstyle is not None
 
-        if isinstance(renderData, list):
-            myData: DropdownData = DropdownData()
-            for createOption in renderData:
-                myData += (createOption, self._renderstyle)
-            renderData = myData
-        elif isinstance(renderData, DropdownPrefab):
-            renderData = DropdownData() * (renderData, self._renderstyle)
-
         Clickable.__init__(self, active)
-        Addon.__init__(self, DropdownCore(outer, *inner, verticalDropdown=verticalDropdown, offset=offset, buttonActive=dropdownActive), renderData, active)
+        Addon.__init__(self, DropdownCore(outer, *inner, verticalDropdown=verticalDropdown, offset=offset, buttonActive=dropdownActive), DropdownData(), active)
         
         self._core.addGlobalTriggerEvent(self._onclick)
         #Default trigger event: LEFTDOWN
@@ -36,7 +27,21 @@ class Dropdown(Addon[Element, DropdownCore, DropdownData, DropdownCO, DropdownPr
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Dropdown':
-        return Dropdown(args['outer'])
+        inner: list[Element] = args['inner']
+        verticalDropdown = True
+        offset = 0
+        sizings: list[float] = [1.0 for _ in inner[1:]]
+        for arg, v in args.items():
+            match arg:
+                case 'vertical' | 'vert':
+                    verticalDropdown = True
+                case 'horizontal' | 'hor':
+                    verticalDropdown = False
+                case 'offset' | 'spacing' | 'distances':
+                    offset = int(Dropdown.extractNum(v))
+                case 'size' | 'sizes' | 'sizing' | 'sizings':
+                    sizings = list(map(Dropdown.parseNum, Dropdown.adjustList(list(map(str, sizings)), Dropdown.parseList(v))))
+        return Dropdown(inner[0], *zip(inner[1:], sizings), verticalDropdown=verticalDropdown, offset=offset)
 
     # -------------------- rendering --------------------
 
@@ -51,7 +56,7 @@ class Dropdown(Addon[Element, DropdownCore, DropdownData, DropdownCO, DropdownPr
         assert self._drawer is not None
 
         if self._active:
-            self._core.getOuter().render(surface)
+            self._core.getInner().render(surface)
 
             if self._core.getCurrentToggleState():
-                self.addPostRenderElement(self._core.getInner())
+                self.addPostRenderElement(self._core.getDropdown())

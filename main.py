@@ -25,14 +25,19 @@ def main():
     main_screen = pg.display.set_mode(screen_size)
     background_color = 'black'
     
-    def loadLayout(path):
+    def loadLayout(path: str | tuple[str, float]):
+        sizing: tuple[float, float] = (0.5, 0.5)
+        if isinstance(path, tuple):
+            sizing = (path[1], path[1])
+            path = path[0]
         layout = Parser.fromXML(path)
         layout.align(Rect(topleft=(int(screen_size[0]*0.25), int(screen_size[1]*0.25))))
-        layout.alignSize(Rect(size=(int(screen_size[0]*0.5), int(screen_size[1]*0.5))))
+        layout.alignSize(Rect(size=(int(screen_size[0]*sizing[0]), int(screen_size[1]*sizing[1]))))
         layout.updateLayout()
         return layout
     
-    layouts = [loadLayout(pp) for pp in ['layouts/groupedexample.xml','layouts/framedexample.xml','layouts/boxexample.xml','layouts/boxexample2.xml','layouts/lineexample.xml','layouts/textexample.xml']]
+    layouts = [loadLayout(pp) for pp in [('layouts/dropdownexample.xml', 0.1),'layouts/groupedexample.xml','layouts/framedexample.xml',
+                                         'layouts/boxexample.xml','layouts/boxexample2.xml','layouts/lineexample.xml','layouts/textexample.xml']]
     li, ln = 0, len(layouts)
 
     def switchUI():
@@ -49,7 +54,7 @@ def main():
 
         main_screen.fill(background_color)
         s = perf_counter_ns()
-        layouts[li].render(PygameSurface(main_screen))
+        layouts[li].renderAll(PygameSurface(main_screen), [layouts[li]])
         rt += perf_counter_ns() - s
         fc += 1
 
