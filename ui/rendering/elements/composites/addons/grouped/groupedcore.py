@@ -61,4 +61,4 @@ class GroupedCore(AddonCore[list[Element]]):
             for nr, el in enumerate(self._inner):
                 el.alignpoint(virtualBox, otherPoint=(usedWidthPercent,0), offset=(int(0.5*self.__offset),0))
                 usedWidthPercent += self.__relativeSizing[nr]
-                el.alignpoint(virtualBox, (1,1), (usedWidthPercent,1), offset=(-int(0.5*self.__offset),1), keepSize=False)
+                el.alignpoint(virtualBox, (1,1), (usedWidthPercent,1), offset=(-int(0.5*self.__offset),0), keepSize=False)

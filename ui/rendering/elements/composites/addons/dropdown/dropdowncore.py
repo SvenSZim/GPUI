@@ -39,7 +39,7 @@ class DropdownCore(AddonCore[Element], Togglable):
 
         if self.__verticalDropdown:
             self.__inner.alignSize(self, relativeAlign=(1.0, self.__innersize), absoluteOffset=(0, self.__offset * (self.__innercount-1)))
-            self.__inner.align(self, AlignType.BM)
+            self.__inner.align(self, AlignType.BiL)
         else:
             self.__inner.alignSize(self, relativeAlign=(self.__innersize, 1.0), absoluteOffset=(self.__offset * (self.__innercount-1), 0))
-            self.__inner.align(self, AlignType.MR)
+            self.__inner.align(self, AlignType.iTR)

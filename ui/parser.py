@@ -5,9 +5,13 @@ from .rendering import Element, Line, Box, Text
 from .rendering import Framed, Grouped, Dropdown
 
 class Parser:
+
+    __taggedElements: dict[str, Element]={}
     
     @staticmethod
     def __fromNode(node: ET.Element) -> Optional[Element]:
+        newElement: Element
+
         childs: list[Element] = []
         for c in node:
             newEl = Parser.__fromNode(c)
@@ -17,12 +21,12 @@ class Parser:
         attributes: dict[str, Any] = node.attrib
         match node.tag:
             case 'line':
-                return Line.parseFromArgs(attributes)
+                newElement = Line.parseFromArgs(attributes)
             case 'box':
-                return Box.parseFromArgs(attributes)
+                newElement = Box.parseFromArgs(attributes)
             case 'text':
                 attributes['content'] = node.text
-                return Text.parseFromArgs(attributes)
+                newElement = Text.parseFromArgs(attributes)
             case 'framed':
                 types = [0 if isinstance(x, Line) else 1 if isinstance(x, Box) else 2 for x in childs]
                 match len(childs):
@@ -100,19 +104,31 @@ class Parser:
                                 attributes['border1'] = childs[b2i]
                                 attributes['border2'] = childs[b2i + types[b2i+1:].index(0) + 1]
                                 attributes['border3'] = Line.parseFromArgs({})
-                return Framed.parseFromArgs(attributes)
+
+                newElement = Framed.parseFromArgs(attributes)
             
             case 'group' | 'grouped':
                 if not len(childs):
                     return None
                 attributes['inner'] = childs
-                return Grouped.parseFromArgs(attributes)
+                newElement = Grouped.parseFromArgs(attributes)
             
             case 'dropdown' | 'dpd':
                 if not len(childs):
                     return None
                 attributes['inner'] = childs
-                return Dropdown.parseFromArgs(attributes)
+                newElement = Dropdown.parseFromArgs(attributes)
+
+            case _:
+                return None
+        
+        tagTags: list[str] = ['label', 'tag', 'id', 'name']
+        if any([x in attributes for x in tagTags]):
+            tagValue: str = attributes[tagTags[[x in attributes for x in tagTags].index(True)]]
+            if tagValue in Parser.__taggedElements:
+                raise ValueError(f'{tagValue=} appears twice!')
+            Parser.__taggedElements[tagValue] = newElement
+        return newElement
 
 
 

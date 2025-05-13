@@ -31,13 +31,13 @@ def main():
             sizing = (path[1], path[1])
             path = path[0]
         layout = Parser.fromXML(path)
-        layout.align(Rect(topleft=(int(screen_size[0]*0.25), int(screen_size[1]*0.25))))
+        layout.align(Rect(topleft=(int(screen_size[0]*(1.0-sizing[0])/2), int(screen_size[1]*(1.0-sizing[1])/2))))
         layout.alignSize(Rect(size=(int(screen_size[0]*sizing[0]), int(screen_size[1]*sizing[1]))))
         layout.updateLayout()
         return layout
     
     layouts = [loadLayout(pp) for pp in [('layouts/dropdownexample.xml', 0.1),'layouts/groupedexample.xml','layouts/framedexample.xml',
-                                         'layouts/boxexample.xml','layouts/boxexample2.xml','layouts/lineexample.xml','layouts/textexample.xml']]
+                                         ('layouts/boxexample.xml', 1.0),'layouts/boxexample2.xml','layouts/lineexample.xml','layouts/textexample.xml']]
     li, ln = 0, len(layouts)
 
     def switchUI():
