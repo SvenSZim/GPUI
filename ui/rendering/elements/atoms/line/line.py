@@ -46,7 +46,7 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
     def parseFromArgs(args: dict[str, Any]) -> 'Line':
         data: LineData = LineData()
         for arg, v in args.items():
-            if arg not in ['inset', 'flip', 'sectionorder']:
+            if arg not in ['inset', 'flip', 'sectionorder', 'order']:
                 values = v.split(';')
                 labelValuePairs: list[str | tuple[str, str]] = [vv.split(':') for vv in values]
                 for vv in labelValuePairs:
@@ -59,11 +59,11 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
                         label = Line.parseLabel(vv[0])
                         value = vv[1]
                     match arg:
-                        case 'color':
+                        case 'colors' | 'color' | 'col':
                             data.colors[label] = Line.parseColor(value)
-                        case 'thickness':
+                        case 'thickness' | 'width':
                             data.thickness[label] = int(Line.extractNum(value))
-                        case 'sizes':
+                        case 'sizes' | 'size':
                             match value:
                                 case 's':
                                     data.sizes[label] = 10
@@ -71,7 +71,7 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
                                     data.sizes[label] = 20
                                 case _:
                                     data.sizes[label] = Line.parseNum(value)
-                        case 'altmode':
+                        case 'altmode' | 'mode':
                             match value:
                                 case 'cross':
                                     data.altmode[label] = AltMode.CROSS
@@ -81,8 +81,8 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
                         data.inset = Line.parsePartial(v)
                     case 'flip':
                         data.flip = True
-                    case 'sectionorder':
-                        data.order = Line.parseList(v, separator=':')
+                    case 'sectionorder' | 'order':
+                        data.order = Line.parseList(v)
         return Line(Rect(), renderData=data)
 
     # -------------------- rendering --------------------

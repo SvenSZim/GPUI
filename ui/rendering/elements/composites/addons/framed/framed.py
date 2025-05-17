@@ -39,9 +39,12 @@ class Framed(Addon[Element, FramedCore, FramedData, FramedCO, FramedPrefab]):
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Framed':
-        if 'offset' in args:
-            return Framed(args['inner'], ((args['border0'], args['border1'], args['border2'], args['border3']), args['fill']), offset=int(Framed.extractNum(args['offset'])))
-        return Framed(args['inner'], ((args['border0'], args['border1'], args['border2'], args['border3']), args['fill']))
+        offset: int = 0
+        for arg, v in args.items():
+            match arg:
+                case 'offset' | 'padding' | 'inset':
+                    offset = int(Framed.extractNum(v))
+        return Framed(args['inner'], ((args['border0'], args['border1'], args['border2'], args['border3']), args['fill']), offset=offset)
 
     # -------------------- rendering --------------------
 

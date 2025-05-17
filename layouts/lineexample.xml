@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<line color="inv;w:white;r:red;b:blue" thickness="1;w:2;r:5" flip="" sizes="0.01;b:0.02;n:0.02" inset="60" sectionorder="r:n:w:b:n" altmode="r:cross">
-</line>
+<framed>
+  <line color="white">
+  </line>
+  <line color="inv;r:red;b:blue;w:white" thickness="1;b:2;w:3" flip="" sizes="10;r:0.15;b:0.20;w:5" inset="25" sectionorder="r,,w,,b," altmode="r:cross">
+  </line>
+</framed>

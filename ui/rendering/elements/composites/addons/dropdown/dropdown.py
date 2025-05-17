@@ -37,7 +37,7 @@ class Dropdown(Addon[Element, DropdownCore, DropdownData, DropdownCO, DropdownPr
                     verticalDropdown = True
                 case 'horizontal' | 'hor':
                     verticalDropdown = False
-                case 'offset' | 'spacing' | 'distances':
+                case 'offset' | 'spacing':
                     offset = int(Dropdown.extractNum(v))
                 case 'size' | 'sizes' | 'sizing' | 'sizings':
                     sizings = list(map(Dropdown.parseNum, Dropdown.adjustList(list(map(str, sizings)), Dropdown.parseList(v))))

@@ -33,7 +33,7 @@ class Grouped(Addon[list[Element], GroupedCore, GroupedData, GroupedCO, GroupedP
                     alignVertical = True
                 case 'horizontal' | 'hor':
                     alignVertical = False
-                case 'offset' | 'spacing' | 'distances':
+                case 'offset' | 'spacing':
                     offset = int(Grouped.extractNum(v))
                 case 'size' | 'sizes' | 'sizing' | 'sizings':
                     sizings = list(map(Grouped.parseNum, Grouped.adjustList(list(map(str, sizings)), Grouped.parseList(v))))

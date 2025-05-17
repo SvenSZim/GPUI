@@ -20,14 +20,14 @@ class Parser:
 
         attributes: dict[str, Any] = node.attrib
         match node.tag:
-            case 'line':
+            case 'line' | 'l':
                 newElement = Line.parseFromArgs(attributes)
-            case 'box':
+            case 'box' | 'b':
                 newElement = Box.parseFromArgs(attributes)
-            case 'text':
+            case 'text' | 't':
                 attributes['content'] = node.text
                 newElement = Text.parseFromArgs(attributes)
-            case 'framed':
+            case 'framed' | 'fr' | 'f':
                 types = [0 if isinstance(x, Line) else 1 if isinstance(x, Box) else 2 for x in childs]
                 match len(childs):
                     case 0:
@@ -107,7 +107,7 @@ class Parser:
 
                 newElement = Framed.parseFromArgs(attributes)
             
-            case 'group' | 'grouped':
+            case 'group' | 'grouped' | 'gr' | 'g':
                 if not len(childs):
                     return None
                 attributes['inner'] = childs

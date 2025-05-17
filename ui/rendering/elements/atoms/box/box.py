@@ -65,7 +65,7 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
                             data.colors[label] = Box.parseColor(value)
                         case 'sectionorders' | 'orders' | 'ord':
                             data.orders[label] = Box.parseList(value)
-                        case 'fillmodes' | 'fillmode' | 'altmodes' | 'altmode' | 'modes' | 'mode':
+                        case 'fillmodes' | 'fillmode' | 'fills' | 'fill' | 'altmodes' | 'altmode' | 'modes' | 'mode':
                             match value:
                                 case 'checkerboard' | 'cb':
                                     data.altMode[label] = AltMode.CHECKERBOARD

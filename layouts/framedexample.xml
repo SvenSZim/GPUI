@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <framed offset="50">
-  <line color="inv;r:red" thickness="3" sizes="10;n:20" inset="0.1" sectionorder="r:n"></line>
-  <box colors="(0,0,80);a:(0,40,0)" inset="0.05" fillmode="strv" sectionorders=",a" filter="c=0.5,0.5,0.5+0.5" fillsize="15"></box>
-  <text inset="50" color="(80,80,80)" fontsize="d">Hello World</text>
+  <line color="inv;r:red" thickness="3" sizes="10;n:20" inset="0.1" sectionorder="r,n"></line>
+  <line color="white"></line>
+  <line color="inv;r:red" thickness="3" sizes="10;n:20" inset="0.1" sectionorder="r,n"></line>
+  <box colors="(0,0,240);a:(0,120,0)" inset="0.05" fillmode="strv" sectionorders=",a" filter="c=0.5,0.5,0.5+0.5" fillsize="15"></box>
+  <text inset="50" color="(160,120,160)" fontsize="d">Hello World</text>
 </framed>

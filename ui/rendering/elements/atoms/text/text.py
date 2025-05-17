@@ -49,9 +49,9 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
             match arg:
                 case 'inset':
                     data.inset = Text.parsePartial(value)
-                case 'color':
+                case 'color' | 'col':
                     data.textColor = Text.parseColor(value)
-                case 'fontsize':
+                case 'fontsize' | 'size':
                     if 'd' in value:
                         data.dynamicText = True
                     else:
@@ -60,7 +60,7 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
                             data.fontSize = fontSizeFunction(sizeconv[value.lower()])
                         else:
                             data.fontSize = int(Text.extractNum(value))
-                case 'fontname':
+                case 'fontname' | 'sysfont' | 'font':
                     data.sysFontName = value
                 case 'align':
                     if ',' in value:
