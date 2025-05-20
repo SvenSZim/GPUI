@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, override
 
 from .....utility      import Rect
 from ...element        import Element
@@ -46,6 +46,10 @@ class MultiselectCore(CompositionCore):
 
     def getInner(self) -> Stacked:
         return self.__inner
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        return self.__inner.getInnerSizing(elSize)
 
 
     def __selectorToggle(self, selector: int) -> None:

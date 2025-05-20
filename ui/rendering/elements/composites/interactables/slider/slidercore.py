@@ -1,3 +1,4 @@
+from typing import override
 
 from ......utility      import Rect
 from ......interaction  import EventManager, InputManager, Holdable
@@ -20,6 +21,10 @@ class SliderCore(InteractableCore, Holdable):
 
         self.__updateSliderCallback = EventManager.createCallback(self._updateSlider)
         self.subscribeToHold(self.__updateSliderCallback)
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        return elSize
 
     def getSliderState(self) -> float:
         return self.__sliderState

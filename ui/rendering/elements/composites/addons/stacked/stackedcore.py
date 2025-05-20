@@ -33,3 +33,7 @@ class StackedCore(AddonCore[Element]):
     def _alignInner(self) -> None:
         self._inner.align(self)
         self._inner.alignSize(self)
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        return self._inner.getInnerSizing(elSize)

@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, override
 
 from ..element      import Element
 from .compositioncore           import CompositionCore
@@ -21,3 +21,7 @@ class Composition(Generic[Core, RenderData, CreateOption, Prefab], Element[Core,
     
     def __init__(self, core: Core, renderData: RenderData, active: bool) -> None:
         super().__init__(core, renderData, active)
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        return self._core.getInnerSizing(elSize)

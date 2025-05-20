@@ -1,3 +1,4 @@
+from typing import override
 
 from ......interaction  import Togglable
 from ....element        import Element
@@ -21,3 +22,7 @@ class TogglewrapperCore(InteractableCore, Togglable):
 
     def getInner(self) -> Element:
         return self.__inner
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        return self.__inner.getInnerSizing(elSize)

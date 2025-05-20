@@ -30,12 +30,6 @@ class SectionCore(AddonCore[Element]):
 
         super().__init__(Rect(size=(width, height)), inner)
 
-    def getHeader(self) -> Optional[Element]:
-        return self.__header
-
-    def getFooter(self) -> Optional[Element]:
-        return self.__footer
-
     @override
     def _alignInner(self) -> None:
         totalHeight: int = self._inner.getHeight()
@@ -60,3 +54,16 @@ class SectionCore(AddonCore[Element]):
         if self.__footer is not None:
             self.__footer.alignpoint(self, otherPoint=(0, topOffset/totalHeight))
             self.__footer.alignpoint(self, (1,1), (1,1), keepSize=False)
+
+    # -------------------- getter --------------------
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        #TEMPORARY
+        return self._inner.getInnerSizing(elSize)
+
+    def getHeader(self) -> Optional[Element]:
+        return self.__header
+
+    def getFooter(self) -> Optional[Element]:
+        return self.__footer

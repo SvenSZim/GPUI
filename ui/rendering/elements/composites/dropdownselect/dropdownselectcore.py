@@ -1,10 +1,10 @@
-
 from typing import override
+
 from .....utility      import Rect
 from .....interaction  import Togglable
 from ...element        import Element
-from ...atoms          import Box, BoxPrefab, Text, TextCO
-from ..addons          import Framed, FramedPrefab, Dropdown
+from ...atoms          import Box, BoxPrefab, Text
+from ..addons          import Framed, Dropdown
 from ..compositioncore import CompositionCore
 from ..interactables   import Clickwrapper
 
@@ -23,7 +23,7 @@ class DropdownselectCore(CompositionCore, Togglable):
 
         self.__innerSelectors = []
         innerSelectors: list[Clickwrapper | tuple[Clickwrapper, float]] = []
-        self.__outer = [Framed(Text(rect, 'SELECT', renderData=[TextCO.COLOR1, TextCO.SIZE_M]), renderData=FramedPrefab.BORDERED)]
+        self.__outer = [Framed.parseFromArgs({'inner':Text.parseFromArgs({'col':'white', 'content':'SELECT', 'siz':'m'})})]
         for nr, (el, head) in enumerate(inner):
             if isinstance(el, Element):
                 newSelector: Clickwrapper = Clickwrapper(el, buttonActive=False)
@@ -60,8 +60,17 @@ class DropdownselectCore(CompositionCore, Togglable):
 
     def getDropdown(self) -> Dropdown:
         return self.__dropdown
-    
-
+ 
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        maxWidth, maxHeight = 0, 0
+        for el in self.__outer:
+            x, y = el.getInnerSizing(elSize)
+            if x > maxWidth:
+                maxWidth = x
+            if y > maxHeight:
+                maxHeight = y
+        return maxWidth, maxHeight
 
     @override
     def setButtonActive(self, buttonActive: bool) -> None:

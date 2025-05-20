@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from ....utility    import Rect
 from ..elementcore  import ElementCore
@@ -10,3 +10,7 @@ class CompositionCore(ElementCore, ABC):
 
     def __init__(self, rect: Rect) -> None:
         super().__init__(rect)
+
+    @abstractmethod
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        pass

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, override
 
 from ..element         import Element
 from .atomcore         import AtomCore
@@ -25,3 +25,9 @@ class Atom(Generic[Core, RenderData, CreateOption, Prefab], Element[Core, Render
     @abstractmethod
     def copy(self) -> 'Atom':
         pass
+
+    # -------------------- getter --------------------
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        return elSize

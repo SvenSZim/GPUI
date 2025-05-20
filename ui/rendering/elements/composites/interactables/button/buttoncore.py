@@ -1,3 +1,4 @@
+from typing import override
 
 from ......utility      import Rect
 from ......interaction  import Holdable
@@ -10,3 +11,7 @@ class ButtonCore(InteractableCore, Holdable):
     def __init__(self, rect: Rect, buttonActive: bool=True) -> None:
         InteractableCore.__init__(self, rect)
         Holdable.__init__(self, buttonActive=buttonActive)
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        return elSize

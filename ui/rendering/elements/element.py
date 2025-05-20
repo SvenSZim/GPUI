@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, override
 
 from ...utility           import Rect, iRect, Parsable, AlignType
@@ -76,6 +76,10 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, Parsable, iRe
         Returns (Core): the stored core of the element
         """
         return self._core
+
+    @abstractmethod
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        pass
 
     # -------------------- positional-setter --------------------
     

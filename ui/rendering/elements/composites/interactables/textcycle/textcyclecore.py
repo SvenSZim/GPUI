@@ -1,3 +1,4 @@
+from typing import override
 
 from ......utility      import Rect
 from ......interaction  import Togglable
@@ -15,3 +16,7 @@ class TextCycleCore(InteractableCore, Togglable):
 
     def getContent(self) -> str:
         return self.__contents[self._currentState]
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+        return elSize
