@@ -9,29 +9,15 @@ from ...body    import Body
 from ..atom             import Atom
 from .linecore          import LineCore
 from .linedata          import LineData, AltMode
-from .linecreateoption  import LineCO
-from .lineprefab        import LinePrefab
 
-
-class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
+class Line(Atom[LineCore, LineData]):
     """
     Line is a simple ui-atom-element for drawing a line.
     """
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, renderData: LinePrefab | list[LineCO] | LineData=LinePrefab.SOLID, active: bool=True) -> None:
-        assert self._renderstyle is not None
-
-        if isinstance(renderData, list):
-            myData: LineData = LineData()
-            for createOption in renderData:
-                myData += (createOption, self._renderstyle)
-            renderData = myData
-        elif isinstance(renderData, LinePrefab):
-            renderData = LineData() * (renderData, self._renderstyle)
-
-        assert isinstance(renderData, LineData)
+    def __init__(self, rect: Rect, renderData: LineData, active: bool=True) -> None:
         super().__init__(LineCore(rect), renderData, active)
         
         self.__renderCache = []
@@ -44,46 +30,7 @@ class Line(Atom[LineCore, LineData, LineCO, LinePrefab]):
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Line':
-        data: LineData = LineData()
-        for arg, v in args.items():
-            if arg not in ['inset', 'flip', 'sectionorder', 'order']:
-                values = v.split(';')
-                labelValuePairs: list[str | tuple[str, str]] = [vv.split(':') for vv in values]
-                for vv in labelValuePairs:
-                    label: str
-                    value: str
-                    if len(vv) == 1:
-                        label = ''
-                        value = vv[0]
-                    else:
-                        label = Line.parseLabel(vv[0])
-                        value = vv[1]
-                    match arg:
-                        case 'colors' | 'color' | 'col':
-                            data.colors[label] = Line.parseColor(value)
-                        case 'thickness' | 'width':
-                            data.thickness[label] = int(Line.extractNum(value))
-                        case 'sizes' | 'size':
-                            match value:
-                                case 's':
-                                    data.sizes[label] = 10
-                                case 'l':
-                                    data.sizes[label] = 20
-                                case _:
-                                    data.sizes[label] = Line.parseNum(value)
-                        case 'altmode' | 'mode':
-                            match value:
-                                case 'cross':
-                                    data.altmode[label] = AltMode.CROSS
-            else:
-                match arg:
-                    case 'inset':
-                        data.inset = Line.parsePartial(v)
-                    case 'flip':
-                        data.flip = True
-                    case 'sectionorder' | 'order':
-                        data.order = Line.parseList(v)
-        return Line(Rect(), renderData=data)
+        return Line(Rect(), renderData=LineData.parseFromArgs(args))
 
     # -------------------- rendering --------------------
 

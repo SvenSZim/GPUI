@@ -1,12 +1,9 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Callable, Optional, override
+from typing import Any, Callable, Optional, override
 
 from .....utility import Color
-from ....style import RenderStyle, StyleManager
 from ..atomdata import AtomData
-from .textcreateoption import TextCO
-from .textprefab import TextPrefab
 
 def adjustedFontSizeFunction(medium: int, mediumFontSize: int, differenceAroundMedium: int, minFontSize: int) -> Callable[[int], int]:
     medium -= 1
@@ -18,7 +15,7 @@ def adjustedFontSizeFunction(medium: int, mediumFontSize: int, differenceAroundM
 fontSizeFunction: Callable[[int], int] = adjustedFontSizeFunction(6, 24, 2, 8)
 
 @dataclass
-class TextData(AtomData[TextCO, TextPrefab]):
+class TextData(AtomData):
     """
     TextData is the storage class for all render-information
     for the atom 'Text'.
@@ -35,48 +32,61 @@ class TextData(AtomData[TextCO, TextPrefab]):
         return TextData(deepcopy(self.inset), deepcopy(self.dynamicText),
                         deepcopy(self.textColor), deepcopy(self.sysFontName),
                         deepcopy(self.fontSize), deepcopy(self.fontAlign))
-
+    @staticmethod
     @override
-    def __add__(self, extraData: tuple[TextCO, RenderStyle]) -> 'TextData':
-        return self
-        createOption: TextCO = extraData[0]
-        style: RenderStyle = extraData[1]
-
-        if 0x2010 == createOption.value:
-            self.dynamicText = True
-            self.fontSize = None
-        elif 0x2010 < createOption.value < 0x2020:
-            self.dynamicText = False
-            self.fontSize = fontSizeFunction(createOption.value & 0xf)
-        else:
-            match createOption:
-                case TextCO.NOTEXT:
-                    self.textColor = None
-                case TextCO.SOLID:
-                    if self.textColor is None:
-                        self.textColor = StyleManager.getStyleColor(0, style)
-
-                case TextCO.COLOR1:
-                    self.textColor = StyleManager.getStyleColor(0, style)
-                case TextCO.COLOR2:
-                    self.textColor = StyleManager.getStyleColor(1, style)
-
-                case TextCO.ALIGNCENTER:
-                    self.fontAlign = AlignType.CENTERCENTER
-                case TextCO.ALIGNLEFT:
-                    self.fontAlign = AlignType((self.fontAlign.value & 0xf0) + 0)
-                case TextCO.ALIGNRIGHT:
-                    self.fontAlign = AlignType((self.fontAlign.value & 0xf0) + 2)
-                case TextCO.ALIGNTOP:
-                    self.fontAlign = AlignType((self.fontAlign.value & 0xf) + 0)
-                case TextCO.ALIGNBOTTOM:
-                    self.fontAlign = AlignType((self.fontAlign.value & 0xf) + 2)
-        return self
-
-    @override
-    def __mul__(self, extraData: tuple[TextPrefab, RenderStyle]) -> 'TextData':
-        return self
-        return {
-            TextPrefab.BASIC           : lambda style : TextData(textColor=StyleManager.getStyleColor(0, style)),
-            TextPrefab.DYNAMIC_BASIC   : lambda style : TextData(dynamicText=True, textColor=StyleManager.getStyleColor(0, style)),
-        }[extraData[0]](extraData[1])
+    def parseFromArgs(args: dict[str, Any]) -> 'TextData':
+        data: TextData = TextData()
+        for arg, value in args.items():
+            match arg:
+                case 'inset':
+                    data.inset = TextData.parsePartial(value)
+                case 'color' | 'col':
+                    data.textColor = TextData.parseColor(value)
+                case 'fontsize' | 'size':
+                    if 'd' in value:
+                        data.dynamicText = True
+                    else:
+                        sizeconv: dict[str, int] = {x:i for i, x in enumerate(['xxs','xs','s','ms','sm','m','lm','ml','l','xl','xxl'])}
+                        if value.lower() in sizeconv:
+                            data.fontSize = fontSizeFunction(sizeconv[value.lower()])
+                        else:
+                            data.fontSize = int(TextData.extractNum(value))
+                case 'fontname' | 'sysfont' | 'font':
+                    data.sysFontName = value
+                case 'align':
+                    if ',' in value:
+                        xx, yy = 0.5, 0.5
+                        x, y = [v.strip() for v in value.split(',')][:2]
+                        if '.' in x:
+                            vk, nk = [TextData.extractNum(v) for v in x.split('.')][:2]
+                            xx = int(vk) + int(nk)/10**len(nk)
+                        else:
+                            match x.lower()[0]:
+                                case 'l':
+                                    xx = 0.0
+                                case 'r':
+                                    xx = 1.0
+                        if '.' in y:
+                            vk, nk = [TextData.extractNum(v) for v in y.split('.')][:2]
+                            yy = int(vk) + int(nk)/10**len(nk)
+                        else:
+                            match y.lower()[0]:
+                                case 't':
+                                    yy = 0.0
+                                case 'b':
+                                    yy = 1.0
+                        data.fontAlign = (xx, yy)
+                    else:
+                        xx = 0.5
+                        x = value.strip()
+                        if '.' in x:
+                            vk, nk = [TextData.extractNum(v) for v in x.split('.')][:2]
+                            xx = int(vk) + int(nk)/10**len(nk)
+                        else:
+                            match x.lower()[0]:
+                                case 'l':
+                                    xx = 0.0
+                                case 'r':
+                                    xx = 1.0
+                        data.fontAlign = (xx, xx)
+        return data

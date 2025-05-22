@@ -8,30 +8,17 @@ from ...body           import Body
 from ..atom            import Atom
 from .boxcore          import BoxCore
 from .boxdata          import BoxData, AltMode, Filters
-from .boxcreateoption  import BoxCO
-from .boxprefab        import BoxPrefab
 
 filtertype = Filters | tuple[Filters, tuple[float, float, tuple[float, float]], bool]
 
-class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
+class Box(Atom[BoxCore, BoxData]):
     """
     Box is a simple ui-atom-element for drawing a box.
     """
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, renderData: BoxPrefab | list[BoxCO] | BoxData=BoxPrefab.BASIC, active: bool=True) -> None:
-        assert self._renderstyle is not None
-
-        if isinstance(renderData, list):
-            myData: BoxData = BoxData()
-            for createOption in renderData:
-                myData += (createOption, self._renderstyle)
-            renderData = myData
-        elif isinstance(renderData, BoxPrefab):
-            renderData = BoxData() * (renderData, self._renderstyle)
-
-        assert isinstance(renderData, BoxData)
+    def __init__(self, rect: Rect, renderData: BoxData, active: bool=True) -> None:
         super().__init__(BoxCore(rect), renderData, active)
 
         self.__renderCache = []
@@ -44,65 +31,7 @@ class Box(Atom[BoxCore, BoxData, BoxCO, BoxPrefab]):
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Box':
-        data: BoxData = BoxData()
-        for arg, v in args.items():
-            if arg not in ['partitioning', 'part']:
-                values = v.split(';')
-                labelValuePairs: list[str | tuple[str, str]] = [vv.split(':') for vv in values]
-                for vv in labelValuePairs:
-                    label: str
-                    value: str
-                    if len(vv) == 1:
-                        label = ''
-                        value = vv[0]
-                    else:
-                        label = Box.parseLabel(vv[0])
-                        value = vv[1]
-                    match arg:
-                        case 'inset' | 'partial' | 'shrink':
-                            data.partialInset[label] = Box.parsePartial(value)
-                        case 'colors' | 'color' | 'col':
-                            data.colors[label] = Box.parseColor(value)
-                        case 'sectionorders' | 'orders' | 'ord':
-                            data.orders[label] = Box.parseList(value)
-                        case 'fillmodes' | 'fillmode' | 'fills' | 'fill' | 'altmodes' | 'altmode' | 'modes' | 'mode':
-                            match value:
-                                case 'checkerboard' | 'cb':
-                                    data.altMode[label] = AltMode.CHECKERBOARD
-                                case 'striped_vert' | 'strv':
-                                    data.altMode[label] = AltMode.STRIPED_V
-                                case 'striped_hor' | 'strh':
-                                    data.altMode[label] = AltMode.STRIPED_H
-                        case 'fillsizes' | 'fillsize' | 'innersizings' | 'innersizing' | 'sizes' | 'size':
-                            match value:
-                                case 's':
-                                    data.altLen[label] = 10
-                                case 'l':
-                                    data.altLen[label] = 20
-                                case _:
-                                    data.altLen[label] = Box.parseNum(value)
-                        case 'filters' | 'filter' | 'filt':
-                            filtype, *options = [vvv.strip() for vvv in value.split('=')]
-                            if len(options) == 0:
-                                continue
-                            inv: bool = False
-                            if filtype[0] == 'i':
-                                inv = True
-                                filtype = filtype[1:]
-                            match filtype[0].lower():
-                                case 'l' | 't':
-                                    #linear/triangle filter
-                                    data.filters[label] = (Filters.LINEAR, Box.parseFilterArgs(options[0]), inv)
-                                case 'q' | 'c':
-                                    #quadratic/circle filter
-                                    data.filters[label] = (Filters.QUADRATIC, Box.parseFilterArgs(options[0]), inv)
-                                case _:
-                                    pass
-            else:
-                match arg:
-                    case 'partitioning' | 'part':
-                        data.partitioning = Box.parsePartition(v)
-        return Box(Rect(), renderData=data)
+        return Box(Rect(), renderData=BoxData.parseFromArgs(args))
 
     # -------------------- rendering --------------------
 

@@ -1,4 +1,4 @@
-from typing import override
+from typing import Any, override
 
 from ......utility import Rect, AlignType
 from ....element   import Element
@@ -64,20 +64,20 @@ class GroupedCore(AddonCore[list[Element]]):
                 el.alignpoint(virtualBox, (1,1), (usedWidthPercent,1), offset=(-int(0.5*self.__offset),0), keepSize=False)
 
     @override
-    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
         if self.__alignVertical:
-            maxWidth, totHeight = 0, -self.__offset
+            maxWidth, totHeight = 0, -self.__offset if args.get('relative', False) else 0
             for el, relSizY in zip(self._inner, self.__relativeSizing):
-                x, y = el.getInnerSizing(elSize)
+                x, y = el.getInnerSizing(elSize, args)
                 if x > maxWidth:
                     maxWidth = x
-                totHeight += int(relSizY * y) + self.__offset
+                totHeight += int(relSizY * y) + (self.__offset if args.get('relative', False) else 0)
             return maxWidth, max(0, totHeight)
         else:
-            totWidth, maxHeight = -self.__offset, 0
+            totWidth, maxHeight = -self.__offset if args.get('relative', False) else 0, 0
             for el, relSizX in zip(self._inner, self.__relativeSizing):
-                x, y = el.getInnerSizing(elSize)
-                totWidth += int(relSizX * x) + self.__offset
+                x, y = el.getInnerSizing(elSize, args)
+                totWidth += int(relSizX * x) + (self.__offset if args.get('relative', False) else 0)
                 if y > maxHeight:
                     maxHeight = y
             return max(0, totWidth), maxHeight

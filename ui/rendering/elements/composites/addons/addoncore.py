@@ -3,11 +3,11 @@ from typing import Generic, TypeVar
 
 from .....utility       import Rect
 from ...element         import Element
-from ..compositioncore  import CompositionCore
+from ...elementcore     import ElementCore
 
 Inner = TypeVar('Inner', Element, list[Element])
 
-class AddonCore(Generic[Inner], CompositionCore, ABC):
+class AddonCore(Generic[Inner], ElementCore, ABC):
     
     _inner: Inner
 

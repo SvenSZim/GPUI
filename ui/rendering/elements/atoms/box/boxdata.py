@@ -1,13 +1,10 @@
 from dataclasses import dataclass, field
 from copy import deepcopy
 from enum import Enum
-from typing import Optional, override
+from typing import Any, Optional, override
 
 from .....utility import Color
-from ....style import RenderStyle, StyleManager
 from ..atomdata import AtomData
-from .boxcreateoption import BoxCO
-from .boxprefab import BoxPrefab
 
 
 bool4 = tuple[bool, bool, bool, bool]
@@ -24,7 +21,7 @@ class Filters(Enum):
     QUADRATIC       = 0x03
 
 @dataclass
-class BoxData(AtomData[BoxCO, BoxPrefab]):
+class BoxData(AtomData):
     """
     BoxData is the storage class for all render-information
     for the atom 'Box'.
@@ -44,62 +41,66 @@ class BoxData(AtomData[BoxCO, BoxPrefab]):
                        deepcopy(self.orders), deepcopy(self.altLen),
                        deepcopy(self.filters))
 
+    @staticmethod
     @override
-    def __add__(self, extraData: tuple[BoxCO, RenderStyle]) -> 'BoxData':
-        return self
-        createOption: BoxCO = extraData[0]
-        style: RenderStyle = extraData[1]
-        if 0x1031 <= createOption.value < 0x103a:
-            self.partial = 0.1 * (createOption.value - 0x1030)
-        elif 0x1050 <= createOption.value < 0x1065:
-            self.altMode = AltMode(createOption.value - 0x1050)
-            if self.mainColor is None and self.altColor is None:
-                self.mainColor = StyleManager.getStyleColor(0, style)
-            if self.altAbsLen is None:
-                self.altAbsLen = 10.0
-        else:
-            match createOption:
-                case BoxCO.FILL_NOFILL:
-                    self.mainColor = None
-                case BoxCO.FILL_SOLID:
-                    self.altMode = None
-                    if self.mainColor is None:
-                        self.mainColor = StyleManager.getStyleColor(0, style)
-                case BoxCO.FILL_ALT:
-                        self.altMode = AltMode.DEFAULT
-                        if self.mainColor is None and self.altColor is None:
-                            self.mainColor = StyleManager.getStyleColor(0, style)
-                        if self.altAbsLen is None:
-                            self.altAbsLen = 10.0
-                
-                case BoxCO.COLOR0:
-                    self.mainColor = None
-                case BoxCO.COLOR1:
-                    self.mainColor = StyleManager.getStyleColor(0, style)
-                case BoxCO.COLOR2:
-                    self.mainColor = StyleManager.getStyleColor(1, style)
+    def parseFromArgs(args: dict[str, Any]) -> 'BoxData':
+        data: BoxData = BoxData()
+        for arg, v in args.items():
+            if arg not in ['partitioning', 'part']:
+                values = v.split(';')
+                labelValuePairs: list[str | tuple[str, str]] = [vv.split(':') for vv in values]
+                for vv in labelValuePairs:
+                    label: str
+                    value: str
+                    if len(vv) == 1:
+                        label = ''
+                        value = vv[0]
+                    else:
+                        label = BoxData.parseLabel(vv[0])
+                        value = vv[1]
+                    match arg:
+                        case 'inset' | 'partial' | 'shrink':
+                            data.partialInset[label] = BoxData.parsePartial(value)
+                        case 'colors' | 'color' | 'col':
+                            data.colors[label] = BoxData.parseColor(value)
+                        case 'sectionorders' | 'orders' | 'ord':
+                            data.orders[label] = BoxData.parseList(value)
+                        case 'fillmodes' | 'fillmode' | 'fills' | 'fill' | 'altmodes' | 'altmode' | 'modes' | 'mode':
+                            match value:
+                                case 'checkerboard' | 'cb':
+                                    data.altMode[label] = AltMode.CHECKERBOARD
+                                case 'striped_vert' | 'strv':
+                                    data.altMode[label] = AltMode.STRIPED_V
+                                case 'striped_hor' | 'strh':
+                                    data.altMode[label] = AltMode.STRIPED_H
+                        case 'fillsizes' | 'fillsize' | 'innersizings' | 'innersizing' | 'sizes' | 'size':
+                            match value:
+                                case 's':
+                                    data.altLen[label] = 10
+                                case 'l':
+                                    data.altLen[label] = 20
+                                case _:
+                                    data.altLen[label] = BoxData.parseNum(value)
+                        case 'filters' | 'filter' | 'filt':
+                            filtype, *options = [vvv.strip() for vvv in value.split('=')]
+                            if len(options) == 0:
+                                continue
+                            inv: bool = False
+                            if filtype[0] == 'i':
+                                inv = True
+                                filtype = filtype[1:]
+                            match filtype[0].lower():
+                                case 'l' | 't':
+                                    #linear/triangle filter
+                                    data.filters[label] = (Filters.LINEAR, BoxData.parseFilterArgs(options[0]), inv)
+                                case 'q' | 'c':
+                                    #quadratic/circle filter
+                                    data.filters[label] = (Filters.QUADRATIC, BoxData.parseFilterArgs(options[0]), inv)
+                                case _:
+                                    pass
+            else:
+                match arg:
+                    case 'partitioning' | 'part':
+                        data.partitioning = BoxData.parsePartition(v)
+        return data
 
-                case BoxCO.PARTIAL_NOPARTIAL:
-                    self.partial = 1.0
-
-                case BoxCO.ALTLENGTH10:
-                    self.altAbsLen = 10.0
-                case BoxCO.ALTLENGTH20:
-                    self.altAbsLen = 20.0
-
-                case BoxCO.ALTCOLOR0:
-                    self.altColor = None
-                case BoxCO.ALTCOLOR1:
-                    self.altColor = StyleManager.getStyleColor(0, style)
-                case BoxCO.ALTCOLOR2:
-                    self.altColor = StyleManager.getStyleColor(1, style)
-        return self
-
-    @override
-    def __mul__(self, extraData: tuple[BoxPrefab, RenderStyle]) -> 'BoxData':
-        return self
-        return {
-            BoxPrefab.INVISIBLE     : lambda _     : BoxData(),
-            BoxPrefab.BASIC         : lambda style : BoxData(mainColor=StyleManager.getStyleColor(0, style)),
-            BoxPrefab.ALTCOLOR      : lambda style : BoxData(mainColor=StyleManager.getStyleColor(1, style))
-        }[extraData[0]](extraData[1])

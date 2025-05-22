@@ -7,31 +7,16 @@ from .....interaction import EventManager
 from ...body        import Body
 from ..atom             import Atom
 from .textcore          import TextCore
-from .textdata          import TextData, fontSizeFunction
-from .textcreateoption  import TextCO
-from .textprefab        import TextPrefab
+from .textdata          import TextData
 
-
-class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
+class Text(Atom[TextCore, TextData]):
     """
     Text is a simple ui-atom-element for drawing a text.
     """
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, content: str, renderData: TextPrefab | list[TextCO] | TextData=TextPrefab.BASIC, active: bool=True) -> None:
-        assert self._renderstyle is not None
-        
-        if isinstance(renderData, list):
-            myData: TextData = TextData()
-            for createOption in renderData:
-                myData += (createOption, self._renderstyle)
-            renderData = myData
-        elif isinstance(renderData, TextPrefab):
-            renderData = TextData() * (renderData, self._renderstyle)
-
-
-        assert isinstance(renderData, TextData)
+    def __init__(self, rect: Rect, content: str, renderData: TextData, active: bool=True) -> None:
         super().__init__(TextCore(rect, content), renderData, active)
 
         self.__renderCache = None
@@ -44,61 +29,7 @@ class Text(Atom[TextCore, TextData, TextCO, TextPrefab]):
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, str]) -> 'Text':
-        data: TextData = TextData()
-        for arg, value in args.items():
-            match arg:
-                case 'inset':
-                    data.inset = Text.parsePartial(value)
-                case 'color' | 'col':
-                    data.textColor = Text.parseColor(value)
-                case 'fontsize' | 'size':
-                    if 'd' in value:
-                        data.dynamicText = True
-                    else:
-                        sizeconv: dict[str, int] = {x:i for i, x in enumerate(['xxs','xs','s','ms','sm','m','lm','ml','l','xl','xxl'])}
-                        if value.lower() in sizeconv:
-                            data.fontSize = fontSizeFunction(sizeconv[value.lower()])
-                        else:
-                            data.fontSize = int(Text.extractNum(value))
-                case 'fontname' | 'sysfont' | 'font':
-                    data.sysFontName = value
-                case 'align':
-                    if ',' in value:
-                        xx, yy = 0.5, 0.5
-                        x, y = [v.strip() for v in value.split(',')][:2]
-                        if '.' in x:
-                            vk, nk = [Text.extractNum(v) for v in x.split('.')][:2]
-                            xx = int(vk) + int(nk)/10**len(nk)
-                        else:
-                            match x.lower()[0]:
-                                case 'l':
-                                    xx = 0.0
-                                case 'r':
-                                    xx = 1.0
-                        if '.' in y:
-                            vk, nk = [Text.extractNum(v) for v in y.split('.')][:2]
-                            yy = int(vk) + int(nk)/10**len(nk)
-                        else:
-                            match y.lower()[0]:
-                                case 't':
-                                    yy = 0.0
-                                case 'b':
-                                    yy = 1.0
-                        data.fontAlign = (xx, yy)
-                    else:
-                        xx = 0.5
-                        x = value.strip()
-                        if '.' in x:
-                            vk, nk = [Text.extractNum(v) for v in x.split('.')][:2]
-                            xx = int(vk) + int(nk)/10**len(nk)
-                        else:
-                            match x.lower()[0]:
-                                case 'l':
-                                    xx = 0.0
-                                case 'r':
-                                    xx = 1.0
-                        data.fontAlign = (xx, xx)
-        return Text(Rect(), args['content'], renderData=data)
+        return Text(Rect(), args['content'], renderData=TextData.parseFromArgs(args))
 
     # -------------------- content-modification --------------------
 

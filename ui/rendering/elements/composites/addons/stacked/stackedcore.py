@@ -1,4 +1,4 @@
-from typing import override
+from typing import Any, override
 
 from ......utility import Rect
 from ....element   import Element
@@ -35,5 +35,5 @@ class StackedCore(AddonCore[Element]):
         self._inner.alignSize(self)
 
     @override
-    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
         return self._inner.getInnerSizing(elSize)

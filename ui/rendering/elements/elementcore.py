@@ -1,5 +1,5 @@
-from abc import ABC
-from typing import override
+from abc import ABC, abstractmethod
+from typing import Any, override
 
 from ...utility import Rect, iRect
 from .body      import Body
@@ -59,3 +59,7 @@ class ElementCore(iRect, ABC):
         Returns (Body): the stored body element
         """
         return self._body
+
+    @abstractmethod
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
+        pass

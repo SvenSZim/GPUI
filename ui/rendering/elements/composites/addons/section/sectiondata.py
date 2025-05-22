@@ -1,33 +1,26 @@
-from dataclasses import dataclass, field
-from typing import override
+from dataclasses import dataclass
+from typing import Any, override
 
-from .....style      import RenderStyle
-from ....atoms       import AtomCreateOption, LineCO
-from ..addondata     import AddonData
-from .sectioncreateoption import SectionCO
-from .sectionprefab  import SectionPrefab
+from ......utility  import AlignType
+from ....element    import Element
+from ....atoms      import Line
+from ..addondata    import AddonData
 
 @dataclass
-class SectionData(AddonData[SectionCO, SectionPrefab]):
+class SectionData(AddonData):
     """
     SectionData is the storage class for all render-information
     for the addon 'Section'.
     """
-    createActiveBorder: list[bool]                                                    = field(default_factory=lambda:[True, True])
-    borderData        : tuple[list[LineCO], list[LineCO], list[LineCO], list[LineCO]] = field(default_factory=lambda:([], [], [], []))
+    borderData        : tuple[Line, Line]
 
-    @override
-    def __add__(self, extraData: tuple[SectionCO | AtomCreateOption, RenderStyle]) -> 'SectionData':
-        createOption: SectionCO | AtomCreateOption = extraData[0]
-        if createOption.value < 0x1000:
-            for active, data in zip(self.createActiveBorder, self.borderData):
-                if active:
-                    data.append(LineCO(createOption.value))
-        elif 0xa000 < createOption.value < 0xa004:
-            self.createActiveBorder[0] = bool(createOption.value & 1)
-            self.createActiveBorder[1] = bool(createOption.value & 2)
-        return self
+    def alignInner(self, against: Element, offset: int = 0) -> None:
+        self.borderData[0].align(against, AlignType.iTM, offset=(0, -offset//2))
+        self.borderData[0].alignSize(against, alignY=False)
+        self.borderData[1].align(against, AlignType.iBM, offset=(0, offset//2))
+        self.borderData[1].alignSize(against, alignY=False)
 
+    @staticmethod
     @override
-    def __mul__(self, extraData: tuple[SectionPrefab, RenderStyle]) -> 'SectionData':
-        return self
+    def parseFromArgs(args: dict[str, Any]) -> 'SectionData':
+        return SectionData((Line.parseFromArgs({}), Line.parseFromArgs({})))

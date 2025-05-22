@@ -1,7 +1,15 @@
+import json
+import os
 
-from ...utility import Color
-from .styles import ABCStyle, StyleMOON, StyleFIRE
+from ...utility import Color, tColor
 from .renderstyle import RenderStyle
+
+styledata: dict
+
+filepath: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'styles.json')
+with open(filepath,'r') as file:
+    styledata = json.load(file)
+
 
 class StyleManager:
     """
@@ -9,13 +17,14 @@ class StyleManager:
     """
 
     @staticmethod
-    def __mapStyle(style: RenderStyle) -> ABCStyle:
+    def __mapStyle(style: RenderStyle) -> list[str]:
         """
         mapStyle is an intern method to map the style-data object to the actual
         style container class.
         """
-        return {RenderStyle.MOON: StyleMOON,
-                RenderStyle.FIRE: StyleFIRE}[style]
+        return styledata[{RenderStyle.NONE: "none",
+                RenderStyle.MOON: "moon",
+                RenderStyle.FIRE: "fire"}[style]]
     
     @staticmethod
     def getStyleColor(colorIndex: int, style: RenderStyle) -> Color:
@@ -28,4 +37,7 @@ class StyleManager:
 
         Returns (Color): the requested color from the specified style
         """
-        return StyleManager.__mapStyle(style).getStyleColor(colorIndex)
+        colors: list[str] = StyleManager.__mapStyle(style)
+        if colorIndex >= len(colors):
+            return (0, 0, 0)
+        return tColor(colors[colorIndex])

@@ -5,7 +5,6 @@ from .utility   import Color, tColor, Rect, AlignType
 from .display   import Font, Surface, SurfaceDrawer
 
 from .rendering import RenderStyle, StyleManager
-from .rendering import StyleMOON, StyleFIRE
 
 from .rendering import Renderer, Element
 

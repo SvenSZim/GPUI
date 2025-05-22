@@ -7,18 +7,12 @@ from ..addon         import Addon
 
 from .stackedcore         import StackedCore
 from .stackeddata         import StackedData
-from .stackedcreateoption import StackedCO
-from .stackedprefab       import StackedPrefab
 
-class Stacked(Addon[list[Element], StackedCore, StackedData, StackedCO, StackedPrefab]):
-
+class Stacked(Addon[StackedCore, StackedData]):
     
-
     # -------------------- creation --------------------
 
     def __init__(self, rect: Rect, elementSizing: Rect, *inner: Element | tuple[Element, float], alignVertical: bool=True, offset: int=0, active: bool = True) -> None:
-        assert self._renderstyle is not None
-
         super().__init__(StackedCore(rect, elementSizing, *inner, alignVertical=alignVertical, offset=offset), StackedData(), active)
     
     @staticmethod

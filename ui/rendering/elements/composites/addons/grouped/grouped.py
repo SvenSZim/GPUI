@@ -7,17 +7,12 @@ from ..addon         import Addon
 
 from .groupedcore         import GroupedCore
 from .groupeddata         import GroupedData
-from .groupedcreateoption import GroupedCO
-from .groupedprefab       import GroupedPrefab
 
-class Grouped(Addon[list[Element], GroupedCore, GroupedData, GroupedCO, GroupedPrefab]):
-
-    
+class Grouped(Addon[GroupedCore, GroupedData]):
 
     # -------------------- creation --------------------
 
     def __init__(self, rect: Rect, *inner: Element | tuple[Element, float], alignVertical: bool=True, offset: int=0, active: bool = True) -> None:
-        assert self._renderstyle is not None
         super().__init__(GroupedCore(rect, *inner, alignVertical=alignVertical, offset=offset), GroupedData(), active)
     
     @staticmethod

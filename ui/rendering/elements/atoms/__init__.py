@@ -1,6 +1,3 @@
-
-from .atomcreateoption import AtomCreateOption
-
-from .line   import Line, LineCO, LinePrefab
-from .box    import Box, BoxCO, BoxPrefab
-from .text   import Text, TextCO, TextPrefab
+from .line   import Line
+from .box    import Box
+from .text   import Text

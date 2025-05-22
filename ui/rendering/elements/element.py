@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, override
+from typing import Any, Generic, TypeVar, override
 
 from ...utility           import Rect, iRect, Parsable, AlignType
 from ...interaction       import EventManager
@@ -7,18 +7,14 @@ from ..renderer           import Renderer
 from .body                import Body
 from .elementcore         import ElementCore
 from .elementdata         import ElementData
-from .elementcreateoption import ElementCreateOption
-from .elementprefab       import ElementPrefab
 
 
 ElementCls = TypeVar('ElementCls', bound='Element')
 
-Core         = TypeVar('Core'        , bound=ElementCore        ) 
-Data         = TypeVar('Data'        , bound=ElementData        )
-CreateOption = TypeVar('CreateOption', bound=ElementCreateOption)
-Prefab       = TypeVar('Prefab'      , bound=ElementPrefab      )
+Core         = TypeVar('Core'        , bound=ElementCore) 
+Data         = TypeVar('Data'        , bound=ElementData)
 
-class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, Parsable, iRect, ABC):
+class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
 
     _layoutUpdateEvent: str = EventManager.createEvent()
 
@@ -77,9 +73,8 @@ class Element(Generic[Core, Data, CreateOption, Prefab], Renderer, Parsable, iRe
         """
         return self._core
 
-    @abstractmethod
-    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
-        pass
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
+        return self._core.getInnerSizing(elSize, args)
 
     # -------------------- positional-setter --------------------
     

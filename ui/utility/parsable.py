@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from .color import Color
-
-
+from .color import Color, tColor
 
 
 class Parsable(ABC):
@@ -105,7 +103,7 @@ class Parsable(ABC):
                 return (int(vals[0]),int(vals[1]),int(vals[2]))
         else:
             s = s.lower()
-            if s in ['white', 'black', 'red', 'green', 'blue']:
+            if tColor.is_valid_color(s):
                 return s
             if s in ['none', 'inv']:
                 return None

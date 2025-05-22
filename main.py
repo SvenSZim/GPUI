@@ -3,7 +3,7 @@ import pygame as pg
 
 from drawer import PygameDrawer, PygameSurface, PygameFont
 
-from ui import Rect, Parser, InputManager, InputEvent, Renderer, RenderStyle
+from ui import Rect, Parser, InputManager, InputEvent, Renderer
 
 def main():
     pg.init()
@@ -11,7 +11,7 @@ def main():
 
     # ------------------------- setup ------------------------
     InputManager.init()
-    Renderer.init(PygameDrawer, PygameFont, RenderStyle.MOON)
+    Renderer.init(PygameDrawer, PygameFont)
 
     running: bool = True
 

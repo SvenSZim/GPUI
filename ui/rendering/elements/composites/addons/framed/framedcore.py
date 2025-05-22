@@ -1,4 +1,4 @@
-from typing import override
+from typing import Any, override
 
 from ......utility import Rect
 from ....element   import Element
@@ -21,6 +21,8 @@ class FramedCore(AddonCore[Element]):
         self._inner.alignSize(self, absoluteOffset=-2 * self.__offset)
 
     @override
-    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
-        x, y = self._inner.getInnerSizing(elSize)
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
+        x, y = self._inner.getInnerSizing(elSize, args)
+        if 'relative' in args:
+            return x, y
         return x + self.__offset, y + self.__offset

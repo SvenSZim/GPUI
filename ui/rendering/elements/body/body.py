@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from copy import deepcopy
 from typing import override
 
 from ....utility import Rect, iRect, AlignType

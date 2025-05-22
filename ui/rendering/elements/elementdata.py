@@ -1,25 +1,10 @@
-from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from abc import ABC
 
-from ..style import RenderStyle
-from .elementcreateoption import ElementCreateOption
-from .elementprefab import ElementPrefab
+from ...utility import Parsable
 
-ElementDataCls = TypeVar('ElementDataCls', bound='ElementData')
-
-CreateOption = TypeVar('CreateOption', bound=ElementCreateOption)
-Prefab = TypeVar('Prefab', bound=ElementPrefab)
-
-class ElementData(Generic[CreateOption, Prefab], ABC):
+class ElementData(Parsable, ABC):
     """
     ElementData is the abstract base class for all render-related
     information of elements.
     """
-
-    @abstractmethod
-    def __add__(self, extraData: tuple[CreateOption, RenderStyle]) -> ElementDataCls:
-        pass
-
-    @abstractmethod
-    def __mul__(self, extraData: tuple[Prefab, RenderStyle]) -> ElementDataCls:
-        pass
+    pass

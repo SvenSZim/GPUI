@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any, override
 
 from ....utility  import Rect
 from ..elementcore import ElementCore
@@ -16,3 +17,9 @@ class AtomCore(ElementCore, ABC):
     @abstractmethod
     def copy(self) -> 'AtomCore':
         pass
+
+    # -------------------- getter --------------------
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
+        return elSize

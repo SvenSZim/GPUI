@@ -1,18 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, override
+from typing import Generic, TypeVar
 
 from ..element         import Element
 from .atomcore         import AtomCore
 from .atomdata         import AtomData
-from .atomcreateoption import AtomCreateOption
-from .atomprefab       import AtomPrefab
 
-Core         = TypeVar('Core'        , bound=AtomCore        )
-RenderData   = TypeVar('RenderData'  , bound=AtomData        )
-CreateOption = TypeVar('CreateOption', bound=AtomCreateOption)
-Prefab       = TypeVar('Prefab'      , bound=AtomPrefab      )
+Core         = TypeVar('Core'        , bound=AtomCore)
+RenderData   = TypeVar('RenderData'  , bound=AtomData)
 
-class Atom(Generic[Core, RenderData, CreateOption, Prefab], Element[Core, RenderData, CreateOption, Prefab], ABC):
+class Atom(Generic[Core, RenderData], Element[Core, RenderData], ABC):
     """
     Atom is the abstract base class for all ui-atom-elements.
     """
@@ -25,9 +21,3 @@ class Atom(Generic[Core, RenderData, CreateOption, Prefab], Element[Core, Render
     @abstractmethod
     def copy(self) -> 'Atom':
         pass
-
-    # -------------------- getter --------------------
-
-    @override
-    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
-        return elSize

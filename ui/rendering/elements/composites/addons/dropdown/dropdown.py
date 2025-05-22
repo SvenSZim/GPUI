@@ -7,16 +7,12 @@ from ..addon            import Addon
 
 from .dropdowncore         import DropdownCore
 from .dropdowndata         import DropdownData
-from .dropdowncreateoption import DropdownCO
-from .dropdownprefab       import DropdownPrefab
 
-class Dropdown(Addon[Element, DropdownCore, DropdownData, DropdownCO, DropdownPrefab], Clickable):
+class Dropdown(Addon[DropdownCore, DropdownData], Clickable):
 
     # -------------------- creation --------------------
 
     def __init__(self, outer: Element, *inner: Element | tuple[Element, float], verticalDropdown: bool=True, dropdownActive: bool=True, offset: int=0, active: bool = True) -> None:
-        assert self._renderstyle is not None
-
         Clickable.__init__(self, active)
         Addon.__init__(self, DropdownCore(outer, *inner, verticalDropdown=verticalDropdown, offset=offset, buttonActive=dropdownActive), DropdownData(), active)
         

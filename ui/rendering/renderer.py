@@ -79,7 +79,7 @@ class Renderer(ABC):
     __postRenderQueue: list['Renderer'] = []
 
     @staticmethod
-    def init(drawer: type[SurfaceDrawer], font: type[Font], renderstyle: RenderStyle) -> None:
+    def init(drawer: type[SurfaceDrawer], font: type[Font], renderstyle: RenderStyle=RenderStyle.NONE) -> None:
         """
         init initializes the meta info necessary for rendering the UI-Elements on the screen.
 
