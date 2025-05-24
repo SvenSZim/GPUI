@@ -29,3 +29,9 @@ class AddonCore(Generic[Inner], ElementCore, ABC):
     def _alignInner(self) -> None:
         pass
 
+    # -------------------- active-state --------------------
+
+    @abstractmethod
+    def setActive(self, active: bool) -> None:
+        pass
+

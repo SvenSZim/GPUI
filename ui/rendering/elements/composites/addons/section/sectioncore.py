@@ -67,3 +67,9 @@ class SectionCore(AddonCore[Element]):
 
     def getFooter(self) -> Optional[Element]:
         return self.__footer
+
+    # -------------------- active-state --------------------
+
+    @override
+    def setActive(self, active: bool) -> None:
+        return

@@ -26,3 +26,7 @@ class FramedCore(AddonCore[Element]):
         if 'relative' in args:
             return x, y
         return x + self.__offset, y + self.__offset
+
+    @override
+    def setActive(self, active: bool) -> None:
+        self._inner.setActive(active)

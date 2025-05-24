@@ -81,3 +81,8 @@ class GroupedCore(AddonCore[list[Element]]):
                 if y > maxHeight:
                     maxHeight = y
             return max(0, totWidth), maxHeight
+
+    @override
+    def setActive(self, active: bool) -> None:
+        for el in self._inner:
+            el.setActive(active)

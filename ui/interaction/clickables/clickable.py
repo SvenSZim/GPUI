@@ -54,7 +54,8 @@ class Clickable(iRect, ABC):
         """
         onTrigger gets called when the Button is triggered.
         """
-        EventManager.triggerEvent(self._onclick)
+        if self._buttonActive:
+            EventManager.triggerEvent(self._onclick)
 
     def activeTrigger(self) -> None:
         """
@@ -62,16 +63,14 @@ class Clickable(iRect, ABC):
         Button. It checks if the mouse is inside the bounds of the Button before triggering.
         """
         if Rect(self.getPosition(), self.getSize()).collidepoint(InputManager.getMousePosition()):
-            if self._buttonActive:
-                self._onTrigger()
+            self._onTrigger()
 
     def passiveTrigger(self) -> None:
         """
         passiveTrigger is the global alternative of activeTrigger which does not
         check for the mouse to be inside the bounds. (useful for using keys to trigger buttons)
         """
-        if self._buttonActive:
-            self._onTrigger()
+        self._onTrigger()
 
     # -------------------- managing-trigger-events --------------------
 

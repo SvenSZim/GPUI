@@ -39,17 +39,6 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
     # -------------------- access-point --------------------
 
     @override
-    def setActive(self, active: bool) -> None:
-        super().setActive(active)
-        self._core.setButtonActive(active)
-
-    @override
-    def toggleActive(self) -> bool:
-        bb = super().toggleActive()
-        self._core.setButtonActive(bb)
-        return bb
-
-    @override
     def set(self, args: dict[str, Any]) -> None:
         super().set(args)
         for tag, value in args.items():

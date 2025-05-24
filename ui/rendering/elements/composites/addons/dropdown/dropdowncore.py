@@ -47,3 +47,7 @@ class DropdownCore(AddonCore[Element], Togglable):
         else:
             self.__inner.alignSize(self, relativeAlign=(self.__innersize, 1.0), absoluteOffset=(self.__offset * (self.__innercount-1), 0))
             self.__inner.align(self, AlignType.iTR)
+
+    def setActive(self, active: bool) -> None:
+        self.setButtonActive(active)
+        self.__inner.setActive(active)

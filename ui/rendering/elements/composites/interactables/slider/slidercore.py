@@ -33,6 +33,8 @@ class SliderCore(InteractableCore, Holdable):
         return self.__horizontalSlider
 
     def _updateSlider(self) -> None:
+        if not self._buttonActive:
+            return
         mousepos: tuple[int, int] = InputManager.getMousePosition()
         if self.__horizontalSlider:
             if self.getWidth() != 0:

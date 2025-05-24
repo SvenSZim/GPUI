@@ -44,9 +44,10 @@ class Togglable(Clickable, ABC):
         """
         onTrigger gets called when the Toggle is triggered.
         """
-        super()._onTrigger()
-        self._currentState = (self._currentState + 1) % self._numberOfStates
-        self.__onStateTrigger()
+        if self._buttonActive:
+            super()._onTrigger()
+            self._currentState = (self._currentState + 1) % self._numberOfStates
+            self.__onStateTrigger()
 
     def _onCustomTrigger(self, switchTo: Callable[[int], int]):
         """

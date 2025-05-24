@@ -13,6 +13,19 @@ class Interactable(Element[Core, Data], ABC):
     def __init__(self, core: Core, renderData: Data, renderActive: bool = True) -> None:
         Element.__init__(self, core, renderData, renderActive)
 
+    # -------------------- active-state --------------------
+
+    @override
+    def setActive(self, active: bool) -> None:
+        super().setActive(active)
+        self._core.setButtonActive(active)
+
+    @override
+    def toggleActive(self) -> bool:
+        bb = super().toggleActive()
+        self._core.setButtonActive(bb)
+        return bb
+
     # -------------------- access-point --------------------
 
     @override

@@ -38,16 +38,20 @@ def main():
         layout.align(Rect(topleft=(int(screen_size[0]*(1.0-sizing[0])/2), int(screen_size[1]*(1.0-sizing[1])/2))))
         layout.alignSize(Rect(size=(int(screen_size[0]*sizing[0]), int(screen_size[1]*sizing[1]))))
         layout.updateLayout()
+        layout.setActive(False)
         return layout
     
     layouts = [loadLayout(pp) for pp in layout_paths]
+    layouts[0].setActive(True)
     
     # ------------------------------ basic-functionality ------------------------------
     li, ln = 0, len(layouts)
 
     def switchUI():
-        nonlocal li, ln
+        nonlocal layouts, li, ln
+        layouts[li].setActive(False)
         li = (li + 1) % ln
+        layouts[li].setActive(True)
 
     InputManager.quickSubscribe(InputEvent.M_DOWN, switchUI)
 
