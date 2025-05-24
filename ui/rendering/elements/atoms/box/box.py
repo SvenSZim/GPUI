@@ -32,8 +32,13 @@ class Box(Atom[BoxCore, BoxData]):
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Box':
         return Box(Rect(), renderData=BoxData.parseFromArgs(args))
-
+    
     # -------------------- rendering --------------------
+
+    @override
+    def forceUpdate(self) -> None:
+        super().forceUpdate()
+        self.updateRenderData()
 
     __renderCache: list[tuple[Rect | tuple[tuple[int, int], tuple[int, int], int], Color]]
 

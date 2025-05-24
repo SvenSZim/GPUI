@@ -1,104 +1,93 @@
 from typing import Any, Callable, override
 
-from ......utility   import Rect, AlignType
-from ......display   import Surface
-from ....atoms       import AtomCreateOption, Box, Line
-from ..interactable  import Interactable
+from ......utility  import Rect
+from ......display  import Surface
+from ......interaction  import InputEvent, InputManager
+from ..interactable import Interactable
 
-from .slidercore         import SliderCore
-from .sliderdata         import SliderData
-from .slidercreateoption import SliderCO
-from .sliderprefab       import SliderPrefab
+from .slidercore    import SliderCore
+from .sliderdata    import SliderData
 
-class Slider(Interactable[SliderCore, SliderData, SliderCO, SliderPrefab]):
+class Slider(Interactable[SliderCore, SliderData]):
 
     __prevRenderState: float
 
-    __fillBox: Box
-    __fillLine: Line
-
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, sliderStart: float=0.5, horizontalSlider: bool=True, sliderActive: bool=True,
-                 renderData: SliderPrefab | list[SliderCO | AtomCreateOption] | SliderData=SliderPrefab.BASIC, active: bool = True) -> None:
-        assert self._renderstyle is not None
-
-        self.__prevRenderState = 0.0
-
-        if isinstance(renderData, list):
-            myData: SliderData = SliderData()
-            for createOption in renderData:
-                myData += (createOption, self._renderstyle)
-            myData += (SliderCO.CREATE, self._renderstyle)
-            renderData = myData
-        elif isinstance(renderData, SliderPrefab):
-            renderData = SliderData() * (renderData, self._renderstyle)
+    def __init__(self, rect: Rect, renderData: SliderData, sliderStart: float=0.5, horizontalSlider: bool=True, sliderActive: bool=True, active: bool = True) -> None:
+        self.__prevRenderState = -1.0
 
         super().__init__(SliderCore(rect, sliderStartState=sliderStart, horizontalSlider=horizontalSlider, sliderActive=sliderActive), renderData, active)
-
-        self.__fillBox = Box(Rect(), renderData=self._renderData.fillData)
-        self.__fillLine = Line(Rect(), renderData=self._renderData.lineData)
-        self.__fillBox.align(self)
-        if horizontalSlider:
-            self.__fillBox.alignSize(self, alignX=False)
-            self.__fillLine.align(self, AlignType.iMiL)
-        else:
-            self.__fillBox.alignSize(self, alignY=False)
-            self.__fillLine.align(self, AlignType.iTiM)
+        self._renderData.alignInner(self, horizontalSlider)
     
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Slider':
-        return Slider(Rect())
+        slider: Slider = Slider(Rect(), SliderData.parseFromArgs(args))
+        hasTrigger: bool = False
+        for tag, value in args.items():
+            match tag:
+                case 'trigger':
+                    hasTrigger = True
+                    for v in Slider.parseList(value):
+                        if v.lower() == 'click':
+                            slider._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+                            slider._core.addReleaseEvent(InputManager.getEvent(InputEvent.LEFTUP))
+                        else:
+                            slider._core.addTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
+                            slider._core.addReleaseEvent(InputManager.getEvent(InputEvent(InputEvent.fromStr(value).value+1)))
+                case 'globaltrigger' | 'gtrigger' | 'global':
+                    hasTrigger = True
+                    for v in Slider.parseList(value):
+                        if v.lower() == 'click':
+                            slider._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+                            slider._core.addReleaseEvent(InputManager.getEvent(InputEvent.LEFTUP))
+                        else:
+                            slider._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
+                            slider._core.addReleaseEvent(InputManager.getEvent(InputEvent(InputEvent.fromStr(value).value+1)))
+        if not hasTrigger:
+            slider._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+            slider._core.addReleaseEvent(InputManager.getEvent(InputEvent.LEFTUP))
+        return slider
 
-    # -------------------- getter --------------------
+    # -------------------- access-point --------------------
 
-    def getSliderState(self) -> float:
-        """
-        getSliderState returns the current slider state
-        (activation state between 0 and 1)
-        """
-        return self._core.getSliderState()
+    @override
+    def setActive(self, active: bool) -> None:
+        super().setActive(active)
+        self._core.setButtonActive(active)
 
-    # -------------------- subscriptions --------------------
+    @override
+    def toggleActive(self) -> bool:
+        bb = super().toggleActive()
+        self._core.setButtonActive(bb)
+        return bb
 
-    def subscribeToHold(self, callback: str) -> bool:
-        """
-        subscribeToHold subscribes a Callback to the Event of the slider
-        getting pressed down.
-
-        Args:
-            callback (str): the id of the callback to subscribe to the click
-
-        Returns (bool): returns if the subscription was successful
-        """
-        return self._core.subscribeToHold(callback)
-    
-    def unsubscribeToHold(self, callback: str) -> bool:
-        """
-        unsubscribeToHold unsubscribes a callback (by id) from the Event of the
-        slider getting pressed down.
-
-        Args:
-            callback (str): the id of the callback to unsubscribe
-
-        Returns (bool): if the unsubscription was successful
-        """
-        return self._core.unsubscribeToHold(callback)
-
-    def quickSubscribeToHold(self, f: Callable, *args: Any) -> tuple[str, bool]:
-        """
-        quickSubscribeToHold takes a function and its arguments, creates
-        a Callback and subscribes to the Event of the slider getting pressed down.
-
-        Args:
-            f     (Callable) : the function to use as callback
-            args  (list[Any]): the arguments to use as callback
-
-        Returns (tuple[str, bool]): 1. the id of the newly created Callback
-                                    2. if the callback was successfully subscribed
-        """
-        return self._core.quickSubscribeToHold(f, *args)
+    @override
+    def set(self, args: dict[str, Any]) -> None:
+        super().set(args)
+        for tag, value in args.items():
+            match tag:
+                case 'subscribeToHold':
+                    if isinstance(value, str):
+                        self._core.subscribeToHold(value)
+                    else:
+                        raise ValueError('subscribeToHold expects a callbackID')
+                case 'unsubscribeToHold':
+                    if isinstance(value, str):
+                        self._core.unsubscribeToHold(value)
+                    else:
+                        raise ValueError('unsubscribeToHold expects a callbackID')
+                case 'quickSubscribeToHold':
+                    if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
+                        self._core.quickSubscribeToHold(value[0], *value[1])
+                    else:
+                        raise ValueError('quickSubscribeToHold expects a 2-tuple with a Callable and a list of arguments')
+                case 'getSliderState':
+                    if isinstance(value, Callable):
+                        value(self._core.getSliderState())
+                    else:
+                        raise ValueError('getSliderState expects a callable with one float parameter to write the slider-state to')
 
     # -------------------- rendering --------------------
 
@@ -118,15 +107,15 @@ class Slider(Interactable[SliderCore, SliderData, SliderCO, SliderPrefab]):
         if self.__prevRenderState != self._core.getSliderState():
             if self._core.isHorizontalSlider():
                 size: int = int(self.getWidth() * self._core.getSliderState())
-                self.__fillBox.alignSize(Rect(size=(size, 0)), alignY=False)
-                self.__fillLine.alignSize(Rect(size=(size, 0)), alignY=False)
+                self._renderData.fillData.alignSize(Rect(size=(size, 0)), alignY=False)
+                self._renderData.lineData.alignSize(Rect(size=(size, 0)), alignY=False)
             else:
                 size: int = int(self.getHeight() * self._core.getSliderState())
-                self.__fillBox.alignSize(Rect(size=(0, size)), alignX=False)
-                self.__fillLine.alignSize(Rect(size=(0, size)), alignX=False)
-            self.__fillBox._core._body.forceUpdate()
-            self.__fillLine._core._body.forceUpdate()
+                self._renderData.fillData.alignSize(Rect(size=(0, size)), alignX=False)
+                self._renderData.lineData.alignSize(Rect(size=(0, size)), alignX=False)
+            self._renderData.fillData.forceUpdate()
+            self._renderData.lineData.forceUpdate()
             self.__prevRenderState = self._core.getSliderState()
 
-        self.__fillBox.render(surface)
-        self.__fillLine.render(surface)
+        self._renderData.fillData.render(surface)
+        self._renderData.lineData.render(surface)

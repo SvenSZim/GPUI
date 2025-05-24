@@ -148,6 +148,9 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
             offset = (offset, offset)
         mybody.addReferenceConnection(other, (True, True), myPoint, otherPoint, offset=offset, keepSize=(keepSize, keepSize))
 
+    def forceUpdate(self) -> None:
+        self._core._body.forceUpdate()
+
     #-------------------- access-point --------------------
 
     def set(self, args: dict[str, Any]) -> None:

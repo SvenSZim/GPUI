@@ -1,38 +1,39 @@
 from typing import Any, Callable, override
 
-from ......display   import Surface
+from ......utility  import Rect
+from ......display  import Surface
 from ......interaction  import InputEvent, InputManager
-from ....element     import Element
-from ..interactable  import Interactable
+from ....element    import Element
+from ..interactable import Interactable
 
-from .togglewrappercore         import TogglewrapperCore
-from .togglewrapperdata         import TogglewrapperData
+from .elementcyclecore  import ElementCycleCore
+from .elementcycledata  import ElementCycleData
 
-class Togglewrapper(Interactable[TogglewrapperCore, TogglewrapperData]):
+class ElementCycle(Interactable[ElementCycleCore, ElementCycleData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, inner: Element, numberOfStates: int=2, startState: int=0, buttonActive: bool=True, active: bool = True) -> None:
-        
-        super().__init__(TogglewrapperCore(inner, numberOfStates, startState, buttonActive), TogglewrapperData(), renderActive=active)
+    def __init__(self, rect: Rect, renderData: ElementCycleData, *inner: Element, startState: int=0, elementCycleActive: bool=True, active: bool = True) -> None:
+
+        super().__init__(ElementCycleCore(rect, *inner, startState=startState, buttonActive=elementCycleActive), renderData, active)
     
     @staticmethod
     @override
-    def parseFromArgs(args: dict[str, Any]) -> 'Togglewrapper':
-        button: Togglewrapper = Togglewrapper(args['inner'])
+    def parseFromArgs(args: dict[str, Any]) -> 'ElementCycle':
+        button: ElementCycle = ElementCycle(Rect(), ElementCycleData.parseFromArgs(args), *args['inner'])
         hasTrigger: bool = False
         for tag, value in args.items():
             match tag:
                 case 'trigger':
                     hasTrigger = True
-                    for v in Togglewrapper.parseList(value):
+                    for v in ElementCycle.parseList(value):
                         if v.lower() == 'click':
                             button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
                         else:
                             button._core.addTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
                 case 'globaltrigger' | 'gtrigger' | 'global':
                     hasTrigger = True
-                    for v in Togglewrapper.parseList(value):
+                    for v in ElementCycle.parseList(value):
                         if v.lower() == 'click':
                             button._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
                         else:
@@ -74,7 +75,7 @@ class Togglewrapper(Interactable[TogglewrapperCore, TogglewrapperData]):
                         self._core.quickSubscribeToToggleState(value[0], value[1], *value[2])
                     else:
                         raise ValueError('quickSubscribeToToggleState expects a 3-tuple the toggle state (int), with a Callable and a list of arguments')
-
+    
     # -------------------- rendering --------------------
 
     @override
@@ -87,7 +88,7 @@ class Togglewrapper(Interactable[TogglewrapperCore, TogglewrapperData]):
         """
         assert self._drawer is not None
 
-        if self.isActive():
-            if self._core.getCurrentToggleState():
-                self._drawer.drawrect(surface, self.getRect(), 'green')
-            self._core.getInner().render(surface)
+        if not self._active:
+            return
+    
+        self._core.getCurrentElement().render(surface)

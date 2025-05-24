@@ -38,8 +38,10 @@ class LineData(AtomData):
         data: LineData = LineData()
         for arg, v in args.items():
             if arg not in ['inset', 'flip', 'sectionorder', 'order']:
+                if not isinstance(v, str):
+                    continue
                 values = v.split(';')
-                labelValuePairs: list[str | tuple[str, str]] = [vv.split(':') for vv in values]
+                labelValuePairs: list[list[str]] = [vv.split(':') for vv in values]
                 for vv in labelValuePairs:
                     label: str
                     value: str

@@ -7,5 +7,5 @@ from .elements import Element
 from .elements import Line, Box, Text
 
 from .elements import Framed, Stacked, Grouped, Section, Dropdown
-from .elements import Button#, Checkbox, Slider, TextCycle
-#from .elements import Dropdownselect, Multiselect
+from .elements import Button, Checkbox, Slider, ElementCycle
+from .elements import Dropdownselect, Multiselect

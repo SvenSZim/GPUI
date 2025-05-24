@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<framed>
+  <line color="white"></line>
+  <checkbox id="cb1" trigger="click" global="i">
+    <line color="white"></line>
+    <line color="mediumvioletred"></line>
+  </checkbox>
+</framed>

@@ -1,43 +1,40 @@
-from dataclasses import dataclass, field
-from typing import override
+from dataclasses import dataclass
+from typing import Any, override
 
-from .....style             import RenderStyle
-from ....atoms              import AtomCreateOption, LineCO, BoxCO
+from ......utility      import AlignType
+from ....element            import Element
+from ....atoms              import Line, Box
 from ..interactabledata     import InteractableData
-from .slidercreateoption    import SliderCO
-from .sliderprefab          import SliderPrefab
 
 @dataclass
-class SliderData(InteractableData[SliderCO, SliderPrefab]):
+class SliderData(InteractableData):
     """
     SliderData is the storage class for all render-information
     for the interactable 'Slider'.
     """
-    doCreateBoxFill: bool     = True
-    fillData: list[BoxCO]     = field(default_factory=lambda:[])
-    lineData: list[LineCO]    = field(default_factory=lambda:[])
+    fillData: Box
+    lineData: Line
 
-    @override
-    def __add__(self, extraData: tuple[SliderCO | AtomCreateOption, RenderStyle]) -> 'SliderData':
-        createOption: SliderCO | AtomCreateOption = extraData[0]
-        if createOption.value < 0x1000:
-            self.lineData.append(LineCO(createOption.value))
-        elif createOption.value < 0x2000:
-            self.fillData.append(BoxCO(createOption.value))
-        elif createOption.value == 0x10400:
-            if self.doCreateBoxFill:
-                self.lineData = []
-            else:
-                self.fillData = []
+    def alignInner(self, against: Element, horizontalSlider: bool) -> None:
+        self.fillData.align(against)
+        if horizontalSlider:
+            self.fillData.alignSize(against, alignX=False)
+            self.lineData.align(against, AlignType.iMiL)
         else:
-            match createOption:
-                case SliderCO.USEBOX:
-                    self.doCreateBoxFill = True
-                case SliderCO.USELINE:
-                    self.doCreateBoxFill = False
+            self.fillData.alignSize(against, alignY=False)
+            self.lineData.align(against, AlignType.iTiM)
 
-        return self
-
+    @staticmethod
     @override
-    def __mul__(self, extraData: tuple[SliderPrefab, RenderStyle]) -> 'SliderData':
-        return self
+    def parseFromArgs(args: dict[str, Any]) -> 'SliderData':
+        inner: list[Element] = args['inner']
+        types = [0 if isinstance(x, Line) else 1 if isinstance(x, Box) else 2 for x in inner]
+        fill = Box.parseFromArgs({})
+        if 1 in types:
+            fill = inner[types.index(1)]
+        assert isinstance(fill, Box)
+        line = Line.parseFromArgs({})
+        if 0 in types:
+            line = inner[types.index(0)]
+        assert isinstance(line, Line)
+        return SliderData(fill, line)

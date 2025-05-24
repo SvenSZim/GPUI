@@ -48,6 +48,11 @@ class Line(Atom[LineCore, LineData]):
 
     # -------------------- rendering --------------------
 
+    @override
+    def forceUpdate(self) -> None:
+        super().forceUpdate()
+        self.updateRenderData()
+
     __renderCache: list[tuple[Rect | tuple[tuple[int, int], tuple[int, int], int], Color]]
 
     def updateRenderData(self) -> None:

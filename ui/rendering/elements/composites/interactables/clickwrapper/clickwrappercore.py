@@ -1,4 +1,4 @@
-from typing import override
+from typing import Any, override
 
 from ......interaction  import Holdable
 from ....element        import Element
@@ -24,5 +24,5 @@ class ClickwrapperCore(InteractableCore, Holdable):
         return self.__inner
 
     @override
-    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]) -> tuple[int, int]:
         return self.__inner.getInnerSizing(elSize)

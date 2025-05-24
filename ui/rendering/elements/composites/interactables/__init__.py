@@ -1,8 +1,11 @@
-#from .clickwrapper  import Clickwrapper
+from .clickwrapper  import Clickwrapper
 from .button        import Button
-#from .togglewrapper import Togglewrapper
-#from .checkbox      import Checkbox
+from .togglewrapper import Togglewrapper
+from .checkbox      import Checkbox
 
-#from .slider        import Slider
+from .slider        import Slider
 
-#from .textcycle     import TextCycle
+from .elementcycle  import ElementCycle
+
+from .dropdownselect    import Dropdownselect
+from .multiselect       import Multiselect

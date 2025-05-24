@@ -47,8 +47,10 @@ class BoxData(AtomData):
         data: BoxData = BoxData()
         for arg, v in args.items():
             if arg not in ['partitioning', 'part']:
+                if not isinstance(v, str):
+                    continue
                 values = v.split(';')
-                labelValuePairs: list[str | tuple[str, str]] = [vv.split(':') for vv in values]
+                labelValuePairs: list[list[str]] = [vv.split(':') for vv in values]
                 for vv in labelValuePairs:
                     label: str
                     value: str

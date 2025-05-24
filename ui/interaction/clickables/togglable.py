@@ -6,7 +6,7 @@ from .clickable     import Clickable
 
 class Togglable(Clickable, ABC):
 
-    __toggleEvents: list[str]
+    __toggleEvents: dict[int, str]
     _numberOfStates: int
     _currentState: int
 
@@ -16,7 +16,7 @@ class Togglable(Clickable, ABC):
         self._numberOfStates    = max(2, numberOfStates)
         self._currentState      = max(0, min(self._numberOfStates-1, startState))
 
-        self.__toggleEvents = [EventManager.createEvent() for _ in range(self._numberOfStates)]
+        self.__toggleEvents = {}
 
     # -------------------- getter --------------------
 
@@ -26,13 +26,18 @@ class Togglable(Clickable, ABC):
     def getCurrentToggleState(self) -> int:
         return self._currentState
 
+    def getStateEvent(self, state: int) -> str:
+        if state not in self.__toggleEvents:
+            self.__toggleEvents[state] = EventManager.createEvent()
+        return self.__toggleEvents[state]
+
     # -------------------- triggering --------------------
 
     def __onStateTrigger(self) -> None:
         """
         onStateTrigger triggers the Event of the currentState
         """
-        EventManager.triggerEvent(self.__toggleEvents[self._currentState])
+        EventManager.triggerEvent(self.getStateEvent(self._currentState))
     
     @override
     def _onTrigger(self) -> None:
@@ -67,7 +72,7 @@ class Togglable(Clickable, ABC):
         Returns (bool): returns if the subscription was successful
         """
         if state >= 0 and state < self._numberOfStates:
-            return EventManager.subscribeToEvent(self.__toggleEvents[state], callback)
+            return EventManager.subscribeToEvent(self.getStateEvent(state), callback)
         return False
 
     def unsubscribeToToggleState(self, state: int, callback: str) -> bool:
@@ -82,7 +87,7 @@ class Togglable(Clickable, ABC):
         Returns (bool): if the unsubscription was successful
         """
         if state >= 0 and state < self._numberOfStates:
-            return EventManager.unsubscribeToEvent(self.__toggleEvents[state], callback)
+            return EventManager.unsubscribeToEvent(self.getStateEvent(state), callback)
         return False
 
     def quickSubscribeToToggleState(self, state: int, f: Callable, *args: Any) -> tuple[str, bool]:

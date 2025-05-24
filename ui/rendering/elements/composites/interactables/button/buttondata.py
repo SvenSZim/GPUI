@@ -18,9 +18,9 @@ class ButtonData(InteractableData):
         self.fillData.align(against)
         self.fillData.alignSize(against)
         self.crossData[0].align(against)
-        self.crossData[0].alignpoint(against, (1,1),(1,1), keepSize=False)
-        self.crossData[1].alignpoint(against)
-        self.crossData[1].alignpoint(against, (1,1),(1,1), keepSize=False)
+        self.crossData[0].alignSize(against)
+        self.crossData[1].align(against)
+        self.crossData[1].alignSize(against)
 
     @staticmethod
     @override
@@ -37,10 +37,9 @@ class ButtonData(InteractableData):
             cross1 = inner[types.index(0)]
             if types.count(0) > 1:
                 cross2 = inner[types.index(0, types.index(0)+1)]
-                cross2.set({'flip':True})
             else:
                 assert isinstance(cross1, Line)
                 cross2 = cross1.copy()
-                cross2.set({'flip':True})
         assert isinstance(cross1, Line) and isinstance(cross2, Line)
+        cross2.set({'flip':True})
         return ButtonData(fill, (cross1, cross2))

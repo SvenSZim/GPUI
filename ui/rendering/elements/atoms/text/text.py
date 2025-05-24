@@ -47,6 +47,11 @@ class Text(Atom[TextCore, TextData]):
 
     # -------------------- rendering --------------------
 
+    @override
+    def forceUpdate(self) -> None:
+        super().forceUpdate()
+        self.updateRenderData()
+
     __renderCache: Optional[tuple[Surface, tuple[int, int]]]
 
     def updateRenderData(self) -> None:

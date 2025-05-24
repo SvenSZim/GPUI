@@ -1,9 +1,15 @@
+import os, json
 from time import perf_counter_ns
 import pygame as pg
 
 from pygamesetup import PygameDrawer, PygameSurface, PygameFont, PygameInputHandler
 
 from ui import Rect, Parser, InputManager, InputEvent, Renderer
+
+layout_paths: list[tuple[str, float]] = []
+filepath: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'setup.json')
+with open(filepath,'r') as file:
+    layout_paths = [(p, v) for p, v in json.load(file).items()]
 
 def main():
     pg.init()
@@ -26,19 +32,15 @@ def main():
     background_color = 'black'
     
     # ------------------------------ load-layouts ------------------------------
-    def loadLayout(path: str | tuple[str, float, float]):
-        sizing: tuple[float, float] = (0.5, 0.5)
-        if isinstance(path, tuple):
-            sizing = (path[1], path[2])
-            path = path[0]
-        layout = Parser.fromXML(path)
+    def loadLayout(path: tuple[str, float]):
+        sizing: tuple[float, float] = (path[1], path[1])
+        layout = Parser.fromXML(path[0])
         layout.align(Rect(topleft=(int(screen_size[0]*(1.0-sizing[0])/2), int(screen_size[1]*(1.0-sizing[1])/2))))
         layout.alignSize(Rect(size=(int(screen_size[0]*sizing[0]), int(screen_size[1]*sizing[1]))))
         layout.updateLayout()
         return layout
     
-    layouts = [loadLayout(pp) for pp in ['layouts/buttonexample.xml', ('layouts/dropdownexample.xml', 0.1, 0.1),'layouts/groupedexample.xml','layouts/framedexample.xml',
-                                         ('layouts/boxexample.xml', 960/1280, 560/720),'layouts/boxexample2.xml',('layouts/lineexample.xml', 0.2, 0.2),'layouts/textexample.xml']]
+    layouts = [loadLayout(pp) for pp in layout_paths]
     
     # ------------------------------ basic-functionality ------------------------------
     li, ln = 0, len(layouts)
@@ -49,11 +51,6 @@ def main():
 
     InputManager.quickSubscribe(InputEvent.M_DOWN, switchUI)
 
-    def sayHi():
-        print('Hi from button!')
-
-    Parser.getElementByID('b1').set({'quickSubscribeToClick':(sayHi,[])})
-    
     # ------------------------------ runtime-loop ------------------------------
     rt = 0
     fc = 0

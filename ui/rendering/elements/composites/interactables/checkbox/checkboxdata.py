@@ -1,60 +1,45 @@
-from dataclasses import dataclass, field
-from typing import override
+from dataclasses import dataclass
+from typing import Any, override
 
-from .....style             import RenderStyle
-from ....atoms              import AtomCreateOption, LineCO, BoxCO
+from ....element        import Element
+from ....atoms          import Line, Box
 from ..interactabledata     import InteractableData
-from .checkboxcreateoption  import CheckboxCO
-from .checkboxprefab        import CheckboxPrefab
 
 @dataclass
-class CheckboxData(InteractableData[CheckboxCO, CheckboxPrefab]):
+class CheckboxData(InteractableData):
     """
     CheckboxData is the storage class for all render-information
     for the interactable 'Checkbox'.
     """
-    createActive: list[bool]                           = field(default_factory=lambda:[True, False, False])
-    fillData: list[BoxCO]                        = field(default_factory=lambda:[])
-    crossData: tuple[list[LineCO], list[LineCO]] = field(default_factory=lambda:([], []))
+    fillData: Box
+    crossData: tuple[Line, Line]
 
+    def alignInner(self, against: Element) -> None:
+        self.fillData.align(against)
+        self.fillData.alignSize(against)
+        self.crossData[0].align(against)
+        self.crossData[0].alignSize(against)
+        self.crossData[1].align(against)
+        self.crossData[1].alignSize(against)
+    
+    @staticmethod
     @override
-    def __add__(self, extraData: tuple[CheckboxCO | AtomCreateOption, RenderStyle]) -> 'CheckboxData':
-        createOption: CheckboxCO | AtomCreateOption = extraData[0]
-        if createOption.value < 0x1000:
-            if self.createActive[1]:
-                self.crossData[0].append(LineCO(createOption.value))
-            if self.createActive[2]:
-                self.crossData[1].append(LineCO(createOption.value))
-        elif createOption.value < 0x2000:
-            if self.createActive[0]:
-                self.fillData.append(BoxCO(createOption.value))
-        elif createOption.value == 0x10200:
-            self.crossData[1].append(LineCO.FLIPPED)
-            if self.createActive[0]:
-                self.crossData = ([], [])
+    def parseFromArgs(args: dict[str, Any]) -> 'CheckboxData':
+        inner: list[Element] = args['inner']
+        types = [0 if isinstance(x, Line) else 1 if isinstance(x, Box) else 2 for x in inner]
+        fill = Box.parseFromArgs({})
+        if 1 in types:
+            fill = inner[types.index(1)]
+        assert isinstance(fill, Box)
+        cross1 = Line.parseFromArgs({})
+        cross2 = Line.parseFromArgs({})
+        if 0 in types:
+            cross1 = inner[types.index(0)]
+            if types.count(0) > 1:
+                cross2 = inner[types.index(0, types.index(0)+1)]
             else:
-                self.fillData = []
-        else:
-            match createOption:
-                case CheckboxCO.USEBOX:
-                    self.createActive[0] = True
-                    self.createActive[1] = False
-                    self.createActive[2] = False
-                case CheckboxCO.USECROSS:
-                    self.createActive[0] = False
-                    self.createActive[1] = True
-                    self.createActive[2] = True
-                case CheckboxCO.USECROSS_TL:
-                    self.createActive[0] = False
-                    self.createActive[1] = True
-                    self.createActive[2] = False
-                case CheckboxCO.USECROSS_TR:
-                    self.createActive[0] = False
-                    self.createActive[1] = False
-                    self.createActive[2] = True
-
-        return self
-
-    @override
-    def __mul__(self, extraData: tuple[CheckboxPrefab, RenderStyle]) -> 'CheckboxData':
-        return self
+                assert isinstance(cross1, Line)
+                cross2 = cross1.copy()
+        assert isinstance(cross1, Line) and isinstance(cross2, Line)
+        cross2.set({'flip':True})
+        return CheckboxData(fill, (cross1, cross2))

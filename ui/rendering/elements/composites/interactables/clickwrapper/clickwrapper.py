@@ -1,131 +1,84 @@
 from typing import Any, Callable, override
 
 from ......display   import Surface
+from ......interaction  import InputEvent, InputManager
 from ....element     import Element
-from ....atoms       import AtomCreateOption
 from ..interactable  import Interactable
 
 from .clickwrappercore         import ClickwrapperCore
 from .clickwrapperdata         import ClickwrapperData
-from .clickwrappercreateoption import ClickwrapperCO
-from .clickwrapperprefab       import ClickwrapperPrefab
 
-class Clickwrapper(Interactable[ClickwrapperCore, ClickwrapperData, ClickwrapperCO, ClickwrapperPrefab]):
+class Clickwrapper(Interactable[ClickwrapperCore, ClickwrapperData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, inner: Element, buttonActive: bool=True,
-                 renderData: ClickwrapperPrefab | list[ClickwrapperCO | AtomCreateOption] | ClickwrapperData=ClickwrapperPrefab.BASIC, active: bool = True) -> None:
-        assert self._renderstyle is not None
+    def __init__(self, inner: Element, buttonActive: bool=True, active: bool = True) -> None:
 
-        if isinstance(renderData, list):
-            myData: ClickwrapperData = ClickwrapperData()
-            for createOption in renderData:
-                myData += (createOption, self._renderstyle)
-            renderData = myData
-        elif isinstance(renderData, ClickwrapperPrefab):
-            renderData = ClickwrapperData() * (renderData, self._renderstyle)
-
-        super().__init__(ClickwrapperCore(inner, buttonActive), renderData, renderActive=active, buttonActive=buttonActive)
+        super().__init__(ClickwrapperCore(inner, buttonActive), ClickwrapperData(), renderActive=active)
     
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Clickwrapper':
-        return Clickwrapper(args['inner'])
+        button: Clickwrapper = Clickwrapper(args['inner'])
+        hasTrigger: bool = False
+        for tag, value in args.items():
+            match tag:
+                case 'trigger':
+                    hasTrigger = True
+                    for v in Clickwrapper.parseList(value):
+                        if v.lower() == 'click':
+                            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+                            button._core.addReleaseEvent(InputManager.getEvent(InputEvent.LEFTUP))
+                        else:
+                            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
+                            button._core.addReleaseEvent(InputManager.getEvent(InputEvent(InputEvent.fromStr(value).value+1)))
+                case 'globaltrigger' | 'gtrigger' | 'global':
+                    hasTrigger = True
+                    for v in Clickwrapper.parseList(value):
+                        if v.lower() == 'click':
+                            button._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+                            button._core.addReleaseEvent(InputManager.getEvent(InputEvent.LEFTUP))
+                        else:
+                            button._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
+                            button._core.addReleaseEvent(InputManager.getEvent(InputEvent(InputEvent.fromStr(value).value+1)))
+        if not hasTrigger:
+            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+            button._core.addReleaseEvent(InputManager.getEvent(InputEvent.LEFTUP))
+        return button
 
-    # -------------------- active-state --------------------
-
-    @override
-    def setButtonActive(self, buttonActive: bool) -> None:
-        self._core.setButtonActive(buttonActive)
-        return super().setButtonActive(buttonActive)
-
-    @override
-    def toggleButtonActive(self) -> bool:
-        self._core.toggleButtonActive()
-        return super().toggleButtonActive()
-
-
-    # -------------------- subscriptions --------------------
-
-    @override
-    def subscribeToClick(self, callback: str) -> bool:
-        """
-        subscribeToClick subscribes a Callback to the Event of the object
-        getting clicked.
-
-        Args:
-            callback (str): the id of the callback to subscribe to the click
-
-        Returns (bool): returns if the subscription was successful
-        """
-        return self._core.subscribeToClick(callback)
-    
-    @override
-    def unsubscribeToClick(self, callback: str) -> bool:
-        """
-        unsubscribeToClick unsubscribes a callback (by id) from the Event of the
-        object getting clicked.
-
-        Args:
-            callback (str): the id of the callback to unsubscribe
-
-        Returns (bool): if the unsubscription was successful
-        """
-        return self._core.unsubscribeToClick(callback)
+    # -------------------- access-point --------------------
 
     @override
-    def quickSubscribeToClick(self, f: Callable, *args: Any) -> tuple[str, bool]:
-        """
-        quickSubscribeToClick takes a function and its arguments, creates
-        a Callback and subscribes to the Event of the object getting clicked.
+    def setActive(self, active: bool) -> None:
+        super().setActive(active)
+        self._core.setButtonActive(active)
 
-        Args:
-            f     (Callable) : the function to use as callback
-            args  (list[Any]): the arguments to use as callback
+    @override
+    def toggleActive(self) -> bool:
+        bb = super().toggleActive()
+        self._core.setButtonActive(bb)
+        return bb
 
-        Returns (tuple[str, bool]): 1. the id of the newly created Callback
-                                    2. if the callback was successfully subscribed
-        """
-        return self._core.quickSubscribeToClick(f, *args)
-
-    def subscribeToHold(self, callback: str) -> bool:
-        """
-        subscribeToHold subscribes a Callback to the Event of the button
-        getting pressed down.
-
-        Args:
-            callback (str): the id of the callback to subscribe to the click
-
-        Returns (bool): returns if the subscription was successful
-        """
-        return self._core.subscribeToHold(callback)
-    
-    def unsubscribeToHold(self, callback: str) -> bool:
-        """
-        unsubscribeToHold unsubscribes a callback (by id) from the Event of the
-        button getting pressed down.
-
-        Args:
-            callback (str): the id of the callback to unsubscribe
-
-        Returns (bool): if the unsubscription was successful
-        """
-        return self._core.unsubscribeToHold(callback)
-
-    def quickSubscribeToHold(self, f: Callable, *args: Any) -> tuple[str, bool]:
-        """
-        quickSubscribeToHold takes a function and its arguments, creates
-        a Callback and subscribes to the Event of the button getting pressed down.
-
-        Args:
-            f     (Callable) : the function to use as callback
-            args  (list[Any]): the arguments to use as callback
-
-        Returns (tuple[str, bool]): 1. the id of the newly created Callback
-                                    2. if the callback was successfully subscribed
-        """
-        return self._core.quickSubscribeToHold(f, *args)
+    @override
+    def set(self, args: dict[str, Any]) -> None:
+        super().set(args)
+        for tag, value in args.items():
+            match tag:
+                case 'subscribeToHold':
+                    if isinstance(value, str):
+                        self._core.subscribeToHold(value)
+                    else:
+                        raise ValueError('subscribeToHold expects a callbackID')
+                case 'unsubscribeToHold':
+                    if isinstance(value, str):
+                        self._core.unsubscribeToHold(value)
+                    else:
+                        raise ValueError('unsubscribeToHold expects a callbackID')
+                case 'quickSubscribeToHold':
+                    if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
+                        self._core.quickSubscribeToHold(value[0], *value[1])
+                    else:
+                        raise ValueError('quickSubscribeToHold expects a 2-tuple with a Callable and a list of arguments')
 
     # -------------------- rendering --------------------
 
@@ -140,4 +93,7 @@ class Clickwrapper(Interactable[ClickwrapperCore, ClickwrapperData, Clickwrapper
         assert self._drawer is not None
 
         if self.isActive():
-            self._core.getInner().render(surface)
+            if self._core.getButtonActive():
+                self._core.getInner().render(surface)
+            else:
+                self._drawer.drawrect(surface, self.getRect(), "red")

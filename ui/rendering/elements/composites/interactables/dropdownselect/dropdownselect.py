@@ -1,45 +1,40 @@
 from typing import Any, Callable, override
 
-from ......display   import Surface
-from ......interaction  import InputEvent, InputManager
-from ....element     import Element
-from ..interactable  import Interactable
+from ......utility  import Rect
+from ......display  import Surface
+from ....element    import Element
+from ..interactable import Interactable
 
-from .togglewrappercore         import TogglewrapperCore
-from .togglewrapperdata         import TogglewrapperData
+from .dropdownselectcore         import DropdownselectCore
+from .dropdownselectdata         import DropdownselectData
 
-class Togglewrapper(Interactable[TogglewrapperCore, TogglewrapperData]):
+class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, inner: Element, numberOfStates: int=2, startState: int=0, buttonActive: bool=True, active: bool = True) -> None:
+    def __init__(self, rect: Rect, *inner: tuple[tuple[Element, float], Element], verticalDropdown: bool=True,
+                 offset: int=0, startState: int=0, active: bool = True, args: dict[str, Any]={}) -> None:
         
-        super().__init__(TogglewrapperCore(inner, numberOfStates, startState, buttonActive), TogglewrapperData(), renderActive=active)
+        super().__init__(DropdownselectCore(rect, *inner, verticalDropdown=verticalDropdown, offset=offset, startState=startState, args=args), DropdownselectData(), active)
     
     @staticmethod
     @override
-    def parseFromArgs(args: dict[str, Any]) -> 'Togglewrapper':
-        button: Togglewrapper = Togglewrapper(args['inner'])
-        hasTrigger: bool = False
-        for tag, value in args.items():
-            match tag:
-                case 'trigger':
-                    hasTrigger = True
-                    for v in Togglewrapper.parseList(value):
-                        if v.lower() == 'click':
-                            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
-                        else:
-                            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
-                case 'globaltrigger' | 'gtrigger' | 'global':
-                    hasTrigger = True
-                    for v in Togglewrapper.parseList(value):
-                        if v.lower() == 'click':
-                            button._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
-                        else:
-                            button._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
-        if not hasTrigger:
-            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
-        return button
+    def parseFromArgs(args: dict[str, Any]) -> 'Dropdownselect':
+        inner: list[Element] = args['inner']
+        verticalDropdown = True
+        offset = 0
+        sizings: list[float] = [1.0 for _ in inner[1::2]]
+        for arg, v in args.items():
+            match arg:
+                case 'vertical' | 'vert':
+                    verticalDropdown = True
+                case 'horizontal' | 'hor':
+                    verticalDropdown = False
+                case 'offset' | 'spacing':
+                    offset = int(Dropdownselect.extractNum(v))
+                case 'size' | 'sizes' | 'sizing' | 'sizings':
+                    sizings = list(map(Dropdownselect.parseNum, Dropdownselect.adjustList(list(map(str, sizings)), Dropdownselect.parseList(v))))
+        return Dropdownselect(Rect(), *zip(zip(args['inner'][1::2], sizings), args['inner'][::2]), verticalDropdown=verticalDropdown, offset=offset, args=args)
 
     # -------------------- access-point --------------------
 
@@ -74,7 +69,7 @@ class Togglewrapper(Interactable[TogglewrapperCore, TogglewrapperData]):
                         self._core.quickSubscribeToToggleState(value[0], value[1], *value[2])
                     else:
                         raise ValueError('quickSubscribeToToggleState expects a 3-tuple the toggle state (int), with a Callable and a list of arguments')
-
+    
     # -------------------- rendering --------------------
 
     @override
@@ -88,6 +83,5 @@ class Togglewrapper(Interactable[TogglewrapperCore, TogglewrapperData]):
         assert self._drawer is not None
 
         if self.isActive():
-            if self._core.getCurrentToggleState():
-                self._drawer.drawrect(surface, self.getRect(), 'green')
-            self._core.getInner().render(surface)
+            self._core.getDropdown().render(surface)
+            self._core.getOuter().render(surface)

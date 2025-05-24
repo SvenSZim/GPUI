@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 from .rendering import Element, Line, Box, Text
 from .rendering import Framed, Grouped, Dropdown
-from .rendering import Button
+from .rendering import Button, Checkbox, Slider, ElementCycle, Multiselect, Dropdownselect
 
 class Parser:
 
@@ -20,7 +20,8 @@ class Parser:
                 childs.append(newEl)
 
         attributes: dict[str, Any] = node.attrib
-        match node.tag:
+        attributes['inner'] = childs
+        match node.tag.lower():
             case 'line' | 'l':
                 newElement = Line.parseFromArgs(attributes)
             case 'box' | 'b':
@@ -29,21 +30,27 @@ class Parser:
                 attributes['content'] = node.text
                 newElement = Text.parseFromArgs(attributes)
             case 'framed' | 'fr' | 'f':
-                attributes['inner'] = childs
                 newElement = Framed.parseFromArgs(attributes)
             case 'group' | 'grouped' | 'gr' | 'g':
                 if not len(childs):
                     return None
-                attributes['inner'] = childs
                 newElement = Grouped.parseFromArgs(attributes)
             case 'dropdown' | 'dpd':
                 if not len(childs):
                     return None
-                attributes['inner'] = childs
                 newElement = Dropdown.parseFromArgs(attributes)
             case 'button':
-                attributes['inner'] = childs
                 newElement = Button.parseFromArgs(attributes)
+            case 'checkbox':
+                newElement = Checkbox.parseFromArgs(attributes)
+            case 'slider':
+                newElement = Slider.parseFromArgs(attributes)
+            case 'elementcycle' | 'cycle' | 'cyclebutton':
+                newElement = ElementCycle.parseFromArgs(attributes)
+            case 'multiselect' | 'multi':
+                newElement = Multiselect.parseFromArgs(attributes)
+            case 'dropdownselect' | 'dropselect' | 'downselect' | 'dropsel' | 'dpds':
+                newElement = Dropdownselect.parseFromArgs(attributes)
             case _:
                 return None
         
