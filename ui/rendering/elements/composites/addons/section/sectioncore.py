@@ -1,4 +1,4 @@
-from typing import Optional, override
+from typing import Any, Optional, override
 
 from ......utility import Rect
 from ....element   import Element
@@ -58,9 +58,9 @@ class SectionCore(AddonCore[Element]):
     # -------------------- getter --------------------
 
     @override
-    def getInnerSizing(self, elSize: tuple[int, int]) -> tuple[int, int]:
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]) -> tuple[int, int]:
         #TEMPORARY
-        return self._inner.getInnerSizing(elSize)
+        return self._inner.getInnerSizing(elSize, args)
 
     def getHeader(self) -> Optional[Element]:
         return self.__header

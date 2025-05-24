@@ -96,6 +96,8 @@ class Parsable(ABC):
 
     @staticmethod
     def parseColor(s: str) -> Optional[Color]:
+        if not len(s):
+            return None
         s = s.strip()
         if s[0] == '(':
             vals = [v.strip() for v in s[1:-1].split(',')]

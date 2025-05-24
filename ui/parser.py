@@ -3,10 +3,11 @@ import xml.etree.ElementTree as ET
 
 from .rendering import Element, Line, Box, Text
 from .rendering import Framed, Grouped, Dropdown
+from .rendering import Button
 
 class Parser:
 
-    __taggedElements: dict[str, Element]={}
+    __namedElements: dict[str, Element]={}
     
     @staticmethod
     def __fromNode(node: ET.Element) -> Optional[Element]:
@@ -40,16 +41,18 @@ class Parser:
                     return None
                 attributes['inner'] = childs
                 newElement = Dropdown.parseFromArgs(attributes)
-
+            case 'button':
+                attributes['inner'] = childs
+                newElement = Button.parseFromArgs(attributes)
             case _:
                 return None
         
         tagTags: list[str] = ['label', 'tag', 'id', 'name']
         if any([x in attributes for x in tagTags]):
             tagValue: str = attributes[tagTags[[x in attributes for x in tagTags].index(True)]]
-            if tagValue in Parser.__taggedElements:
+            if tagValue in Parser.__namedElements:
                 raise ValueError(f'{tagValue=} appears twice!')
-            Parser.__taggedElements[tagValue] = newElement
+            Parser.__namedElements[tagValue] = newElement
         return newElement
 
 
@@ -62,3 +65,9 @@ class Parser:
         if newEl is None:
             raise ValueError('Could not find root element!')
         return newEl
+
+    @staticmethod
+    def getElementByID(id: str) -> Element:
+        if id in Parser.__namedElements:
+            return Parser.__namedElements[id]
+        raise ValueError(f'{id=} does not exist')

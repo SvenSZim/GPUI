@@ -36,7 +36,6 @@ class Holdable(Clickable, ABC):
         """
         onRelease gets called when the Button is released.
         """
-        EventManager.unsubscribeToEvent(InputManager.getEvent(InputEvent.LEFTUP), self._activeReleaseCallback)
         EventManager.unsubscribeToEvent(InputManager.getEvent(InputEvent.UPDATE), self._onHoldTriggerCallback)
 
         self._isPressed = False
@@ -50,12 +49,23 @@ class Holdable(Clickable, ABC):
         onTrigger gets called when the Button is triggered.
         """
         super()._onTrigger()
-        EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.LEFTUP), self._activeReleaseCallback)
         EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.UPDATE), self._onHoldTriggerCallback)
 
         self._isPressed = True
 
     # -------------------- subscriptions --------------------
+
+    def addReleaseEvent(self, event: str) -> bool:
+        """
+        addTriggerEvent adds a event which deactivates the button.
+        """
+        return EventManager.subscribeToEvent(event, self._activeReleaseCallback)
+    
+    def removeReleaseEvent(self, event: str) -> bool:
+        """
+        removeTriggerEvent removes a event which deactivates the button.
+        """
+        return EventManager.unsubscribeToEvent(event, self._activeReleaseCallback)
 
     def subscribeToHold(self, callback: str) -> bool:
         """

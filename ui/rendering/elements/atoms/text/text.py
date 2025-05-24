@@ -1,4 +1,4 @@
-from typing import Optional, override
+from typing import Any, Optional, override
 
 from .....utility import Rect
 from .....display import Surface, Font, FontManager
@@ -30,13 +30,20 @@ class Text(Atom[TextCore, TextData]):
     @override
     def parseFromArgs(args: dict[str, str]) -> 'Text':
         return Text(Rect(), args['content'], renderData=TextData.parseFromArgs(args))
+    
+    #-------------------- access-point --------------------
 
-    # -------------------- content-modification --------------------
-
-    def updateContent(self, content: str) -> None:
-        self._core.setContent(content)
-        if self._renderData.dynamicText:
-            self._renderData.fontSize = getDynamicFontSize(self._renderData.sysFontName, self._core.getBody().getRect().getSize(), content)
+    @override
+    def set(self, args: dict[str, Any]) -> None:
+        super().set(args)
+        for tag, value in args.items():
+            match tag:
+                case 'content':
+                    if isinstance(value, str):
+                        self._core.setContent(value)
+                        self.updateRenderData()
+                    else:
+                        raise ValueError('content expects a str')
 
     # -------------------- rendering --------------------
 

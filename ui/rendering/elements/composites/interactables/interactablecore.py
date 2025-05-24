@@ -1,9 +1,10 @@
 from abc import ABC
 
 from .....utility       import Rect
-from ..compositioncore  import CompositionCore
+from .....interaction   import Clickable
+from ...elementcore  import ElementCore
 
-class InteractableCore(CompositionCore, ABC):
+class InteractableCore(ElementCore, Clickable, ABC):
 
     def __init__(self, rect: Rect) -> None:
-        CompositionCore.__init__(self, rect)
+        ElementCore.__init__(self, rect)

@@ -21,7 +21,7 @@ class FramedCore(AddonCore[Element]):
         self._inner.alignSize(self, absoluteOffset=-2 * self.__offset)
 
     @override
-    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]) -> tuple[int, int]:
         x, y = self._inner.getInnerSizing(elSize, args)
         if 'relative' in args:
             return x, y

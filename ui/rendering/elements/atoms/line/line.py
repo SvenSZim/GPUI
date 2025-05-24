@@ -32,6 +32,20 @@ class Line(Atom[LineCore, LineData]):
     def parseFromArgs(args: dict[str, Any]) -> 'Line':
         return Line(Rect(), renderData=LineData.parseFromArgs(args))
 
+    # -------------------- access-point --------------------
+
+    @override
+    def set(self, args: dict[str, Any]) -> None:
+        super().set(args)
+        for tag, value in args.items():
+            match tag:
+                case 'flip':
+                    if isinstance(value, bool):
+                        self._renderData.flip = value
+                        self.updateRenderData()
+                    else:
+                        raise ValueError('flip expects a bool')
+
     # -------------------- rendering --------------------
 
     __renderCache: list[tuple[Rect | tuple[tuple[int, int], tuple[int, int], int], Color]]

@@ -147,3 +147,29 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
         if isinstance(offset, int):
             offset = (offset, offset)
         mybody.addReferenceConnection(other, (True, True), myPoint, otherPoint, offset=offset, keepSize=(keepSize, keepSize))
+
+    #-------------------- access-point --------------------
+
+    def set(self, args: dict[str, Any]) -> None:
+        """
+        set is a general access point to an element. It has some basic functionality implemented and is overridden
+        by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
+        """
+        for tag, value in args.items():
+            match tag:
+                case 'posX':
+                    if isinstance(value, int):
+                        self.align(Rect(topleft=(value,0)), ignoreY=True)
+                    else:
+                        raise ValueError('posX expects an int')
+                case 'posY':
+                    if isinstance(value, int):
+                        self.align(Rect(topleft=(0,value)), ignoreX=True)
+                    else:
+                        raise ValueError('posX expects an int')
+                case 'position':
+                    if isinstance(value, tuple):
+                        self.align(Rect(topleft=value))
+                    else:
+                        raise ValueError('position expects an 2-tuple of ints')
+

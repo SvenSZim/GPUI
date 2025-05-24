@@ -31,7 +31,7 @@ class DropdownCore(AddonCore[Element], Togglable):
         return self.__inner
 
     @override
-    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]) -> tuple[int, int]:
         return self._inner.getInnerSizing(elSize)
 
     @override

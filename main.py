@@ -1,7 +1,7 @@
 from time import perf_counter_ns
 import pygame as pg
 
-from drawer import PygameDrawer, PygameSurface, PygameFont
+from pygamesetup import PygameDrawer, PygameSurface, PygameFont, PygameInputHandler
 
 from ui import Rect, Parser, InputManager, InputEvent, Renderer
 
@@ -9,8 +9,8 @@ def main():
     pg.init()
     pg.font.init()
 
-    # ------------------------- setup ------------------------
-    InputManager.init()
+    # ------------------------------ setup ------------------------------
+    InputManager.init(PygameInputHandler)
     Renderer.init(PygameDrawer, PygameFont)
 
     running: bool = True
@@ -25,6 +25,7 @@ def main():
     main_screen = pg.display.set_mode(screen_size)
     background_color = 'black'
     
+    # ------------------------------ load-layouts ------------------------------
     def loadLayout(path: str | tuple[str, float, float]):
         sizing: tuple[float, float] = (0.5, 0.5)
         if isinstance(path, tuple):
@@ -36,8 +37,10 @@ def main():
         layout.updateLayout()
         return layout
     
-    layouts = [loadLayout(pp) for pp in [('layouts/dropdownexample.xml', 0.1, 0.1),'layouts/groupedexample.xml','layouts/framedexample.xml',
+    layouts = [loadLayout(pp) for pp in ['layouts/buttonexample.xml', ('layouts/dropdownexample.xml', 0.1, 0.1),'layouts/groupedexample.xml','layouts/framedexample.xml',
                                          ('layouts/boxexample.xml', 960/1280, 560/720),'layouts/boxexample2.xml',('layouts/lineexample.xml', 0.2, 0.2),'layouts/textexample.xml']]
+    
+    # ------------------------------ basic-functionality ------------------------------
     li, ln = 0, len(layouts)
 
     def switchUI():
@@ -45,7 +48,13 @@ def main():
         li = (li + 1) % ln
 
     InputManager.quickSubscribe(InputEvent.M_DOWN, switchUI)
+
+    def sayHi():
+        print('Hi from button!')
+
+    Parser.getElementByID('b1').set({'quickSubscribeToClick':(sayHi,[])})
     
+    # ------------------------------ runtime-loop ------------------------------
     rt = 0
     fc = 0
 

@@ -1,24 +1,27 @@
 from abc import ABC
-from typing import Generic, TypeVar
+from typing import Any, TypeVar, override
 
-from .....interaction import InputManager, InputEvent, Clickable
-from ..composition      import Composition
+from ...element         import Element
 from .interactablecore          import InteractableCore
 from .interactabledata          import InteractableData
-from .interactablecreateoption  import InteractableCreateOption
-from .interactableprefab        import InteractablePrefab
 
 Core         = TypeVar('Core'        , bound=InteractableCore        )
 Data         = TypeVar('Data'        , bound=InteractableData        )
-CreateOption = TypeVar('CreateOption', bound=InteractableCreateOption)
-Prefab       = TypeVar('Prefab'      , bound=InteractablePrefab      )
 
-class Interactable(Generic[Core, Data, CreateOption, Prefab], Composition[Core, Data, CreateOption, Prefab], Clickable, ABC):
+class Interactable(Element[Core, Data], ABC):
 
-    def __init__(self, core: Core, renderData: Data, renderActive: bool = True, buttonActive: bool=True) -> None:
-        Composition.__init__(self, core, renderData, renderActive)
-        Clickable.__init__(self, buttonActive)
-        self._core.addTriggerEvent(self._onclick)
-        
-        #Default trigger event: LEFTDOWN
-        self.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+    def __init__(self, core: Core, renderData: Data, renderActive: bool = True) -> None:
+        Element.__init__(self, core, renderData, renderActive)
+
+    # -------------------- access-point --------------------
+
+    @override
+    def set(self, args: dict[str, Any]) -> None:
+        super().set(args)
+        for tag, value in args.items():
+            match tag:
+                case 'setButtonActive':
+                    if isinstance(value, bool):
+                        self._core.setButtonActive(value)
+                    else:
+                        raise ValueError('setButtonActive expects a bool')

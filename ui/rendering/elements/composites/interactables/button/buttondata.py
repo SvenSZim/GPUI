@@ -1,60 +1,46 @@
-from dataclasses import dataclass, field
-from typing import override
+from dataclasses import dataclass
+from typing import Any, override
 
-from .....style             import RenderStyle
-from ....atoms              import AtomCreateOption, LineCO, BoxCO
+from ....element        import Element
+from ....atoms              import Line, Box
 from ..interactabledata     import InteractableData
-from .buttoncreateoption  import ButtonCO
-from .buttonprefab        import ButtonPrefab
 
 @dataclass
-class ButtonData(InteractableData[ButtonCO, ButtonPrefab]):
+class ButtonData(InteractableData):
     """
     ButtonData is the storage class for all render-information
     for the interactable 'Button'.
     """
-    createActive: list[bool]                           = field(default_factory=lambda:[True, False, False])
-    fillData: list[BoxCO]                        = field(default_factory=lambda:[])
-    crossData: tuple[list[LineCO], list[LineCO]] = field(default_factory=lambda:([], []))
+    fillData: Box
+    crossData: tuple[Line, Line]
 
+    def alignInner(self, against: Element):
+        self.fillData.align(against)
+        self.fillData.alignSize(against)
+        self.crossData[0].align(against)
+        self.crossData[0].alignpoint(against, (1,1),(1,1), keepSize=False)
+        self.crossData[1].alignpoint(against)
+        self.crossData[1].alignpoint(against, (1,1),(1,1), keepSize=False)
+
+    @staticmethod
     @override
-    def __add__(self, extraData: tuple[ButtonCO | AtomCreateOption, RenderStyle]) -> 'ButtonData':
-        createOption: ButtonCO | AtomCreateOption = extraData[0]
-        if createOption.value < 0x1000:
-            if self.createActive[1]:
-                self.crossData[0].append(LineCO(createOption.value))
-            if self.createActive[2]:
-                self.crossData[1].append(LineCO(createOption.value))
-        elif createOption.value < 0x2000:
-            if self.createActive[0]:
-                self.fillData.append(BoxCO(createOption.value))
-        elif createOption.value == 0x10100:
-            self.crossData[1].append(LineCO.FLIPPED)
-            if self.createActive[0]:
-                self.crossData = ([], [])
+    def parseFromArgs(args: dict[str, Any]) -> 'ButtonData':
+        inner: list[Element] = args['inner']
+        types = [0 if isinstance(x, Line) else 1 if isinstance(x, Box) else 2 for x in inner]
+        fill = Box.parseFromArgs({})
+        if 1 in types:
+            fill = inner[types.index(1)]
+        assert isinstance(fill, Box)
+        cross1 = Line.parseFromArgs({})
+        cross2 = Line.parseFromArgs({})
+        if 0 in types:
+            cross1 = inner[types.index(0)]
+            if types.count(0) > 1:
+                cross2 = inner[types.index(0, types.index(0)+1)]
+                cross2.set({'flip':True})
             else:
-                self.fillData = []
-        else:
-            match createOption:
-                case ButtonCO.USEBOX:
-                    self.createActive[0] = True
-                    self.createActive[1] = False
-                    self.createActive[2] = False
-                case ButtonCO.USECROSS:
-                    self.createActive[0] = False
-                    self.createActive[1] = True
-                    self.createActive[2] = True
-                case ButtonCO.USECROSS_TL:
-                    self.createActive[0] = False
-                    self.createActive[1] = True
-                    self.createActive[2] = False
-                case ButtonCO.USECROSS_TR:
-                    self.createActive[0] = False
-                    self.createActive[1] = False
-                    self.createActive[2] = True
-
-        return self
-
-    @override
-    def __mul__(self, extraData: tuple[ButtonPrefab, RenderStyle]) -> 'ButtonData':
-        return self
+                assert isinstance(cross1, Line)
+                cross2 = cross1.copy()
+                cross2.set({'flip':True})
+        assert isinstance(cross1, Line) and isinstance(cross2, Line)
+        return ButtonData(fill, (cross1, cross2))

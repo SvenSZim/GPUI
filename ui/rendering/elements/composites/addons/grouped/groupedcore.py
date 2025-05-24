@@ -64,7 +64,7 @@ class GroupedCore(AddonCore[list[Element]]):
                 el.alignpoint(virtualBox, (1,1), (usedWidthPercent,1), offset=(-int(0.5*self.__offset),0), keepSize=False)
 
     @override
-    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]) -> tuple[int, int]:
         if self.__alignVertical:
             maxWidth, totHeight = 0, -self.__offset if args.get('relative', False) else 0
             for el, relSizY in zip(self._inner, self.__relativeSizing):

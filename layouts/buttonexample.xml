@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<framed>
+  <line color="white"></line>
+  <button id="b1">
+    <box colors=";a:beige" inset="40" fillmode="cb" sectionorders=",a" fillsize="20"></box>
+  </button>
+</framed>
