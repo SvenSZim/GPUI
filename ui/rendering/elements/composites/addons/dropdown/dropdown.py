@@ -1,24 +1,19 @@
 from typing import Any, Callable, override
 
+from ......interaction  import InputEvent, InputManager
 from ......display      import Surface
-from ......interaction  import InputManager, InputEvent, Clickable
 from ....element        import Element
 from ..addon            import Addon
 
 from .dropdowncore         import DropdownCore
 from .dropdowndata         import DropdownData
 
-class Dropdown(Addon[DropdownCore, DropdownData], Clickable):
+class Dropdown(Addon[DropdownCore, DropdownData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, outer: Element, *inner: Element | tuple[Element, float], verticalDropdown: bool=True, dropdownActive: bool=True, offset: int=0, active: bool = True) -> None:
-        Clickable.__init__(self, active)
+    def __init__(self, outer: Element, *inner: tuple[Element, float], verticalDropdown: bool=True, dropdownActive: bool=True, offset: int=0, active: bool = True) -> None:
         Addon.__init__(self, DropdownCore(outer, *inner, verticalDropdown=verticalDropdown, offset=offset, buttonActive=dropdownActive), DropdownData(), active)
-        
-        self._core.addGlobalTriggerEvent(self._onclick)
-        #Default trigger event: LEFTDOWN
-        self.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
     
     @staticmethod
     @override
@@ -37,7 +32,27 @@ class Dropdown(Addon[DropdownCore, DropdownData], Clickable):
                     offset = int(Dropdown.extractNum(v))
                 case 'size' | 'sizes' | 'sizing' | 'sizings':
                     sizings = list(map(Dropdown.parseNum, Dropdown.adjustList(list(map(str, sizings)), Dropdown.parseList(v))))
-        return Dropdown(inner[0], *zip(inner[1:], sizings), verticalDropdown=verticalDropdown, offset=offset)
+        button = Dropdown(inner[0], *zip(inner[1:], sizings), verticalDropdown=verticalDropdown, offset=offset)
+        hasTrigger: bool = False
+        for tag, value in args.items():
+            match tag:
+                case 'trigger':
+                    hasTrigger = True
+                    for v in Dropdown.parseList(value):
+                        if v.lower() == 'click':
+                            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+                        else:
+                            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
+                case 'globaltrigger' | 'gtrigger' | 'global':
+                    hasTrigger = True
+                    for v in Dropdown.parseList(value):
+                        if v.lower() == 'click':
+                            button._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+                        else:
+                            button._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
+        if not hasTrigger:
+            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+        return button
 
     # -------------------- access-point --------------------
 
@@ -132,5 +147,6 @@ class Dropdown(Addon[DropdownCore, DropdownData], Clickable):
         if self._active:
             self._core.getInner().render(surface)
 
-            if self._core.getCurrentToggleState():
-                self.addPostRenderElement(self._core.getDropdown())
+            dpd = self._core.getDropdown()
+            if dpd is not None:
+                self.addPostRenderElement(dpd)

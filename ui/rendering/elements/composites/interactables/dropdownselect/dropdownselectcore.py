@@ -24,12 +24,8 @@ class DropdownselectCore(InteractableCore, Togglable):
 
 
         self.__dropdown = Dropdown(Box.parseFromArgs({}), *self.__innerSetup(*inner, **args), verticalDropdown=verticalDropdown, offset=offset, dropdownActive=buttonActive)
-
-        self.__dropdown.addGlobalTriggerEvent(self._onclick)
-
-        for iS in self.__innerSelectors:
-            self.__dropdown.set({'quickSubscribeToSelect':(iS.set, [{'setButtonActive':True}])})
-            self.__dropdown.set({'quickSubscribeToDeselct':(iS.set, [{'setButtonActive':False}])})
+        self.__dropdown.set({'removeTriggerEvent':InputManager.getEvent(InputEvent.LEFTDOWN)})
+        self.__dropdown.set({'addGlobalTriggerEvent':self._onclick})
 
         self.__dropdown.align(self)
         self.__dropdown.alignSize(self)
@@ -62,16 +58,6 @@ class DropdownselectCore(InteractableCore, Togglable):
                             event = InputManager.getEvent(InputEvent.fromStr(v))
                         for s in self.__innerSelectors:
                             s.set({'addTriggerEvent':event})
-                case 'globaltrigger' | 'gtrigger' | 'global':
-                    hasTrigger = True
-                    for v in Parsable.parseList(value):
-                        event: str = ''
-                        if v.lower() == 'click':
-                            event = InputManager.getEvent(InputEvent.LEFTDOWN)
-                        else:
-                            event = InputManager.getEvent(InputEvent.fromStr(v))
-                        for s in self.__innerSelectors:
-                            s.set({'addGlobalTriggerEvent':event})
         if not hasTrigger:
             event = InputManager.getEvent(InputEvent.LEFTDOWN)
             for s in self.__innerSelectors:
@@ -96,44 +82,33 @@ class DropdownselectCore(InteractableCore, Togglable):
             if y > maxHeight:
                 maxHeight = y
         return maxWidth, maxHeight
-    
+
     # -------------------- setter --------------------
 
     @override
     def addTriggerEvent(self, event: str) -> bool:
-        for s in self.__innerSelectors:
-            s.set({'addTriggerEvent':event})
+        self.__dropdown.set({'addTriggerEvent':event})
         return True
 
     @override
     def removeTriggerEvent(self, event: str) -> bool:
-        for s in self.__innerSelectors:
-            s.set({'removeTriggerEvent':event})
+        self.__dropdown.set({'removeTriggerEvent':event})
         return True
 
     @override
     def addGlobalTriggerEvent(self, event: str) -> bool:
-        for s in self.__innerSelectors:
-            s.set({'addGlobalTriggerEvent':event})
+        self.__dropdown.set({'addGlobalTriggerEvent':event})
         return True
 
     @override
     def removeGlobalTriggerEvent(self, event: str) -> bool:
-        for s in self.__innerSelectors:
-            s.set({'removeGlobalTriggerEvent':event})
+        self.__dropdown.set({'removeGlobalTriggerEvent':event})
         return True
 
     # -------------------- active-state --------------------
 
     @override
     def setButtonActive(self, buttonActive: bool) -> None:
-        for s in self.__innerSelectors:
-            s.set({'setButtonActive':buttonActive})
-        return super().setButtonActive(buttonActive)
-
-    @override
-    def toggleButtonActive(self) -> bool:
-        a = super().toggleButtonActive()
-        self.setButtonActive(a)
-        return a
+        super().setButtonActive(buttonActive)
+        self.__dropdown.setActive(buttonActive)
 

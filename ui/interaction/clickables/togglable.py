@@ -40,7 +40,7 @@ class Togglable(Clickable, ABC):
         EventManager.triggerEvent(self.getStateEvent(self._currentState))
     
     @override
-    def _onTrigger(self) -> None:
+    def _onTrigger(self) -> bool:
         """
         onTrigger gets called when the Toggle is triggered.
         """
@@ -48,8 +48,10 @@ class Togglable(Clickable, ABC):
             super()._onTrigger()
             self._currentState = (self._currentState + 1) % self._numberOfStates
             self.__onStateTrigger()
+            return True
+        return False
 
-    def _onCustomTrigger(self, switchTo: Callable[[int], int]):
+    def _onCustomTrigger(self, switchTo: Callable[[int], int]) -> bool:
         """
         onCustomTrigger gets called internally when switching
         to a custom new state.
@@ -58,6 +60,8 @@ class Togglable(Clickable, ABC):
             super()._onTrigger()
             self._currentState = max(0, min(self._numberOfStates-1, switchTo(self._currentState)))
             self.__onStateTrigger()
+            return True
+        return False
     
     # -------------------- subscriptions --------------------
 

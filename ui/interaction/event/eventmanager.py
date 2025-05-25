@@ -26,6 +26,7 @@ class EventManager:
         """
         createCallback takes a function with its arguments and converts
         them into a callback which can be used to subscribe to events.
+        Callbacks can return a bool. If they do, they act as event-terminators.
 
         Args:
             f    (Callable): function to used
@@ -78,8 +79,9 @@ class EventManager:
     @staticmethod
     def __triggerCallback(name: str) -> bool:
         if EventManager.__d_callbacks.get(name):
-            EventManager.__d_callbacks[name].call()
-            return True
+            b = EventManager.__d_callbacks[name].call()
+            if b: # if callback returns bool -> use as terminator
+                return True
         return False
 
     @staticmethod
@@ -95,7 +97,8 @@ class EventManager:
         """
         if EventManager.contains(name):
             for callback in EventManager.__d_events[name].trigger():
-                EventManager.__triggerCallback(callback)
+                if EventManager.__triggerCallback(callback):
+                    break
             return True
         return False
 

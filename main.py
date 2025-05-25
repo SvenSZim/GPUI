@@ -41,19 +41,8 @@ def main():
         layout.setActive(False)
         return layout
     
-    layouts = [loadLayout(pp) for pp in layout_paths]
-    layouts[0].setActive(True)
-    
-    # ------------------------------ basic-functionality ------------------------------
-    li, ln = 0, len(layouts)
-
-    def switchUI():
-        nonlocal layouts, li, ln
-        layouts[li].setActive(False)
-        li = (li + 1) % ln
-        layouts[li].setActive(True)
-
-    InputManager.quickSubscribe(InputEvent.M_DOWN, switchUI)
+    layout = loadLayout(layout_paths[0])
+    layout.setActive(True)
 
     # ------------------------------ runtime-loop ------------------------------
     rt = 0
@@ -64,7 +53,7 @@ def main():
 
         main_screen.fill(background_color)
         s = perf_counter_ns()
-        layouts[li].renderAll(PygameSurface(main_screen), [layouts[li]])
+        layout.renderAll(PygameSurface(main_screen), [layout])
         rt += perf_counter_ns() - s
         fc += 1
 

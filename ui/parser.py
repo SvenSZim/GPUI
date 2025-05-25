@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from .rendering import Element, Line, Box, Text
 from .rendering import Framed, Grouped, Dropdown
 from .rendering import Button, Checkbox, Slider, ElementCycle, Multiselect, Dropdownselect
+from .rendering import Section
 
 class Parser:
 
@@ -46,11 +47,21 @@ class Parser:
             case 'slider':
                 newElement = Slider.parseFromArgs(attributes)
             case 'elementcycle' | 'cycle' | 'cyclebutton':
+                if not len(childs):
+                    return None
                 newElement = ElementCycle.parseFromArgs(attributes)
             case 'multiselect' | 'multi':
+                if not len(childs):
+                    return None
                 newElement = Multiselect.parseFromArgs(attributes)
             case 'dropdownselect' | 'dropselect' | 'downselect' | 'dropsel' | 'dpds':
+                if len(childs) < 2:
+                    return None
                 newElement = Dropdownselect.parseFromArgs(attributes)
+            case 'section' | 'sec' | 's':
+                if not len(childs):
+                    return None
+                newElement = Section.parseFromArgs(attributes)
             case _:
                 return None
         

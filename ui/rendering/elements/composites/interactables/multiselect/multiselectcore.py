@@ -4,7 +4,7 @@ from ......utility      import Rect, Parsable
 from ......interaction  import InputEvent, InputManager, Togglable
 from ....element        import Element
 from ..interactablecore import InteractableCore
-from ...addons          import Stacked
+from ...addons          import Grouped
 from ..togglewrapper    import Togglewrapper
 
 class MultiselectCore(InteractableCore, Togglable):
@@ -14,7 +14,7 @@ class MultiselectCore(InteractableCore, Togglable):
     # -------------------- creation --------------------
     __restriction: Callable[[int], int]
     __innerSelectors: list[Togglewrapper]
-    __inner: Stacked
+    __inner: Grouped
 
     def __init__(self, rect: Rect, *inner: tuple[Element, float], alignVertical: bool=True, offset: int=0,
                  startState: int=0x0, restriction: Optional[Callable[[int], int]]=None, buttonActive: bool=True, args: dict[str, Any]={}) -> None:
@@ -26,7 +26,7 @@ class MultiselectCore(InteractableCore, Togglable):
             self.__restriction = restriction
 
         # init inner
-        self.__inner = Stacked(rect, rect, *self.__innerSetup(*inner, startState=startState, buttonActive=buttonActive, **args), alignVertical=alignVertical, offset=offset)
+        self.__inner = Grouped(rect, *self.__innerSetup(*inner, startState=startState, buttonActive=buttonActive, **args), alignVertical=alignVertical, offset=offset)
 
         # init super
         InteractableCore.__init__(self, self.__inner.getRect())
@@ -88,7 +88,7 @@ class MultiselectCore(InteractableCore, Togglable):
 
     # -------------------- additional-getter --------------------
 
-    def getInner(self) -> Stacked:
+    def getInner(self) -> Grouped:
         return self.__inner
 
     @override

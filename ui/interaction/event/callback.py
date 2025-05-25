@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 class Callback:
     """
@@ -12,8 +12,8 @@ class Callback:
         self.__args = list(args)
 
 
-    def call(self) -> None:
+    def call(self) -> Optional[bool]:
         """
         call calls the callback.
         """
-        self.__f(*self.__args)
+        return self.__f(*self.__args)

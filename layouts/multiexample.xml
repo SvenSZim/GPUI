@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <multiselect limit="3" offset="20">
-  <box color=";a:(255,0,0)" fillmode="strv" sectionorders=",,a" fillsize="20"></box>
-  <box color="(125,125,0);a:" fillmode="strv" sectionorders=",,a" fillsize="20"></box>
-  <box color=";a:(0,255,0)" fillmode="strv" sectionorders=",,a" fillsize="20"></box>
-  <box color="(0,125,125);a:" fillmode="strv" sectionorders=",,a" fillsize="20"></box>
-  <box color=";a:(0,0,255)" fillmode="strv" sectionorders=",,a" fillsize="20"></box>
-  <box color="(125,0,125);a:" fillmode="strv" sectionorders=",,a" fillsize="20"></box>
+  <framed>
+    <line color="(255,0,0)"></line>
+    <box></box>
+  </framed>
+  <framed>
+    <line color="(125,125,0)"></line>
+    <box></box>
+  </framed>
+  <framed>
+    <line color="(0,255,0)"></line>
+    <box></box>
+  </framed>
+  <framed>
+    <line color="(0,125,125)"></line>
+    <box></box>
+  </framed>
+  <framed>
+    <line color="(0,0,255)"></line>
+    <box></box>
+  </framed>
+  <framed>
+    <line color="(125,0,125)"></line>
+    <box></box>
+  </framed>
 </multiselect>

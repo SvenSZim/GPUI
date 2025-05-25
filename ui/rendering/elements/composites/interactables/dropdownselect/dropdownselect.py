@@ -1,9 +1,10 @@
 from typing import Any, Callable, override
 
-from ......utility  import Rect
-from ......display  import Surface
-from ....element    import Element
-from ..interactable import Interactable
+from ......utility      import Rect
+from ......interaction  import InputEvent, InputManager
+from ......display      import Surface
+from ....element        import Element
+from ..interactable     import Interactable
 
 from .dropdownselectcore         import DropdownselectCore
 from .dropdownselectdata         import DropdownselectData
@@ -34,7 +35,27 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
                     offset = int(Dropdownselect.extractNum(v))
                 case 'size' | 'sizes' | 'sizing' | 'sizings':
                     sizings = list(map(Dropdownselect.parseNum, Dropdownselect.adjustList(list(map(str, sizings)), Dropdownselect.parseList(v))))
-        return Dropdownselect(Rect(), *zip(zip(args['inner'][1::2], sizings), args['inner'][::2]), verticalDropdown=verticalDropdown, offset=offset, args=args)
+        button = Dropdownselect(Rect(), *zip(zip(args['inner'][1::2], sizings), args['inner'][::2]), verticalDropdown=verticalDropdown, offset=offset, args=args)
+        hasTrigger: bool = False
+        for tag, value in args.items():
+            match tag:
+                case 'trigger':
+                    hasTrigger = True
+                    for v in Dropdownselect.parseList(value):
+                        if v.lower() == 'click':
+                            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+                        else:
+                            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
+                case 'globaltrigger' | 'gtrigger' | 'global':
+                    hasTrigger = True
+                    for v in Dropdownselect.parseList(value):
+                        if v.lower() == 'click':
+                            button._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+                        else:
+                            button._core.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
+        if not hasTrigger:
+            button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+        return button
 
     # -------------------- access-point --------------------
 

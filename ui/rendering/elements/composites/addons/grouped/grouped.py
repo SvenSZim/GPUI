@@ -12,7 +12,7 @@ class Grouped(Addon[GroupedCore, GroupedData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, *inner: Element | tuple[Element, float], alignVertical: bool=True, offset: int=0, active: bool = True) -> None:
+    def __init__(self, rect: Rect, *inner: tuple[Element, float], alignVertical: bool=True, offset: int=0, active: bool = True) -> None:
         super().__init__(GroupedCore(rect, *inner, alignVertical=alignVertical, offset=offset), GroupedData(), active)
     
     @staticmethod

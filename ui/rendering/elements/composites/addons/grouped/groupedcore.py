@@ -1,6 +1,6 @@
 from typing import Any, override
 
-from ......utility import Rect, AlignType
+from ......utility import Rect
 from ....element   import Element
 from ....atoms     import Box
 from ..addoncore   import AddonCore
@@ -13,26 +13,13 @@ class GroupedCore(AddonCore[list[Element]]):
     __offset: int
     __relativeSizing: list[float]
 
-    def __init__(self, rect: Rect, *inner: Element | tuple[Element, float], alignVertical: bool=True, offset: int=0) -> None:
+    def __init__(self, rect: Rect, *inner: tuple[Element, float], alignVertical: bool=True, offset: int=0) -> None:
         self.__alignVertical = alignVertical
         self.__offset = offset
 
-        self.__relativeSizing = [0.0 for _ in range(len(inner))]
-        if len(inner) > 0:
-            cSum: float = sum([0 if isinstance(x, Element) else abs(x[1]) for x in inner])
-            notSized: int = sum([1 if isinstance(x, Element) else 0 for x in inner])
-            if cSum >= 1.0 or not notSized:
-                for i, x in enumerate(inner):
-                    if isinstance(x, tuple):
-                        self.__relativeSizing[i] = abs(x[1]) / cSum
-            else:
-                for i, x in enumerate(inner):
-                    if isinstance(x, tuple):
-                        self.__relativeSizing[i] = abs(x[1])
-                    else:
-                        self.__relativeSizing[i] = (1.0 - cSum) / notSized
+        self.__relativeSizing = [el[1] for el in inner]
 
-        super().__init__(rect, [el if isinstance(el, Element) else el[0] for el in inner])
+        super().__init__(rect, [el[0] for el in inner])
     
     @override
     def _alignInner(self) -> None:
@@ -40,28 +27,28 @@ class GroupedCore(AddonCore[list[Element]]):
             return
 
         virtualBox = Box.parseFromArgs({})
+        totalSize: float = sum(self.__relativeSizing)
+        if totalSize == 0.0:
+            totalSize = 1.0
         
         if self.__alignVertical:
             virtualBox.align(self, offset=(0, -int(0.5*self.__offset)))
-            virtualBox.align(self, align=AlignType.iBiR, offset=(0, int(0.5*self.__offset)), keepSize=False)
+            virtualBox.alignSize(self, absoluteOffset=(0, self.__offset))
                                   
-            usedHeightPercent: float = 0.0
-
+            relHeight: float = 0.0
             for nr, el in enumerate(self._inner):
-                el.alignpoint(virtualBox, otherPoint=(0,usedHeightPercent), offset=(0,int(0.5*self.__offset)))
-                usedHeightPercent += self.__relativeSizing[nr]
-                el.alignpoint(virtualBox, (1,1), (1,usedHeightPercent), offset=(0,-int(0.5*self.__offset)), keepSize=False)
-
+                el.alignpoint(virtualBox, otherPoint=(0,relHeight/totalSize), offset=(0,int(0.5*self.__offset)))
+                relHeight += self.__relativeSizing[nr]
+                el.alignSize(virtualBox, relativeAlign=(1, self.__relativeSizing[nr]/totalSize), absoluteOffset=(0, -self.__offset))
         else:
             virtualBox.align(self, offset=(-int(0.5*self.__offset),0))
-            virtualBox.align(self, align=AlignType.iBiR, offset=(int(0.5*self.__offset),0), keepSize=False)
+            virtualBox.alignSize(self, absoluteOffset=(self.__offset, 0))
 
-            usedWidthPercent: float = 0.0
-
+            relWidth: float = 0.0
             for nr, el in enumerate(self._inner):
-                el.alignpoint(virtualBox, otherPoint=(usedWidthPercent,0), offset=(int(0.5*self.__offset),0))
-                usedWidthPercent += self.__relativeSizing[nr]
-                el.alignpoint(virtualBox, (1,1), (usedWidthPercent,1), offset=(-int(0.5*self.__offset),0), keepSize=False)
+                el.alignpoint(virtualBox, otherPoint=(relWidth/totalSize,0), offset=(int(0.5*self.__offset),0))
+                relWidth += self.__relativeSizing[nr]
+                el.alignSize(virtualBox, relativeAlign=(self.__relativeSizing[nr]/totalSize, 1), absoluteOffset=(-self.__offset, 0))
 
     @override
     def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]) -> tuple[int, int]:

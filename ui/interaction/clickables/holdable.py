@@ -46,13 +46,15 @@ class Holdable(Clickable, ABC):
             self._onRelease()
 
     @override
-    def _onTrigger(self) -> None:
+    def _onTrigger(self) -> bool:
         """
         onTrigger gets called when the Button is triggered.
         """
-        super()._onTrigger()
+        bb = super()._onTrigger()
         EventManager.subscribeToEvent(InputManager.getEvent(InputEvent.UPDATE), self._onHoldTriggerCallback)
         self._isPressed = True
+        return bb
+
 
     # -------------------- subscriptions --------------------
 

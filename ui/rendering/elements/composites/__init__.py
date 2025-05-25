@@ -1,2 +1,4 @@
-from .addons import Framed, Stacked, Grouped, Section, Dropdown
+from .addons import Framed, Grouped, Dropdown
 from .interactables import Button, Checkbox, Slider, ElementCycle, Multiselect, Dropdownselect
+
+from .section import Section
