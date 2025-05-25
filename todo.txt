@@ -1,42 +1,35 @@
 DONE:
   Atomic Elements:
-    - line
-    - box
-    - text
-    - button
-    - button -> toggle
-  
-  - buttons/toggle are not really 'atoms' because they dont get 'rendered' -> maybe move to interaction?
+    - line (parsable)
+    - box (parsable)
+    - text (parsable)
     
   Addons:
-    - framed
-    - group
-    - stacked
-    - section
-    - dropdown
+    - framed (parsable)
+    - group (parsable)
+    - dropdown (parsable)
 
   Interactables:
-    - new button (more of a click-and-done) (should also be usable for slider) = holdable
-    - checkbox
-    - slider
-    - textcycle
-
-  - CheckboxGroup + limitations
-  - Dropdown-Select
+    - button (parsable)
+    - checkbox (parsable)
+    - slider (parsable)
+    - elementcycle (parsable)
+    - multiselect (parsable)
+    - dropdownselect (parsable)
+  
+  - SectionV2 (parsable)
 
 TODO:
-  Additional Atomic Elements:
-    - image?
+  - ui (combine everything into a dynamic element that creates usable layouts)
 
-  Composite Elements:
-   [-] if compsite elements require some behavior maybe implement a module with interfaces, elements can/should implement
-    - categorize:
-      1. Addons (Revealing, Bar)
-      2. Interactables (TextInput?, DraggableRect?)
-     [3.] Popups (Hovered, Notification, Modal)
+  - Create a XML-Parser to load and store UI-layouts (in progress):
+    - rework dropdownselect (60%)
+    - rework elementcycle
+    - rework multiselect
 
-  - (in progress) Create a XML-Parser to load and store UI-layouts
+  - rework (or remove) styles
 
-
-  Potential Problems:
-    - Section: offset also scales dynamic
+  Optional:
+    - atom: image
+    - Interactables: TextInput, DraggableRect
+    - Popups (Hovered, Notification, Modal)

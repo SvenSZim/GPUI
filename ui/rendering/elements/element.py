@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any, Generic, TypeVar, override
 
 from ...utility           import Rect, iRect, Parsable, AlignType

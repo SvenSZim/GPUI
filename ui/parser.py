@@ -22,13 +22,13 @@ class Parser:
 
         attributes: dict[str, Any] = node.attrib
         attributes['inner'] = childs
+        attributes['content'] = node.text.strip() if node.text is not None else ''
         match node.tag.lower():
             case 'line' | 'l':
                 newElement = Line.parseFromArgs(attributes)
             case 'box' | 'b':
                 newElement = Box.parseFromArgs(attributes)
             case 'text' | 't':
-                attributes['content'] = node.text
                 newElement = Text.parseFromArgs(attributes)
             case 'framed' | 'fr' | 'f':
                 newElement = Framed.parseFromArgs(attributes)

@@ -16,6 +16,8 @@ class Framed(Addon[FramedCore, FramedData]):
         super().__init__(FramedCore(inner, offset=offset), renderData, active)
         self._renderData.alignInner(self)
 
+    def getArgs(self) -> dict[str, Any]:
+        return {'inner':[x.copy() for x in self._renderData.borderData] + [self._renderData.fillData.copy()], 'inset':str(self._core.getOffset())}
     
     @staticmethod
     @override

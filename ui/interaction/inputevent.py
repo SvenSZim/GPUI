@@ -68,6 +68,11 @@ class InputEvent(Enum):
     Z_DOWN      = 250
     Z_UP        = 251
 
+    ARR_LEFT    = 300
+    ARR_UP      = 302
+    ARR_RIGHT   = 304
+    ARR_DOWN    = 306
+
     
     # ---------- analog-events ----------
     UPDATE = 1000

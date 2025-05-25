@@ -1,6 +1,7 @@
 from typing import Any, Optional, override
 
 from .....utility   import Rect, AlignType
+from .....interaction   import EventManager, InputEvent, InputManager
 from ...element     import Element
 from ...elementcore import ElementCore
 
@@ -13,6 +14,7 @@ class SectionCore(ElementCore):
     SectionCore is the core object of the addon 'Section'.
     """
     ___vbox: Box
+    _buttonActive: bool
     
     __header: Optional[tuple[Element, float]]
     __footer: Optional[tuple[Element, float]]
@@ -33,7 +35,8 @@ class SectionCore(ElementCore):
         if buttonDesign is None:
             buttonDesign = [Line.parseFromArgs({'col':'white'})]
         
-        super().__init__(Rect())
+        ElementCore.__init__(self, Rect())
+        self._buttonActive = True
 
         self.__header = header
         self.__footer = footer
@@ -44,6 +47,9 @@ class SectionCore(ElementCore):
 
         self.__currentSection = 0
         self._alignInner()
+
+        InputManager.quickSubscribe(InputEvent.ARR_LEFT, self.prevSection)
+        InputManager.quickSubscribe(InputEvent.ARR_RIGHT, self.nextSection)
         if self.__sectionAmount > 1:
             self.__prevButton = Clickwrapper.parseFromArgs({
                 'inner':Framed.parseFromArgs({'inner':[Text.parseFromArgs({'content':'Prev', 'col':'white', 'fontsize':'d'})] + buttonDesign}),
@@ -157,14 +163,19 @@ class SectionCore(ElementCore):
             el.setActive(True)
 
     def prevSection(self) -> None:
-        self.setSection((self.__currentSection - 1) % self.__sectionAmount)
+        if self._buttonActive:
+            if self.getRect().collidepoint(InputManager.getMousePosition()):
+                self.setSection((self.__currentSection - 1) % self.__sectionAmount)
 
     def nextSection(self) -> None:
-        self.setSection((self.__currentSection + 1) % self.__sectionAmount)
+        if self._buttonActive:
+            if self.getRect().collidepoint(InputManager.getMousePosition()):
+                self.setSection((self.__currentSection + 1) % self.__sectionAmount)
     
     # -------------------- active-state --------------------
 
     def setActive(self, active: bool) -> None:
+        self._buttonActive = active
         if self.__header is not None:
             self.__header[0].setActive(active)
         if not active:

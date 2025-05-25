@@ -4,6 +4,8 @@ from ......utility      import Rect
 from ......interaction  import InputEvent, InputManager
 from ......display      import Surface
 from ....element        import Element
+from ....atoms          import Text, Box, Line
+from ...addons          import Framed
 from ..interactable     import Interactable
 
 from .dropdownselectcore         import DropdownselectCore
@@ -22,11 +24,31 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Dropdownselect':
         inner: list[Element] = args['inner']
+
+        strOptions: list[str] = Dropdownselect.parseList(args['content'])
+        numOptions: int = len(strOptions)
+
+        specificHeads: list[Element] = []
+        specificDropdowns: list[Element] = []
+        for arg, v in args.items():
+            match arg.lower():
+                case 'custom' | 'innerspecifiers' | 'innercustom':
+                    specifiers: list[int] = [int(Dropdownselect.parseNum(x)) for x in Dropdownselect.parseList(v)]
+                    if len(specifiers) < 2:
+                        raise ValueError('innercustom expects 2 arguments: specific head, specific dropdown')
+                    numSpecificHeads, numSpecificDropdowns = specifiers[:2]
+                    if len(inner) < numSpecificHeads + numSpecificDropdowns:
+                        print('Dropdownselect::parseFromArgs custom specifiers do not match child-count!')
+                    numOptions = min(numSpecificHeads + numOptions, numSpecificDropdowns + numOptions)
+                    specificHeads = inner[:numSpecificHeads]
+                    if numSpecificHeads < len(inner):
+                        specificDropdowns = inner[numSpecificHeads:numSpecificHeads+numSpecificDropdowns]
+
         verticalDropdown = True
         offset = 0
-        sizings: list[float] = [1.0 for _ in inner[1::2]]
+        sizings: list[float] = [1.0 for _ in range(numOptions)]
         for arg, v in args.items():
-            match arg:
+            match arg.lower():
                 case 'vertical' | 'vert':
                     verticalDropdown = True
                 case 'horizontal' | 'hor':
@@ -35,7 +57,58 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
                     offset = int(Dropdownselect.extractNum(v))
                 case 'size' | 'sizes' | 'sizing' | 'sizings':
                     sizings = list(map(Dropdownselect.parseNum, Dropdownselect.adjustList(list(map(str, sizings)), Dropdownselect.parseList(v))))
-        button = Dropdownselect(Rect(), *zip(zip(args['inner'][1::2], sizings), args['inner'][::2]), verticalDropdown=verticalDropdown, offset=offset, args=args)
+        
+        genericHead: dict[str, Any] = {'col':'white'}
+        genericDropdown: dict[str, Any] = {'col':'white'}
+        if len(specificHeads) + len(specificDropdowns) < len(inner):
+            remaining: list[Element] = inner[len(specificHeads) + len(specificDropdowns):]
+            framedTypes: list[bool] = [any([isinstance(x, tp) for tp in [Framed, Line, Box]]) for x in remaining]
+            if any(framedTypes):
+                fi: int = framedTypes.index(True)
+                framed1: Element = remaining[fi]
+                if isinstance(framed1, Framed):
+                    genericHead = framed1.getArgs()
+                else:
+                    genericHead = {'inner':[framed1]}
+                if fi+1 < len(framedTypes) and any(framedTypes[fi+1:]):
+                    f2: int = framedTypes.index(True, fi+1)
+                    framed2: Element = remaining[f2]
+                    if isinstance(framed2, Framed):
+                        genericDropdown = framed2.getArgs()
+                    else:
+                        genericDropdown = {'inner':[framed2]}
+
+        heads: list[Element] = []
+        drops: list[Element] = []
+        optidx: int = 0
+        for opt in range(numOptions):
+            useopt: bool = False
+            if opt < len(specificHeads):
+                heads.append(specificHeads[opt])
+            else:
+                ghead = genericHead.copy()
+                if 'inner' not in ghead:
+                    ghead['content'] = strOptions[optidx]
+                    heads.append(Text.parseFromArgs(ghead))
+                else:
+                    ghead['inner'] = [x.copy() for x in ghead['inner']] + [Text.parseFromArgs({'content':strOptions[optidx], 'col':'white'})]
+                    heads.append(Framed.parseFromArgs(ghead))
+                useopt = True
+            if opt < len(specificDropdowns):
+                drops.append(specificDropdowns[opt])
+            else:
+                gdrop = genericDropdown.copy()
+                if 'inner' not in gdrop:
+                    gdrop['content'] = strOptions[optidx]
+                    drops.append(Text.parseFromArgs(gdrop))
+                else:
+                    gdrop['inner'] = [x.copy() for x in gdrop['inner']] + [Text.parseFromArgs({'content':strOptions[optidx], 'col':'white'})]
+                    drops.append(Framed.parseFromArgs(gdrop))
+                useopt = True
+            if useopt:
+                optidx += 1
+        
+        button = Dropdownselect(Rect(), *zip(zip(drops, sizings), heads), verticalDropdown=verticalDropdown, offset=offset, args=args)
         hasTrigger: bool = False
         for tag, value in args.items():
             match tag:

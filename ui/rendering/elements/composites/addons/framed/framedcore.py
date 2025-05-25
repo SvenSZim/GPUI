@@ -20,6 +20,9 @@ class FramedCore(AddonCore[Element]):
         self._inner.align(self, offset=self.__offset)
         self._inner.alignSize(self, absoluteOffset=-2 * self.__offset)
 
+    def getOffset(self) -> int:
+        return self.__offset
+
     @override
     def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]) -> tuple[int, int]:
         x, y = self._inner.getInnerSizing(elSize, args)

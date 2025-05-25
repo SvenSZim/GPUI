@@ -1,5 +1,5 @@
 
-from .style import RenderStyle, StyleManager
+from .style import StyleManager
 
 from .renderer import Renderer
 

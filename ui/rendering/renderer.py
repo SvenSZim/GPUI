@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import TypeVar
 
 from ..display import Font, FontManager, Surface, SurfaceDrawer
-from .style import RenderStyle
 
 RendererCls = TypeVar('RendererCls', bound='Renderer')
 
@@ -72,14 +71,14 @@ class Renderer(ABC):
     # #################### CLASS-METHODS ####################
 
     _drawer: type[SurfaceDrawer] | None = None
-    _renderstyle: RenderStyle | None = None
+    _renderstyle: str = ''
 
     __cachedSortedRenderer: list['Renderer'] = []
 
     __postRenderQueue: list['Renderer'] = []
 
     @staticmethod
-    def init(drawer: type[SurfaceDrawer], font: type[Font], renderstyle: RenderStyle=RenderStyle.NONE) -> None:
+    def init(drawer: type[SurfaceDrawer], font: type[Font], renderstyle: str='') -> None:
         """
         init initializes the meta info necessary for rendering the UI-Elements on the screen.
 

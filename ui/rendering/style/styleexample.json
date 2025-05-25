@@ -1,0 +1,11 @@
+{
+  "lineV1":{
+    "col":"white"
+  },
+  "framed":{
+    "DEPTH":true,
+    "inner":[
+      "lineV1"
+    ]
+  }
+}

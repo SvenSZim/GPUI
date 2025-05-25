@@ -75,6 +75,10 @@ class PygameInputHandler(InputHandler):
                 case pg.KEYDOWN:
                     if pg.key.get_pressed()[pg.K_ESCAPE]:
                         EventManager.triggerEvent(PygameInputHandler.inputEvents[InputEvent.QUIT])
+                    if pg.key.get_pressed()[pg.K_LEFT]:
+                        EventManager.triggerEvent(PygameInputHandler.inputEvents[InputEvent.ARR_LEFT])
+                    if pg.key.get_pressed()[pg.K_RIGHT]:
+                        EventManager.triggerEvent(PygameInputHandler.inputEvents[InputEvent.ARR_RIGHT])
                     for c in range(ord('a'), ord('z')+1):
                         if pg.key.get_pressed()[pg.key.key_code(chr(c))]:
                             EventManager.triggerEvent(PygameInputHandler.inputEvents[InputEvent.fromStr(chr(c))])

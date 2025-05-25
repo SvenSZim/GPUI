@@ -68,12 +68,12 @@ class Clickable(iRect, ABC):
             return self._onTrigger()
         return False
 
-    def passiveTrigger(self) -> bool:
+    def passiveTrigger(self) -> None:
         """
         passiveTrigger is the global alternative of activeTrigger which does not
         check for the mouse to be inside the bounds. (useful for using keys to trigger buttons)
         """
-        return self._onTrigger()
+        self._onTrigger()
 
     # -------------------- managing-trigger-events --------------------
 
