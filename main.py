@@ -4,7 +4,7 @@ import pygame as pg
 
 from pygamesetup import PygameDrawer, PygameSurface, PygameFont, PygameInputHandler
 
-from ui import Rect, Parser, InputManager, InputEvent, Renderer
+from ui import Rect, Parser, InputManager, InputEvent, Element, StyleManager
 
 layout_paths: list[tuple[str, float]] = []
 filepath: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'setup.json')
@@ -17,7 +17,7 @@ def main():
 
     # ------------------------------ setup ------------------------------
     InputManager.init(PygameInputHandler)
-    Renderer.init(PygameDrawer, PygameFont)
+    Element.init(PygameDrawer, PygameFont)
 
     running: bool = True
 

@@ -11,14 +11,14 @@ from .elementdata         import ElementData
 
 ElementCls = TypeVar('ElementCls', bound='Element')
 
-Core         = TypeVar('Core'        , bound=ElementCore) 
-Data         = TypeVar('Data'        , bound=ElementData)
+Core = TypeVar('Core', bound=ElementCore) 
+Data = TypeVar('Data', bound=ElementData)
 
 class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
 
     _layoutUpdateEvent: str = EventManager.createEvent()
 
-    _core: Core         # refering UI-Element which gets rendered by the Renderer
+    _core      : Core   # which gets rendered by the Renderer
     _renderData: Data   # needed data for rendering the element onto the screen
 
     # -------------------- static --------------------

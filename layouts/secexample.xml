@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <section spacing="20" limit="6">
+  <style name="moon">
+    <framed id="f1">
+      <line color="blue"></line>
+      <box color="gray"></box>
+      <text></text>
+    </framed>
+    <framed id="f2">
+      <line color="white"></line>
+      <box color="blue"></box>
+      <text></text>
+    </framed>
+    <framed id="f3">
+      <line color="pink"></line> <box color="beige" inset="5"></box>
+      <text color="violet" size="m">CLICK ME</text>
+    </framed>
+  </style>
   <multiselect limit="3" offset="20">
-    <framed>
-      <line color="(255,0,0)"></line> <box></box>
-    </framed>
-    <framed>
-      <line color="(125,125,0)"></line> <box></box>
-    </framed>
-    <framed>
-      <line color="(0,255,0)"></line> <box></box>
-    </framed>
-    <framed>
-      <line color="(0,125,125)"></line> <box></box>
-    </framed>
-    <framed>
-      <line color="(0,0,255)"></line> <box></box>
-    </framed>
-    <framed>
-      <line color="(125,0,125)"></line> <box></box>
-    </framed>
+    <f3 style="moon"></f3>
+    <f3 style="moon"></f3>
+    <f3 style="moon"></f3>
+    <f3 style="moon"></f3>
+    <f3 style="moon"></f3>
+    <f3 style="moon"></f3>
   </multiselect>
-  <dropselect spacing="10" custom="2,1">
+  <dropselect custom="2,1">
     Option1, Option2, Option3, Option4, Option5
     <framed>
       <line color="red"></line>
@@ -36,12 +40,8 @@
       <box color="green"></box>
       <text color="blue" fontsize="d">Hello World</text>
     </framed>
-    <framed>
-      <line color="blue"></line>
-      <box color="gray"></box>
-      <text></text>
-    </framed>
-    <box color="blue"></box>
+    <f1 style="moon"></f1>
+    <f2 style="moon"></f2>
   </dropselect>
   <cycle>
     <box color="(255,0,0)"></box>

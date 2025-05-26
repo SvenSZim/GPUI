@@ -18,6 +18,7 @@ DONE:
     - dropdownselect (parsable)
   
   - SectionV2 (parsable)
+  - StyleV2
 
 TODO:
   - ui (combine everything into a dynamic element that creates usable layouts)
@@ -26,8 +27,6 @@ TODO:
     - rework dropdownselect (60%)
     - rework elementcycle
     - rework multiselect
-
-  - rework (or remove) styles
 
   Optional:
     - atom: image
