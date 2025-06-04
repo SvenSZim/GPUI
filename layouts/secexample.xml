@@ -4,16 +4,16 @@
     <framed id="f1">
       <line color="blue"></line>
       <box color="gray"></box>
-      <text></text>
+      <text color="darkgreen"></text>
     </framed>
     <framed id="f2">
       <line color="white"></line>
       <box color="blue"></box>
-      <text></text>
+      <text color="black"></text>
     </framed>
     <framed id="f3">
       <line color="pink"></line> <box color="beige" inset="5"></box>
-      <text color="violet" size="m">CLICK ME</text>
+      <text color="black" size="m">CLICK ME</text>
     </framed>
   </style>
   <multiselect limit="3" offset="20">
@@ -24,14 +24,14 @@
     <f3 style="moon"></f3>
     <f3 style="moon"></f3>
   </multiselect>
-  <dropselect custom="2,1">
+  <dropselect style="moon" head="f1" drop="f2" customheads="2">
     Option1, Option2, Option3, Option4, Option5
     <framed>
       <line color="red"></line>
       <box color="red"></box>
       <text color="blue" fontsize="d">Hello!</text>
     </framed>
-    <framed>
+    <framed id="imp">
       <line color="red"></line>
       <text color="white" fontsize="d">IMPORTANT!</text>
     </framed>

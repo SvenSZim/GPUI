@@ -163,6 +163,10 @@ class Parsable(ABC):
 
 
     @staticmethod
+    def getMinRequiredChildren() -> int:
+        return 0
+
+    @staticmethod
     @abstractmethod
     def parseFromArgs(args: dict[str, Any]) -> 'Parsable':
         pass

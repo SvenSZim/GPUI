@@ -44,6 +44,9 @@ def main():
     layout = loadLayout(layout_paths[0])
     layout.setActive(True)
 
+    txt = Parser.getElementByID('imp')
+    txt.set({'content':'UNIMPORTANT'})
+
     # ------------------------------ runtime-loop ------------------------------
     rt = 0
     fc = 0
