@@ -7,7 +7,7 @@ from .style import StyleManager
 
 from .elements import Element, Line, Box, Text
 from .elements import Framed, Grouped, Dropdown
-from .elements import Button, Checkbox, Slider, ElementCycle, Multiselect, Dropdownselect
+from .elements import Button, Toggle, Slider, Multiselect, Dropdownselect
 from .elements import Section
 
 class Parser:
@@ -78,8 +78,14 @@ class Parser:
             return None, {}
 
         # -------------------- elements --------------------
-        newElement: Optional[Element] = None
         attributes['content'] = node.text.strip() if node.text is not None else ''
+        if any([x in attributes for x in styleTags]):
+            attributes['fixstyle'] = attributes[styleTags[[x in attributes for x in styleTags].index(True)]]
+        else:
+            attributes['fixstyle'] = StyleManager.defaultStyle
+
+
+        newElement: Optional[Element] = None
         match node.tag.lower():
             case 'line' | 'l':
                 if len(childs) >= Line.getMinRequiredChildren():
@@ -99,18 +105,23 @@ class Parser:
             case 'dropdown' | 'dpd':
                 if len(childs) >= Dropdown.getMinRequiredChildren():
                     newElement = Dropdown.parseFromArgs(attributes)
+            
             case 'button':
                 if len(childs) >= Button.getMinRequiredChildren():
                     newElement = Button.parseFromArgs(attributes)
+            
             case 'checkbox' | 'selector':
-                if len(childs) >= Checkbox.getMinRequiredChildren():
-                    newElement = Checkbox.parseFromArgs(attributes)
+                attributes['typ'] = 'checkbox'
+                if len(childs) >= Toggle.getMinRequiredChildren():
+                    newElement = Toggle.parseFromArgs(attributes)
+            case 'elementcycle' | 'cycle' | 'cyclebutton':
+                attributes['typ'] = 'cycle'
+                if len(childs) >= Toggle.getMinRequiredChildren():
+                    newElement = Toggle.parseFromArgs(attributes)
+
             case 'slider':
                 if len(childs) >= Slider.getMinRequiredChildren():
                     newElement = Slider.parseFromArgs(attributes)
-            case 'elementcycle' | 'cycle' | 'cyclebutton':
-                if len(childs) >= ElementCycle.getMinRequiredChildren():
-                    newElement = ElementCycle.parseFromArgs(attributes)
             case 'multiselect' | 'multi':
                 if len(childs) >= Multiselect.getMinRequiredChildren():
                     newElement = Multiselect.parseFromArgs(attributes)
@@ -121,15 +132,20 @@ class Parser:
                 if len(childs) >= Section.getMinRequiredChildren():
                     newElement = Section.parseFromArgs(attributes)
             case _:
+                styleValue: str = StyleManager.defaultStyle
                 if any([x in attributes for x in styleTags]):
                     styleValue: str = attributes[styleTags[[x in attributes for x in styleTags].index(True)]]
-                    prefNode: Optional[ET.Element] = StyleManager.getStyledElementNode(node.tag.lower(), styleValue)
-                    if prefNode:
-                        prefElement: Optional[Element] = Parser.__fromNode(prefNode)[0]
-                        if prefElement is not None:
-                            newElement = prefElement
+                prefNode: Optional[ET.Element] = StyleManager.getStyledElementNode(node.tag.lower(), styleValue)
+                if prefNode:
+                    prefElement: Optional[Element] = Parser.__fromNode(prefNode)[0]
+                    if prefElement is not None:
+                        newElement = prefElement
         if newElement is None:
             return None, {}
+
+        # -------------------- post-parsing --------------------
+        if 'text' in attributes:
+            newElement.set({'content':attributes['text']}, sets=1)
 
         # -------------------- id --------------------
         newID: Optional[str] = getID(attributes, idTags, set(namedElements))

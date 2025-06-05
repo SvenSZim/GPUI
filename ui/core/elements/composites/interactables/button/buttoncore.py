@@ -8,8 +8,8 @@ class ButtonCore(InteractableCore, Holdable):
     """
     ButtonCore is the core object of the interactable 'Button'.
     """
-    def __init__(self, rect: Rect, buttonActive: bool=True) -> None:
-        InteractableCore.__init__(self, rect)
+    def __init__(self, buttonActive: bool=True) -> None:
+        InteractableCore.__init__(self, Rect())
         Holdable.__init__(self, buttonActive=buttonActive)
 
     @override

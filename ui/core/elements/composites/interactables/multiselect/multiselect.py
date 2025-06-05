@@ -47,7 +47,7 @@ class Multiselect(Interactable[MultiselectCore, MultiselectData]):
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
+    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1) -> int:
         """
         set is a general access point to an element. It has some basic functionality implemented and is overridden
         by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
@@ -56,39 +56,11 @@ class Multiselect(Interactable[MultiselectCore, MultiselectData]):
 
         Returns (int): the amount of 'sets' applied
         """
-        super().set(args)
+        return super().set(args, sets, maxDepth)
         for tag, value in args.items():
             match tag:
-                case 'subscribeToSelectorSelect':
-                    if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
-                        self._core.subscribeToSelectorSelect(value[0], value[1])
-                    else:
-                        raise ValueError('subscribeToSelectorSelect expects 2-tuple with the toggle state (int) and a callbackID')
-                case 'unsubscribeToSelectorSelect':
-                    if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
-                        self._core.unsubscribeToSelectorSelect(value[0], value[1])
-                    else:
-                        raise ValueError('unsubscribeToSelectorSelect expects 2-tuple with the toggle state (int) and a callbackID')
-                case 'quickSubscribeToSelectorSelect':
-                    if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], Callable) and isinstance(value[2], list):
-                        self._core.quicksubscribeToSelectorSelect(value[0], value[1], *value[2])
-                    else:
-                        raise ValueError('quickSubscribeToSelectorSelect expects a 3-tuple the toggle state (int), with a Callable and a list of arguments')
-                case 'subscribeToSelectorSelect':
-                    if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
-                        self._core.subscribeToSelectorDeselect(value[0], value[1])
-                    else:
-                        raise ValueError('subscribeToSelectorDeselect expects 2-tuple with the toggle state (int) and a callbackID')
-                case 'unsubscribeToSelectorDeselect':
-                    if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
-                        self._core.unsubscribeToSelectorDeselect(value[0], value[1])
-                    else:
-                        raise ValueError('unsubscribeToSelectorDeselect expects 2-tuple with the toggle state (int) and a callbackID')
-                case 'quickSubscribeToSelectorDeselect':
-                    if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], Callable) and isinstance(value[2], list):
-                        self._core.quicksubscribeToSelectorDeselect(value[0], value[1], *value[2])
-                    else:
-                        raise ValueError('quickSubscribeToSelectorDeselect expects a 3-tuple the toggle state (int), with a Callable and a list of arguments')
+                case _:
+                    pass
 
     # -------------------- rendering --------------------
 

@@ -1,12 +1,7 @@
-from os import path as os_path
-from json import load as json_load
 import xml.etree.ElementTree as ET
 from typing import Optional
 
-DEFAULTS: dict[str, str] = {}
-filepath: str = os_path.join(os_path.dirname(os_path.abspath(__file__)), 'defaults.json')
-with open(filepath,'r') as file:
-    DEFAULTS = json_load(file)
+from ...utility import StyledDefault
 
 class StyleManager:
     """
@@ -40,7 +35,7 @@ class StyleManager:
         return None
 
     @staticmethod
-    def getDefault(tag: str) -> Optional[ET.Element]:
-        if StyleManager.defaultStyle in StyleManager.styles and tag in DEFAULTS:
-            return StyleManager.getStyledElementNode(DEFAULTS[tag], StyleManager.defaultStyle)
+    def getDefault(tag: StyledDefault) -> Optional[ET.Element]:
+        if StyleManager.defaultStyle in StyleManager.styles:
+            return StyleManager.getStyledElementNode(str(tag), StyleManager.defaultStyle)
         return None

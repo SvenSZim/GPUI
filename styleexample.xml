@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style name="moon">
+  
+  <line id="border" col="white"></line>
+
+  <box id="button_on" col="blue" inset="0.05"></box>
+  <box id="button_off" col="blue" inset="0.4"></box>
+  <button id="button_def"></button>
+  <framed id="button_txt">
+    <line color="white"></line>
+    <box color="blue"></box>
+    <button>
+      <text col="white"></text>
+    </button>
+  </framed>
+  
+  <group id="checkbox_on">
+    <group hor="">
+      <line col="white"></line><line col="white" flip=""></line>
+    </group>
+    <group hor="">
+      <line col="white" flip=""></line><line col="white"></line>
+    </group>
+  </group>
+  <box id="checkbox_off" col="green" inset="0.4"></box>
+  
+  <framed id="textbox">
+    <line color="blue"></line>
+    <box color="violet"></box>
+    <text color="darkgreen"></text>
+  </framed>
+
   <framed id="f1">
     <line color="blue"></line>
     <box color="gray"></box>
@@ -10,8 +40,13 @@
     <box color="blue"></box>
     <text color="black"></text>
   </framed>
-  <framed id="f3">
-    <line color="pink"></line><box color="beige" inset="5"></box>
-    <text color="black" size="m">CLICK ME</text>
-  </framed>
+  <checkbox id="f3">
+    <framed>
+      <line color="pink"></line><box color="beige" inset="5"></box>
+      <text color="black" size="m">CLICK ME</text>
+    </framed>
+    <framed>
+      <text color="pink" size="m">CLICK ME</text>
+    </framed>
+  </checkbox>
 </style>

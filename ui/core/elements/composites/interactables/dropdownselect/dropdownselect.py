@@ -1,44 +1,37 @@
-from typing import Any, Callable, override
+from typing import Any, Callable, Optional, override
 
-from ......utility      import Rect
+from ......utility      import StyledDefault
 from ......interaction  import InputEvent, InputManager
 from ......display      import Surface
 from ....element        import Element
-from ....atoms          import Text
+from ....atoms          import Box
 from ..interactable     import Interactable
 
 from .dropdownselectcore         import DropdownselectCore
 from .dropdownselectdata         import DropdownselectData
 
-default_nohead: dict[str, Any] = {'col':'white', 'content':'', 'fontsize':'d'}
-default_nodpd : dict[str, Any] = {'col':'white', 'content':'', 'fontsize':'d'}
-default_generic_head: str = 'dpdshead'
-default_generic_dpd : str = 'dpdsbutton'
-
 class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, core: DropdownselectCore, active: bool = True) -> None:
-
-        super().__init__(core, DropdownselectData(), active)
+    def __init__(self, core: DropdownselectCore, renderData: DropdownselectData, active: bool = True) -> None:
+        super().__init__(core, renderData, active)
+        self._renderData.alignInner(self)
 
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Dropdownselect':
         inner: list[Element] = args['inner']
+        style: str = args['fixstyle']
 
         strOptions: list[str] = Dropdownselect.parseList(args['content'])
         numOptions: int = len(strOptions)
 
-        style: str = ''
-        genericHead: str = default_generic_head
-        genericDropdown: str = default_generic_dpd
+        genericHead: str = str(StyledDefault.TEXTBOX)
+        genericDropdown: str = str(StyledDefault.BUTTON_TXT)
         specificHeads: list[Element] = []
         specificDropdowns: list[Element] = []
         for arg, v in args.items():
-            if arg in Dropdownselect.styleTags:
-                style = str(v).strip()
             match arg.lower():
                 case 'customheads' | 'custheads' | 'specificheads' | 'spheads':
                     numSpecificHeads: int = int(Dropdownselect.parseNum(v))
@@ -65,7 +58,9 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
                 case 'size' | 'sizes' | 'sizing' | 'sizings':
                     dpdOptions['size'] = v
 
-        heads: list[Element] = []
+        startHead: Optional[Element] = Dropdownselect.getDefaultElement(StyledDefault.TEXTBOX)
+        startHead.set({'content':'SELECT'}) if startHead is not None else None
+        heads: list[Element] = [Box.parseFromArgs({}) if startHead is None else startHead]
         drops: list[Element] = []
         optidx: int = 0
         for opt in range(numOptions):
@@ -74,7 +69,7 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
             else:
                 ghead = Dropdownselect.getStyledElement(genericHead, style)
                 if ghead is None:
-                    ghead = Text.parseFromArgs(default_nohead)
+                    ghead = Box.parseFromArgs({})
                 ghead.set({'content':strOptions[optidx]}, 1)
                 heads.append(ghead)
             if opt < len(specificDropdowns):
@@ -82,12 +77,12 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
             else:
                 gdrop = Dropdownselect.getStyledElement(genericDropdown, style)
                 if gdrop is None:
-                    gdrop = Text.parseFromArgs(default_nodpd)
+                    gdrop = Box.parseFromArgs({})
                 gdrop.set({'content':strOptions[optidx]}, 1)
                 drops.append(gdrop)
                 optidx += 1
 
-        button = Dropdownselect(DropdownselectCore(Rect(), heads, drops, **dpdOptions))
+        button = Dropdownselect(DropdownselectCore(drops, **dpdOptions), DropdownselectData(heads))
 
         hasTrigger: bool = False
         for tag, value in args.items():
@@ -122,24 +117,32 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
 
         Returns (int): the amount of 'sets' applied
         """
-        super().set(args, sets, maxDepth)
+        s: int = super().set(args, sets, maxDepth)
         for tag, value in args.items():
             match tag:
                 case 'subscribeToToggleState':
+                    s = 1
                     if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
                         self._core.subscribeToToggleState(value[0], value[1])
                     else:
                         raise ValueError('subscribeToSelect expects 2-tuple with the toggle state (int) and a callbackID')
                 case 'unsubscribeToToggleState':
+                    s = 1
                     if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
                         self._core.unsubscribeToToggleState(value[0], value[1])
                     else:
                         raise ValueError('unsubscribeToToggleState expects 2-tuple with the toggle state (int) and a callbackID')
                 case 'quickSubscribeToToggleState':
+                    s = 1
                     if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], Callable) and isinstance(value[2], list):
                         self._core.quickSubscribeToToggleState(value[0], value[1], *value[2])
                     else:
                         raise ValueError('quickSubscribeToToggleState expects a 3-tuple the toggle state (int), with a Callable and a list of arguments')
+        if (maxDepth < 0 or maxDepth > 1) and (sets < 0 or s < sets):
+            s += self._renderData.setinner(args, sets-s, maxDepth-1)
+        if (maxDepth < 0 or maxDepth > 1) and (sets < 0 or s < sets):
+            s += self._core.setinner(args, sets-s, maxDepth-1)
+        return s
     
     # -------------------- rendering --------------------
 
@@ -155,4 +158,4 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
 
         if self.isActive():
             self._core.getDropdown().render(surface)
-            self._core.getOuter().render(surface)
+            self._renderData.heads[self._core.getCurrentToggleState()].render(surface)

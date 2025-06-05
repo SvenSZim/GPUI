@@ -1,5 +1,6 @@
-from typing import Any, override
+from typing import Any, Optional, override
 
+from ......utility   import StyledDefault
 from ......display   import Surface
 from ....element     import Element
 from ....atoms       import Box, Line
@@ -18,9 +19,6 @@ class Framed(Addon[FramedCore, FramedData]):
         super().__init__(FramedCore(inner, offset=offset), renderData, active)
         self._renderData.alignInner(self)
 
-    def getArgs(self) -> dict[str, Any]:
-        return {'inner':[x.copy() for x in self._renderData.borderData] + [self._renderData.fillData.copy()], 'inset':str(self._core.getOffset())}
-
     @staticmethod
     @override
     def getMinRequiredChildren() -> int:
@@ -30,24 +28,60 @@ class Framed(Addon[FramedCore, FramedData]):
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Framed':
         inner: list[Element] = args['inner']
+        style: str = args['fixstyle']
 
         offset: int = 0
+        str_bg: str = str(StyledDefault.BACKGROUND)
+        str_border: str = str(StyledDefault.BORDER)
         for arg, v in args.items():
             match arg:
                 case 'offset' | 'padding' | 'inset':
                     offset = int(Framed.extractNum(v))
+                case 'bg' | 'background':
+                    str_bg = v.strip()
+                case 'border':
+                    str_border = v.strip()
+        
+        pbg: Optional[Element] = Framed.getStyledElement(str_bg, style)
+        pborders: tuple[Optional[Element], Optional[Element], Optional[Element], Optional[Element]] =\
+                 (Framed.getStyledElement(str_border, style), Framed.getStyledElement(str_border, style),
+                  Framed.getStyledElement(str_border, style), Framed.getStyledElement(str_border, style))
+        bg: Element = Box.parseFromArgs({}) if pbg is None else pbg
+        borders: tuple[Element, Element, Element, Element] =\
+                (Line.parseFromArgs({}) if pborders[0] is None else pborders[0],
+                 Line.parseFromArgs({}) if pborders[1] is None else pborders[1],
+                 Line.parseFromArgs({}) if pborders[2] is None else pborders[2],
+                 Line.parseFromArgs({}) if pborders[3] is None else pborders[3])
 
-        types = [0 if isinstance(x, Line) else 1 if isinstance(x, Box) else 2 for x in inner]
         if len(inner) == 1:
-            return Framed(inner[0], FramedData.parseFromArgs(args), offset=offset)
-        elif 2 in types:
-            return Framed(inner[types.index(2)], FramedData.parseFromArgs(args), offset=offset)
-        elif types.count(1) > 1:
-            return Framed(inner[1-types.index(1)], FramedData.parseFromArgs(args), offset=offset)
-        elif 1 in types:
-            return Framed(inner[types.index(1)], FramedData.parseFromArgs(args), offset=offset)
+            return Framed(inner[0], FramedData(bg, borders), offset=offset)
         else:
-            raise ValueError("No frameable children in Framed!")
+            types = [0 if isinstance(x, Line) else 1 if isinstance(x, Box) else 2 for x in inner]
+            if 0 in types:
+                if types.count(0) > 1:
+                    bds = list(borders)
+                    b = 0
+                    for i, k in enumerate(types):
+                        if k == 0:
+                            bds[b] = inner[i]
+                            b += 1
+                            if b > 3:
+                                break
+                    borders = (bds[0], bds[1], bds[2], bds[3])
+                else:
+                    b = inner[types.index(0)]
+                    assert isinstance(b, Line)
+                    borders = (b, b.copy(), b.copy(), b.copy())
+            if 2 in types:
+                if 1 in types:
+                    bg = inner[types.index(1)]
+                return Framed(inner[types.index(2)], FramedData(bg, borders), offset=offset)
+            elif types.count(1) > 1:
+                return Framed(inner[types.index(1, types.index(1)+1)], FramedData(inner[types.index(1)], borders), offset=offset)
+            elif 1 in types:
+                return Framed(inner[types.index(1)], FramedData(bg, borders), offset=offset)
+            else:
+                raise ValueError("No frameable children in Framed!")
 
     #-------------------- access-point --------------------
 

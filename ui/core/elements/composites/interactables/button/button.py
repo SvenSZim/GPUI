@@ -1,27 +1,50 @@
-from typing import Any, Callable, override
+from typing import Any, Callable, Optional, override
 
-from ......utility   import Rect
-from ......display   import Surface
-from ......interaction import InputEvent, InputManager
-from ..interactable  import Interactable
+from ......utility      import StyledDefault
+from ......display      import Surface
+from ......interaction  import InputEvent, InputManager
 
-from .buttoncore         import ButtonCore
-from .buttondata         import ButtonData
+from ....element    import Element
+from ....atoms      import Box
+from ..interactable import Interactable
+
+from .buttoncore    import ButtonCore
+from .buttondata    import ButtonData
 
 class Button(Interactable[ButtonCore, ButtonData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, renderData: ButtonData, buttonActive: bool=True, active: bool = True) -> None:
+    def __init__(self, off: Element, on: Optional[Element], buttonActive: bool=True, active: bool = True) -> None:
 
-        super().__init__(ButtonCore(rect, buttonActive), renderData, active)
+        super().__init__(ButtonCore(buttonActive), ButtonData(off, on), active)
         
         self._renderData.alignInner(self)
     
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Button':
-        button: Button = Button(Rect(), ButtonData.parseFromArgs(args))
+        inner: list[Element] = args['inner']
+        style: str = args['fixstyle']
+        off: Element
+        on: Optional[Element]
+        bactive: bool = True
+        match len(inner):
+            case 0:
+                poff: Optional[Element] = Button.getStyledElement(args['off'], style) if 'off' in args else\
+                                          Button.getStyledElement(StyledDefault.BUTTON_OFF, style)
+                off = Box.parseFromArgs({}) if poff is None else poff
+                on = Button.getStyledElement(args['off'], style) if 'off' in args else\
+                     Button.getStyledElement(StyledDefault.BUTTON_ON, style)
+            case 1:
+                off = inner[0]
+                on = Button.getStyledElement(args['off'], style) if 'off' in args else\
+                     Button.getStyledElement(StyledDefault.BUTTON_ON, style)
+            case _:
+                off = inner[0]
+                on = inner[1]
+
+        button: Button = Button(off, on, buttonActive=bactive)
         hasTrigger: bool = False
         for tag, value in args.items():
             match tag:
@@ -51,7 +74,7 @@ class Button(Interactable[ButtonCore, ButtonData]):
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
+    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1) -> int:
         """
         set is a general access point to an element. It has some basic functionality implemented and is overridden
         by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
@@ -60,24 +83,36 @@ class Button(Interactable[ButtonCore, ButtonData]):
 
         Returns (int): the amount of 'sets' applied
         """
-        super().set(args)
+        s: int = super().set(args, sets, maxDepth)
         for tag, value in args.items():
             match tag:
                 case 'subscribeToHold':
+                    s = 1
                     if isinstance(value, str):
                         self._core.subscribeToHold(value)
                     else:
                         raise ValueError('subscribeToHold expects a callbackID')
                 case 'unsubscribeToHold':
+                    s = 1
                     if isinstance(value, str):
                         self._core.unsubscribeToHold(value)
                     else:
                         raise ValueError('unsubscribeToHold expects a callbackID')
                 case 'quickSubscribeToHold':
+                    s = 1
                     if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
                         self._core.quickSubscribeToHold(value[0], *value[1])
                     else:
                         raise ValueError('quickSubscribeToHold expects a 2-tuple with a Callable and a list of arguments')
+                case 'buttonCheck':
+                    s = 1
+                    if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
+                        value[0](*value[1])
+                    else:
+                        raise ValueError('buttonCheck expects a 2-tuple with a Callable and a list of arguments')
+        if (maxDepth < 0 or maxDepth > 1) and (sets < 0 or s < sets):
+            s += self._renderData.setinner(args, sets-s, maxDepth-1)
+        return s
 
     # -------------------- rendering --------------------
 
@@ -92,7 +127,7 @@ class Button(Interactable[ButtonCore, ButtonData]):
         assert self._drawer is not None
 
         if self._active:
-            if self._core.isPressed():
-                self._renderData.fillData.render(surface)
-                self._renderData.crossData[0].render(surface)
-                self._renderData.crossData[1].render(surface)
+            if self._renderData.on is not None and self._core.isPressed():
+                self._renderData.on.render(surface)
+            else:
+                self._renderData.off.render(surface)

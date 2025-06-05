@@ -28,6 +28,7 @@ def main():
     # ------------------------------ load-layouts ------------------------------
  
     Parser.loadStyleFromXML("styleexample.xml")
+    Parser.setDefaultStyle('moon')
     layout = Parser.loadLayoutFromXML("layoutexample.xml")
     relSize = (0.7, 0.7)
     layout.align(Rect(topleft=(int(screen_size[0]*(1-relSize[0])*0.5),int(screen_size[1]*(1-relSize[1])*0.5))))

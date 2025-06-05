@@ -2,7 +2,7 @@ from abc import ABC
 from typing import Any, Generic, Optional, TypeVar, override
 import xml.etree.ElementTree as ET
 
-from ...utility           import Rect, iRect, Parsable, AlignType
+from ...utility           import Rect, iRect, Parsable, AlignType, StyledDefault
 from ...interaction       import EventManager
 from ..renderer           import Renderer
 from ..style              import StyleManager
@@ -18,10 +18,6 @@ Data = TypeVar('Data', bound=ElementData)
 
 class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
 
-    # -------------------- default-info --------------------
-
-
-
     # -------------------- static --------------------
 
     styleTags: list[str] = ['style', 'styled', 'styleid', 'styledid']
@@ -35,10 +31,20 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
     parserResponse: 'Optional[Element]' = None
 
     @staticmethod
-    def getStyledElement(element: str, stylename: str) -> 'Optional[Element]':
-        Element.parserRequest = StyleManager.getStyledElementNode(element, stylename)
+    def getStyledElement(element: str | StyledDefault, stylename: str) -> 'Optional[Element]':
+        Element.parserRequest = StyleManager.getStyledElementNode(str(element), stylename)
         EventManager.triggerEvent(Element.parserCallEvent)
-        return Element.parserResponse
+        resp: Optional[Element] = Element.parserResponse
+        Element.parserResponse = None
+        return resp
+
+    @staticmethod
+    def getDefaultElement(tag: StyledDefault) -> 'Optional[Element]':
+        Element.parserRequest = StyleManager.getDefault(tag)
+        EventManager.triggerEvent(Element.parserCallEvent)
+        resp: Optional[Element] = Element.parserResponse
+        Element.parserResponse = None
+        return resp
 
     # -------------------- creation --------------------
 

@@ -1,8 +1,9 @@
 from typing import Any, Optional, override
 
+from .....utility import StyledDefault
 from .....display   import Surface
 from ...element     import Element
-from ...atoms       import Text
+from ...atoms       import Text, Box
 
 from .sectioncore         import SectionCore
 from .sectiondata         import SectionData
@@ -13,7 +14,13 @@ class Section(Element[SectionCore, SectionData]):
 
     def __init__(self, renderData: SectionData, header: Optional[tuple[Element, float]], footer: Optional[tuple[Element, float]],
                  *inner: tuple[Element, float], innerLimit: float=5.0, offset: int=0, active: bool = True) -> None:
-        super().__init__(SectionCore(header, footer, *inner, innerLimit=innerLimit, offset=offset), renderData, active)
+        btn1: Optional[Element] = Section.getDefaultElement(StyledDefault.BUTTON_TXT)
+        btn2: Optional[Element] = Section.getDefaultElement(StyledDefault.BUTTON_TXT)
+        if btn1 is None:
+            btn1 = Box.parseFromArgs({})
+        if btn2 is None:
+            btn2 = Box.parseFromArgs({})
+        super().__init__(SectionCore(header, footer, (btn1, btn2), *inner, innerLimit=innerLimit, offset=offset), renderData, active)
         self._renderData.alignInner(self._core.getVBox(), (header[1]/self._core.getTotalRelHeight() if header is not None else 0.0,
                                                            footer[1]/self._core.getTotalRelHeight() if footer is not None else 0.0))
     
@@ -34,7 +41,7 @@ class Section(Element[SectionCore, SectionData]):
                 case 'limit' | 'innerlimit' | 'inneramount':
                     limit = int(Section.extractNum(v))
         return Section(SectionData.parseFromArgs({}), (Text.parseFromArgs({'content':'Cool Section', 'fontsize':'d', 'col':'white'}), 2.0),
-                       (Text.parseFromArgs({'content':'Cool Footer', 'col':'red'}), 0.5), *zip(inner, sizings), innerLimit=limit, offset=offset)
+                       (Text.parseFromArgs({'content':'Cool Footer', 'col':'red'}), 0.9), *zip(inner, sizings), innerLimit=limit, offset=offset)
 
     # -------------------- active-state --------------------
 
@@ -79,3 +86,4 @@ class Section(Element[SectionCore, SectionData]):
         # separators
         self._renderData.borderData[0].render(surface)
         self._renderData.borderData[1].render(surface)
+
