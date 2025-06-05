@@ -3,6 +3,9 @@ from typing import Any, override
 
 from ..interactabledata import InteractableData
 
+from .....elements import Element
+from ...addons import Grouped
+
 @dataclass
 class MultiselectData(InteractableData):
     """
@@ -10,7 +13,13 @@ class MultiselectData(InteractableData):
     for the interactable 'Multiselect'.
     """
 
+    group: Grouped
+
+    def alignInner(self, against: Element):
+        self.group.align(against)
+        self.group.alignSize(against)
+
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'MultiselectData':
-        return MultiselectData()
+        return MultiselectData(Grouped.parseFromArgs({}))

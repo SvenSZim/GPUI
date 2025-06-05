@@ -4,15 +4,20 @@
   <line id="border" col="white"></line>
 
   <box id="button_on" col="blue" inset="0.05"></box>
-  <box id="button_off" col="blue" inset="0.4"></box>
+  <box id="button_off"></box>
   <button id="button_def"></button>
-  <framed id="button_txt">
-    <line color="white"></line>
-    <box color="blue"></box>
-    <button>
+  <button id="button_txt">
+    <framed>
+      <line color="white"></line>
+      <box inset="0.05" color=";a:midnightblue" mode="cb" orders=",a"></box>
       <text col="white"></text>
-    </button>
-  </framed>
+    </framed>
+    <framed>
+      <line color="white"></line>
+      <box color="darkgreen"></box>
+      <text col="white"></text>
+    </framed>
+  </button>
   
   <group id="checkbox_on">
     <group hor="">
@@ -22,7 +27,7 @@
       <line col="white" flip=""></line><line col="white"></line>
     </group>
   </group>
-  <box id="checkbox_off" col="green" inset="0.4"></box>
+  <box id="checkbox_off"></box>
   
   <framed id="textbox">
     <line color="blue"></line>

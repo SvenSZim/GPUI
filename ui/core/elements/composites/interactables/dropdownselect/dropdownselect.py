@@ -105,6 +105,15 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
             button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
         return button
 
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
+        maxX, maxY = 0, 0
+        for el in self._renderData.heads:
+            cX, cY = el.getInnerSizing(elSize, args)
+            maxX = max(cX, maxX)
+            maxY = max(cY, maxY)
+        return maxX, maxY
+
     # -------------------- access-point --------------------
 
     @override

@@ -53,7 +53,7 @@ class Slider(Interactable[SliderCore, SliderData]):
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
+    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1) -> int:
         """
         set is a general access point to an element. It has some basic functionality implemented and is overridden
         by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
@@ -62,29 +62,34 @@ class Slider(Interactable[SliderCore, SliderData]):
 
         Returns (int): the amount of 'sets' applied
         """
-        super().set(args)
+        s: int = super().set(args, sets, maxDepth)
         for tag, value in args.items():
             match tag:
                 case 'subscribeToHold':
+                    s = 1
                     if isinstance(value, str):
                         self._core.subscribeToHold(value)
                     else:
                         raise ValueError('subscribeToHold expects a callbackID')
                 case 'unsubscribeToHold':
+                    s = 1
                     if isinstance(value, str):
                         self._core.unsubscribeToHold(value)
                     else:
                         raise ValueError('unsubscribeToHold expects a callbackID')
                 case 'quickSubscribeToHold':
+                    s = 1
                     if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
                         self._core.quickSubscribeToHold(value[0], *value[1])
                     else:
                         raise ValueError('quickSubscribeToHold expects a 2-tuple with a Callable and a list of arguments')
                 case 'getSliderState':
+                    s = 1
                     if isinstance(value, Callable):
                         value(self._core.getSliderState())
                     else:
                         raise ValueError('getSliderState expects a callable with one float parameter to write the slider-state to')
+        return s
 
     # -------------------- rendering --------------------
 

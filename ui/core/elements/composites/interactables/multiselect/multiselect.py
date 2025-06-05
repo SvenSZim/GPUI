@@ -1,8 +1,8 @@
-from typing import Any, Callable, Optional, override
+from typing import Any, override
 
-from ......utility  import Rect
 from ......display  import Surface
 from ....element    import Element
+from ...addons      import Grouped
 from ..interactable import Interactable
 
 from .multiselectcore         import MultiselectCore
@@ -12,37 +12,40 @@ class Multiselect(Interactable[MultiselectCore, MultiselectData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, *inner: tuple[Element, float], alignVertical: bool=True, offset: int=0,
-                 startState: int=0, restriction: Optional[Callable[[int], int]]=None, active: bool = True, args: dict[str, Any]={}) -> None:
-        
-        super().__init__(MultiselectCore(rect, *inner, alignVertical=alignVertical, offset=offset, startState=startState, restriction=restriction, args=args), MultiselectData(), active)
+    def __init__(self, core: MultiselectCore, renderData: MultiselectData, active: bool = True) -> None:
+        super().__init__(core, renderData, active)
+        renderData.alignInner(self)
     
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Multiselect':
         inner: list[Element] = args['inner']
-        alignVertical = True
-        offset = 0
-        sizings: list[float] = [1.0 for _ in inner]
+        gpdargs: dict[str, Any] = {}
         startState: int = 0
         limit: int = len(args['inner'])
         for arg, v in args.items():
             match arg.lower():
                 case 'vertical' | 'vert':
-                    alignVertical = True
+                    gpdargs['vert'] = v
                 case 'horizontal' | 'hor':
-                    alignVertical = False
+                    gpdargs['hor'] = v
                 case 'offset' | 'spacing':
-                    offset = int(Multiselect.extractNum(v))
+                    gpdargs['offset'] = v
                 case 'size' | 'sizes' | 'sizing' | 'sizings':
-                    sizings = list(map(Multiselect.parseNum, Multiselect.adjustList(list(map(str, sizings)), Multiselect.parseList(v))))
-                
+                    gpdargs['size'] = v
+
                 case 'start' | 'startstate':
                     startState = int(Multiselect.extractNum(v))
                 case 'max' | 'restr' | 'limit':
                     limit = int(Multiselect.extractNum(v))
-        return Multiselect(Rect(), *zip(inner, sizings), alignVertical=alignVertical, offset=offset, startState=startState,
-                           restriction=lambda x, m=len(args['inner']), l=limit: 2**m-1 if bin(x)[2:].count('1') < l else x, args=args)
+        gpdargs['inner'] = inner
+        data = MultiselectData(Grouped.parseFromArgs(gpdargs))
+        core = MultiselectCore(inner, startState=startState, restriction=lambda x, m=len(args['inner']), l=limit: 2**m-1 if bin(x)[2:].count('1') < l else x)
+        return Multiselect(core, data)
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]={}) -> tuple[int, int]:
+        return self._renderData.group.getInnerSizing(elSize, args)
 
     # -------------------- access-point --------------------
 
@@ -56,11 +59,10 @@ class Multiselect(Interactable[MultiselectCore, MultiselectData]):
 
         Returns (int): the amount of 'sets' applied
         """
-        return super().set(args, sets, maxDepth)
-        for tag, value in args.items():
-            match tag:
-                case _:
-                    pass
+        s: int = super().set(args, sets, maxDepth)
+        if (maxDepth < 0 or maxDepth > 1) and sets < 0 or s < sets:
+            s += self._renderData.group.set(args, sets-s, maxDepth-1)
+        return s
 
     # -------------------- rendering --------------------
 
@@ -74,5 +76,5 @@ class Multiselect(Interactable[MultiselectCore, MultiselectData]):
         """
         assert self._drawer is not None
 
-        if self.isActive():
-            self._core.getInner().render(surface)
+        if self._active:
+            self._renderData.group.render(surface)

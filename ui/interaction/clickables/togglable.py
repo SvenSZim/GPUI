@@ -45,9 +45,9 @@ class Togglable(Clickable, ABC):
         onTrigger gets called when the Toggle is triggered.
         """
         if self._buttonActive:
-            super()._onTrigger()
             self._currentState = (self._currentState + 1) % self._numberOfStates
             self.__onStateTrigger()
+            super()._onTrigger()
             return True
         return False
 

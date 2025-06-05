@@ -3,7 +3,7 @@ import pygame as pg
 
 from pygamesetup import PygameDrawer, PygameSurface, PygameFont, PygameInputHandler
 
-from ui import Rect, Parser, InputManager, InputEvent, Element, StyleManager
+from ui import Rect, Parser, InputManager, InputEvent, Element
 
 def main():
     pg.init()

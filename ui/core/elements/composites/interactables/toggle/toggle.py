@@ -17,6 +17,7 @@ class Toggle(Interactable[ToggleCore, ToggleData]):
     def __init__(self, renderData: ToggleData, startState: int=0, elementCycleActive: bool=True, active: bool = True) -> None:
         super().__init__(ToggleCore(len(renderData.stateElements), startState=startState, buttonActive=elementCycleActive), renderData, active)
         renderData.alignInner(self)
+        self._core.quickSubscribeToClick(self.changeState)
     
     @staticmethod
     @override
@@ -50,12 +51,14 @@ class Toggle(Interactable[ToggleCore, ToggleData]):
                 rawContent: str = args['content'].strip()
                 if len(rawContent) > 0:
                     for opt in Toggle.parseList(rawContent):
-                        newEl: Optional[Element] = Toggle.getStyledElement(args['textbox'], style) if 'elementstyle' in args else\
+                        newEl: Optional[Element] = Toggle.getStyledElement(args['textbox'], style) if 'textbox' in args else\
                                                    Toggle.getStyledElement(StyledDefault.TEXTBOX, style)
                         if newEl is not None:
                             newEl.set({'content':opt}, sets=1)
                             inner.append(newEl)
                 data = ToggleData(inner)
+        for el in data.stateElements[1:]:
+            el.setActive(False)
 
         bactive: bool = True
         button: Toggle = Toggle(data, elementCycleActive=bactive)
@@ -80,6 +83,13 @@ class Toggle(Interactable[ToggleCore, ToggleData]):
         if not hasTrigger:
             button._core.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
         return button
+
+    # -------------------- state-change --------------------
+
+    def changeState(self) -> None:
+        for el in self._renderData.stateElements:
+            el.setActive(False)
+        self._renderData.stateElements[self._core.getCurrentToggleState()].setActive(True)
 
     # -------------------- access-point --------------------
 

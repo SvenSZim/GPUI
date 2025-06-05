@@ -27,7 +27,7 @@
     <button><f1></f1></button>
     <button><f2></f2></button>
   </dropselect>
-  <cycle>
+  <cycle textbox="f2">
     1, 2, 3, 4, rofl
     <box color="(255,0,0)"></box>
     <box color="(0,255,0)"></box>
