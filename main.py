@@ -1,15 +1,9 @@
-import os, json
 from time import perf_counter_ns
 import pygame as pg
 
 from pygamesetup import PygameDrawer, PygameSurface, PygameFont, PygameInputHandler
 
 from ui import Rect, Parser, InputManager, InputEvent, Element, StyleManager
-
-layout_paths: list[tuple[str, float]] = []
-filepath: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'setup.json')
-with open(filepath,'r') as file:
-    layout_paths = [(p, v) for p, v in json.load(file).items()]
 
 def main():
     pg.init()
@@ -32,20 +26,19 @@ def main():
     background_color = 'black'
     
     # ------------------------------ load-layouts ------------------------------
-    def loadLayout(path: tuple[str, float]):
-        sizing: tuple[float, float] = (path[1], path[1])
-        layout = Parser.fromXML(path[0])
-        layout.align(Rect(topleft=(int(screen_size[0]*(1.0-sizing[0])/2), int(screen_size[1]*(1.0-sizing[1])/2))))
-        layout.alignSize(Rect(size=(int(screen_size[0]*sizing[0]), int(screen_size[1]*sizing[1]))))
-        layout.updateLayout()
-        layout.setActive(False)
-        return layout
-    
-    layout = loadLayout(layout_paths[0])
+ 
+    Parser.loadStyleFromXML("styleexample.xml")
+    layout = Parser.loadLayoutFromXML("layoutexample.xml")
+    relSize = (0.7, 0.7)
+    layout.align(Rect(topleft=(int(screen_size[0]*(1-relSize[0])*0.5),int(screen_size[1]*(1-relSize[1])*0.5))))
+    layout.alignSize(Rect(size=(int(screen_size[0]*relSize[0]),int(screen_size[1]*relSize[1]))))
+    layout.updateLayout()
     layout.setActive(True)
 
     txt = Parser.getElementByID('imp')
     txt.set({'content':'UNIMPORTANT'})
+
+    print(Parser.getAllStyles())
 
     # ------------------------------ runtime-loop ------------------------------
     rt = 0

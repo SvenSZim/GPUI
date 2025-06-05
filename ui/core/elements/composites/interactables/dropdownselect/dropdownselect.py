@@ -4,8 +4,7 @@ from ......utility      import Rect
 from ......interaction  import InputEvent, InputManager
 from ......display      import Surface
 from ....element        import Element
-from ....atoms          import Text, Box, Line
-from ...addons          import Framed
+from ....atoms          import Text
 from ..interactable     import Interactable
 
 from .dropdownselectcore         import DropdownselectCore

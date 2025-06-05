@@ -69,6 +69,6 @@ class Grouped(Addon[GroupedCore, GroupedData]):
         """
         assert self._drawer is not None
 
-        if self.isActive():
+        if self._active:
             for el in self._core.getInner():
                 el.render(surface)

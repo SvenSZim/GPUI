@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<style name="moon">
+  <framed id="f1">
+    <line color="blue"></line>
+    <box color="gray"></box>
+    <text color="darkgreen"></text>
+  </framed>
+  <framed id="f2">
+    <line color="white"></line>
+    <box color="blue"></box>
+    <text color="black"></text>
+  </framed>
+  <framed id="f3">
+    <line color="pink"></line><box color="beige" inset="5"></box>
+    <text color="black" size="m">CLICK ME</text>
+  </framed>
+</style>

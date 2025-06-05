@@ -81,12 +81,13 @@ class Framed(Addon[FramedCore, FramedData]):
         """
         assert self._drawer is not None
         
-        # background
-        self._renderData.fillData.render(surface)
+        if self._active:
+            # background
+            self._renderData.fillData.render(surface)
 
-        # inner element
-        self._core.getInner().render(surface)
+            # inner element
+            self._core.getInner().render(surface)
 
-        # outlines
-        for border in self._renderData.borderData:
-            border.render(surface)
+            # outlines
+            for border in self._renderData.borderData:
+                border.render(surface)

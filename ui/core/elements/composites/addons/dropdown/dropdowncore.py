@@ -1,9 +1,8 @@
-from typing import Any, Optional, override
+from typing import Any, Callable, override
 
-from ......utility      import AlignType, Parsable, Rect
+from ......utility      import Parsable
 from ......interaction  import InputEvent, InputManager, Togglable
 from ....element    import Element
-from ..grouped      import Grouped
 from ..addoncore    import AddonCore
 
 class DropdownCore(AddonCore[Element], Togglable):

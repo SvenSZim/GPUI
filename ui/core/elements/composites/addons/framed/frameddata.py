@@ -78,7 +78,6 @@ class FramedData(AddonData):
 
     # -------------------- access-point --------------------
 
-    @override
     def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
         s: int = 0
         for el in self.borderData:

@@ -12,6 +12,32 @@ from .elements import Section
 
 class Parser:
 
+    @staticmethod
+    def loadLayoutFromXML(path: str) -> Element:
+        tree: ET.ElementTree = ET.parse(path)
+        newEl, namedElements = Parser.__fromNode(tree.getroot())
+        if newEl is None:
+            raise ValueError('Could not find root element!')
+        Parser.__namedElements = {k:v[1] for k, v in namedElements.items()}
+        return newEl
+
+    @staticmethod
+    def loadStyleFromXML(path: str) -> None:
+        tree: ET.ElementTree = ET.parse(path)
+        Parser.__fromNode(tree.getroot())
+
+    @staticmethod
+    def getAllStyles() -> list[str]:
+        return StyleManager.getAllStyles()
+
+    @staticmethod
+    def setDefaultStyle(style: str) -> bool:
+        return StyleManager.setDefaultStyle(style)
+
+    
+    # -------------------- parsing --------------------
+
+
     __namedElements: dict[str, Element]={}
 
     @staticmethod
@@ -112,21 +138,16 @@ class Parser:
 
         return newElement, namedElements
 
+    
+
     @staticmethod
     def answerElementRequest() -> None:
         elementRequest: Optional[ET.Element] = Element.parserRequest
         if elementRequest is not None:
             Element.parserResponse = Parser.__fromNode(elementRequest)[0]
 
-    @staticmethod
-    def fromXML(path: str) -> Element:
-        tree: ET.ElementTree = ET.parse(path)
-        newEl, namedElements = Parser.__fromNode(tree.getroot())
-        if newEl is None:
-            raise ValueError('Could not find root element!')
-        Parser.__namedElements = {k:v[1] for k, v in namedElements.items()}
-        return newEl
 
+    # TEMPORARY
     @staticmethod
     def getElementByID(id: str) -> Element:
         if id in Parser.__namedElements:

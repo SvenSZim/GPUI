@@ -1,4 +1,4 @@
-from typing import Any, Optional, override
+from typing import Optional, override
 
 from .....utility import Rect
 from .....display import Surface, Font, FontManager

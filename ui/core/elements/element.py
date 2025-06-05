@@ -18,10 +18,9 @@ Data = TypeVar('Data', bound=ElementData)
 
 class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
 
-    _layoutUpdateEvent: str = EventManager.createEvent()
+    # -------------------- default-info --------------------
 
-    _core      : Core   # which gets rendered by the Renderer
-    _renderData: Data   # needed data for rendering the element onto the screen
+
 
     # -------------------- static --------------------
 
@@ -42,6 +41,11 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
         return Element.parserResponse
 
     # -------------------- creation --------------------
+
+    _layoutUpdateEvent: str = EventManager.createEvent()
+
+    _core      : Core   # non-renderspecific data and functionality for the element
+    _renderData: Data   # needed data for rendering the element onto the screen
 
     def __init__(self, core: Core, renderData: Data, active: bool=True) -> None:
         super().__init__(active)

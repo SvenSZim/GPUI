@@ -13,20 +13,20 @@ class DropdownData(AddonData):
     for the addon 'Dropdown'.
     """
     dropdown: Grouped
-    __offset: int
-    __innercount: int
-    __innersize: float
-    __verticalDropdown: bool
+    offset: int
+    innercount: int
+    innersize: float
+    verticalDropdown: bool
 
     def alignInner(self, against: Element) -> None:
-        if not self.__innercount:
+        if not self.innercount:
             return
 
-        if self.__verticalDropdown:
-            self.dropdown.alignSize(against, relativeAlign=(1.0, self.__innersize), absoluteOffset=(0, self.__offset * (self.__innercount-1)))
+        if self.verticalDropdown:
+            self.dropdown.alignSize(against, relativeAlign=(1.0, self.innersize), absoluteOffset=(0, self.offset * (self.innercount-1)))
             self.dropdown.align(against, AlignType.BiL)
         else:
-            self.dropdown.alignSize(against, relativeAlign=(self.__innersize, 1.0), absoluteOffset=(self.__offset * (self.__innercount-1), 0))
+            self.dropdown.alignSize(against, relativeAlign=(self.innersize, 1.0), absoluteOffset=(self.offset * (self.innercount-1), 0))
             self.dropdown.align(against, AlignType.iTR)
 
     @staticmethod

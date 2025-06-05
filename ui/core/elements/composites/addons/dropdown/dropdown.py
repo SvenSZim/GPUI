@@ -1,6 +1,5 @@
-from typing import Any, Callable, override
+from typing import Any, override
 
-from ......interaction  import InputEvent, InputManager
 from ......display      import Surface
 from ....element        import Element
 from ..addon            import Addon
