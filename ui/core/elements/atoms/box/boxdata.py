@@ -45,14 +45,14 @@ class BoxData(AtomData):
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'BoxData':
         data: BoxData = BoxData()
-        data.set(args)
+        data.set(args, False)
         return data
 
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any]) -> bool:
-        sets: bool = False
+    def set(self, args: dict[str, Any], skips: bool) -> bool:
+        s: bool = False
         for arg, v in args.items():
             if arg not in ['partitioning', 'part']:
                 if not isinstance(v, str):
@@ -70,54 +70,61 @@ class BoxData(AtomData):
                         value = vv[1]
                     match arg:
                         case 'inset' | 'partial' | 'shrink':
-                            sets = True
-                            self.partialInset[label] = BoxData.parsePartial(value)
+                            s = True
+                            if not skips:
+                                self.partialInset[label] = BoxData.parsePartial(value)
                         case 'colors' | 'color' | 'col':
-                            sets = True
-                            self.colors[label] = BoxData.parseColor(value)
+                            s = True
+                            if not skips:
+                                self.colors[label] = BoxData.parseColor(value)
                         case 'sectionorders' | 'orders' | 'ord':
-                            sets = True
-                            self.orders[label] = BoxData.parseList(value)
+                            s = True
+                            if not skips:
+                                self.orders[label] = BoxData.parseList(value)
                         case 'fillmodes' | 'fillmode' | 'fills' | 'fill' | 'altmodes' | 'altmode' | 'modes' | 'mode':
-                            sets = True
-                            match value:
-                                case 'checkerboard' | 'cb':
-                                    self.altMode[label] = AltMode.CHECKERBOARD
-                                case 'striped_vert' | 'strv':
-                                    self.altMode[label] = AltMode.STRIPED_V
-                                case 'striped_hor' | 'strh':
-                                    self.altMode[label] = AltMode.STRIPED_H
+                            s = True
+                            if not skips:
+                                match value:
+                                    case 'checkerboard' | 'cb':
+                                        self.altMode[label] = AltMode.CHECKERBOARD
+                                    case 'striped_vert' | 'strv':
+                                        self.altMode[label] = AltMode.STRIPED_V
+                                    case 'striped_hor' | 'strh':
+                                        self.altMode[label] = AltMode.STRIPED_H
                         case 'fillsizes' | 'fillsize' | 'innersizings' | 'innersizing' | 'sizes' | 'size':
-                            sets = True
-                            match value:
-                                case 's':
-                                    self.altLen[label] = 10
-                                case 'l':
-                                    self.altLen[label] = 20
-                                case _:
-                                    self.altLen[label] = BoxData.parseNum(value)
+                            s = True
+                            if not skips:
+                                match value:
+                                    case 's':
+                                        self.altLen[label] = 10
+                                    case 'l':
+                                        self.altLen[label] = 20
+                                    case _:
+                                        self.altLen[label] = BoxData.parseNum(value)
                         case 'filters' | 'filter' | 'filt':
-                            sets = True
-                            filtype, *options = [vvv.strip() for vvv in value.split('=')]
-                            if len(options) == 0:
-                                continue
-                            inv: bool = False
-                            if filtype[0] == 'i':
-                                inv = True
-                                filtype = filtype[1:]
-                            match filtype[0].lower():
-                                case 'l' | 't':
-                                    #linear/triangle filter
-                                    self.filters[label] = (Filters.LINEAR, BoxData.parseFilterArgs(options[0]), inv)
-                                case 'q' | 'c':
-                                    #quadratic/circle filter
-                                    self.filters[label] = (Filters.QUADRATIC, BoxData.parseFilterArgs(options[0]), inv)
-                                case _:
-                                    pass
+                            s = True
+                            if not skips:
+                                filtype, *options = [vvv.strip() for vvv in value.split('=')]
+                                if len(options) == 0:
+                                    continue
+                                inv: bool = False
+                                if filtype[0] == 'i':
+                                    inv = True
+                                    filtype = filtype[1:]
+                                match filtype[0].lower():
+                                    case 'l' | 't':
+                                        #linear/triangle filter
+                                        self.filters[label] = (Filters.LINEAR, BoxData.parseFilterArgs(options[0]), inv)
+                                    case 'q' | 'c':
+                                        #quadratic/circle filter
+                                        self.filters[label] = (Filters.QUADRATIC, BoxData.parseFilterArgs(options[0]), inv)
+                                    case _:
+                                        pass
             else:
                 match arg:
                     case 'partitioning' | 'part':
-                        sets = True
-                        self.partitioning = BoxData.parsePartition(v)
+                        s = True
+                        if not skips:
+                            self.partitioning = BoxData.parsePartition(v)
 
-        return sets
+        return s

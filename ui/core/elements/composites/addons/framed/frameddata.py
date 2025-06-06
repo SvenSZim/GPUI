@@ -34,11 +34,16 @@ class FramedData(AddonData):
 
     # -------------------- access-point --------------------
 
-    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
+    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
         s: int = 0
+        cs: int
         for el in self.borderData:
             if sets < 0 or s < sets:
-                s += el.set(args, sets-s, maxDepth)
+                cs = el.set(args, sets-s, maxDepth, skips)
+                skips[0] = max(0, skips[0]-cs)
+                s += cs
         if sets < 0 or s < sets:
-            s += self.fillData.set(args, sets-s, maxDepth)
+            cs = self.fillData.set(args, sets-s, maxDepth, skips)
+            skips[0] = max(0, skips[0]-cs)
+            s += cs
         return s

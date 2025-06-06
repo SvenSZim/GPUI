@@ -13,8 +13,8 @@ class SliderCore(InteractableCore, Holdable):
     __sliderState: float
     __horizontalSlider: bool
 
-    def __init__(self, rect: Rect, sliderStartState: float=0.5, horizontalSlider: bool=True, sliderActive: bool=True) -> None:
-        InteractableCore.__init__(self, rect)
+    def __init__(self, sliderStartState: float=0.5, horizontalSlider: bool=True, sliderActive: bool=True) -> None:
+        InteractableCore.__init__(self, Rect())
         Holdable.__init__(self, sliderActive)
         self.__sliderState = sliderStartState
         self.__horizontalSlider = horizontalSlider

@@ -18,20 +18,20 @@ class Box(Atom[BoxCore, BoxData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, renderData: BoxData, active: bool=True) -> None:
-        super().__init__(BoxCore(rect), renderData, active)
+    def __init__(self, renderData: BoxData, active: bool=True) -> None:
+        super().__init__(BoxCore(), renderData, active)
 
         self.__renderCache = []
         EventManager.quickSubscribe(Body.getLayoutUpdateEvent(), self.updateRenderData)
 
     @override
     def copy(self) -> 'Box':
-        return Box(Rect(), renderData=self._renderData.copy(), active=self.isActive())
+        return Box(renderData=self._renderData.copy(), active=self.isActive())
 
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Box':
-        return Box(Rect(), renderData=BoxData.parseFromArgs(args))
+        return Box(renderData=BoxData.parseFromArgs(args))
 
     # -------------------- rendering --------------------
 

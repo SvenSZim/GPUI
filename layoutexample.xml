@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <section spacing="20" limit="6">
   <multiselect limit="3" offset="20">
-    <f3 text="opt1"></f3>
-    <f3></f3>
-    <f3 text="opt3"></f3>
-    <f3></f3>
-    <f3></f3>
-    <f3></f3>
+    <f3 text="10,SELECTED"></f3>
+    <f3 text=",SELECTED"></f3>
+    <f3 text="30,SELECTED"></f3>
+    <f3 text=",SELECTED"></f3>
+    <f3 text="50,SELECTED"></f3>
+    <f3 text=",SELECTED"></f3>
   </multiselect>
   <dropselect head="f1" customheads="2">
     Option1, Option2, Option3, Option4, Option5

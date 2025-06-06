@@ -202,7 +202,7 @@ class Body(iRect):
             self.__setYRelations.setRelpoint(other, myFixPoint[1], otherFixPoint[1], offset=offset[1], globalFix=fixedGlobal[1], keepSize=keepSize[1])
     
     
-    def align(self, alignagainst: iRect, align: AlignType, ignoreX: bool=False, ignoreY: bool=False,
+    def align(self, alignagainst: iRect, align: AlignType, alignX: bool=True, alignY: bool=True,
               offset: tuple[int, int]=(0, 0), keepSize: bool=True) -> None:
         """
         align creates a LayoutRequest to align the element with the given one.
@@ -213,12 +213,12 @@ class Body(iRect):
         """
         kSize: tuple[bool, bool] = (keepSize, keepSize)
         xalign, xi, yalign, yi = (align.value & 0b11, (align.value & 0b100) >> 2, (align.value & 0b11000) >> 3, (align.value & 0b100000) >> 5)
-        if not ignoreX:
+        if alignX:
             if xi:
                 self.addReferenceConnection(alignagainst, (True, False), (xalign * 0.5, 0.0), (xalign * 0.5, 0.0), offset=offset, keepSize=kSize)
             else:
                 self.addReferenceConnection(alignagainst, (True, False), ((2 - xalign) * 0.5, 0.0), (xalign * 0.5, 0.0), offset=(offset[0], offset[1]), keepSize=kSize)
-        if not ignoreY:
+        if alignY:
             if yi:
                 self.addReferenceConnection(alignagainst, (False, True), (0.0, yalign * 0.5), (0.0, yalign * 0.5), offset=offset, keepSize=kSize)
             else:

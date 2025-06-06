@@ -17,20 +17,20 @@ class Line(Atom[LineCore, LineData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, renderData: LineData, active: bool=True) -> None:
-        super().__init__(LineCore(rect), renderData, active)
+    def __init__(self, renderData: LineData, active: bool=True) -> None:
+        super().__init__(LineCore(), renderData, active)
         
         self.__renderCache = []
         EventManager.quickSubscribe(Body.getLayoutUpdateEvent(), self.updateRenderData)
 
     @override
     def copy(self) -> 'Line':
-        return Line(Rect(), renderData=self._renderData.copy(), active=self.isActive())
+        return Line(renderData=self._renderData.copy(), active=self.isActive())
 
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Line':
-        return Line(Rect(), renderData=LineData.parseFromArgs(args))
+        return Line(renderData=LineData.parseFromArgs(args))
 
     # -------------------- rendering --------------------
 

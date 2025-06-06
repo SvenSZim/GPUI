@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional, TypeVar, override
 import xml.etree.ElementTree as ET
 
@@ -31,16 +31,10 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
     parserResponse: 'Optional[Element]' = None
 
     @staticmethod
-    def getStyledElement(element: str | StyledDefault, stylename: str) -> 'Optional[Element]':
+    def getStyledElement(element: str | StyledDefault, stylename: Optional[str]=None) -> 'Optional[Element]':
+        if stylename is None:
+            stylename = StyleManager.defaultStyle
         Element.parserRequest = StyleManager.getStyledElementNode(str(element), stylename)
-        EventManager.triggerEvent(Element.parserCallEvent)
-        resp: Optional[Element] = Element.parserResponse
-        Element.parserResponse = None
-        return resp
-
-    @staticmethod
-    def getDefaultElement(tag: StyledDefault) -> 'Optional[Element]':
-        Element.parserRequest = StyleManager.getDefault(tag)
         EventManager.triggerEvent(Element.parserCallEvent)
         resp: Optional[Element] = Element.parserResponse
         Element.parserResponse = None
@@ -102,7 +96,7 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
 
     # -------------------- positional-setter --------------------
     
-    def align(self, other: 'Element | Core | iRect', align: AlignType=AlignType.iTiL, ignoreX: bool=False, ignoreY: bool=False,
+    def align(self, other: 'Element | Core | iRect', align: AlignType=AlignType.iTiL, alignX: bool=True, alignY: bool=True,
               offset: int | tuple[int, int]=0, keepSize: bool=True) -> None:
         """
         align creates a LayoutRequest to align the element with the given one.
@@ -119,7 +113,7 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
         
         if isinstance(offset, int):
             offset = (offset, offset)
-        mybody.align(other, align, ignoreX=ignoreX, ignoreY=ignoreY, offset=offset, keepSize=keepSize)
+        mybody.align(other, align, alignX=alignX, alignY=alignY, offset=offset, keepSize=keepSize)
 
     def alignSize(self, other: 'Element | Core | iRect', alignX: bool=True, alignY: bool=True,
                   relativeAlign: float | tuple[float, float]=1.0, absoluteOffset: int | tuple[int, int]=0) -> None:
@@ -152,9 +146,10 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
         mybody.addReferenceConnection(other, (alignX, alignY), (1.0, 1.0), relativeAlign, offset=absoluteOffset, fixedGlobal=(False, False), keepSize=(False, False))
 
 
-    def alignpoint(self, other: 'Element | Core | iRect', myPoint: tuple[float, float]=(0.0,0.0), otherPoint: tuple[float, float]=(0.0,0.0), offset: int | tuple[int, int] = 0, keepSize: bool=True) -> None:
+    def alignpoint(self, other: 'Element | Core | iRect', myPoint: tuple[float, float]=(0.0,0.0),
+                   otherPoint: tuple[float, float]=(0.0,0.0), offset: int | tuple[int, int] = 0, keepSize: bool=True) -> None:
         """
-        pointalign creates a LayoutRequest to align two relative points of elements fixed onto one another.
+        alignpoint creates a LayoutRequest to align two relative points of elements fixed onto one another.
 
         Args:
             other:      (Element or Core or Rect)   : the reference to align against
@@ -177,35 +172,69 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
 
     #-------------------- access-point --------------------
 
-    def set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
+    def _set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: bool=False) -> bool:
+        s: bool = False
+        for tag, value in args.items():
+            match tag.lower():
+                case 'posx' | 'x':
+                    s = True
+                    if not skips:
+                        if isinstance(value, int):
+                            self.align(Rect(topleft=(value,0)), alignY=False)
+                        else:
+                            raise ValueError('posX expects an int')
+                case 'posy' | 'y':
+                    s = True
+                    if not skips:
+                        if isinstance(value, int):
+                            self.align(Rect(topleft=(0,value)), alignX=False)
+                        else:
+                            raise ValueError('posY expects an int')
+                case 'position' | 'pos':
+                    s = True
+                    if not skips:
+                        if isinstance(value, tuple):
+                            self.align(Rect(topleft=value))
+                        else:
+                            raise ValueError('position expects an 2-tuple of ints')
+                case 'width':
+                    s = True
+                    if not skips:
+                        if isinstance(value, int):
+                            self.alignSize(Rect(size=(value,0)), alignY=False)
+                        else:
+                            raise ValueError('width expects an int')
+                case 'height':
+                    s = True
+                    if not skips:
+                        if isinstance(value, int):
+                            self.alignSize(Rect(size=(0,value)), alignX=False)
+                        else:
+                            raise ValueError('height expects an int')
+                case 'size':
+                    s = True
+                    if not skips:
+                        if isinstance(value, tuple):
+                            self.alignSize(Rect(size=value))
+                        else:
+                            raise ValueError('size expects an 2-tuple of ints')
+        return s
+
+    @abstractmethod
+    def set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
         """
         set is a general access point to an element. It has some basic functionality implemented and is overridden
         by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
         set also recursivly applies the given args to all children until the given amount of
         'sets' or the maxDepth is reached. A 'set' is counted, if any of the given args can be applied to the element.
 
+        Args:
+            args (dict[str, Any]): Arguments to be set
+            sets (int)           : Amount of sets to be done (-1 -> no limit)
+            maxDepth (int0       : Maximum depth to apply to (-1 -> no limit)
+            skips (int)          : Amount of sets to skip
+
         Returns (int): the amount of 'sets' applied
         """
-        s: int = 0
-        for tag, value in args.items():
-            match tag:
-                case 'posX':
-                    s = 1
-                    if isinstance(value, int):
-                        self.align(Rect(topleft=(value,0)), ignoreY=True)
-                    else:
-                        raise ValueError('posX expects an int')
-                case 'posY':
-                    s = 1
-                    if isinstance(value, int):
-                        self.align(Rect(topleft=(0,value)), ignoreX=True)
-                    else:
-                        raise ValueError('posX expects an int')
-                case 'position':
-                    s = 1
-                    if isinstance(value, tuple):
-                        self.align(Rect(topleft=value))
-                    else:
-                        raise ValueError('position expects an 2-tuple of ints')
-        return s
+        pass
 

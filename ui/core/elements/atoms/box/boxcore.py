@@ -10,15 +10,15 @@ class BoxCore(AtomCore):
     
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect) -> None:
-        super().__init__(rect)
+    def __init__(self) -> None:
+        super().__init__(Rect())
 
     @override
     def copy(self) -> 'BoxCore':
-        return BoxCore(Rect())
+        return BoxCore()
 
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any]) -> bool:
+    def set(self, args: dict[str, Any], skips: bool) -> bool:
         return False

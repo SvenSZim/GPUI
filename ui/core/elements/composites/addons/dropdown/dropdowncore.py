@@ -50,95 +50,109 @@ class DropdownCore(AddonCore[Element], Togglable):
 
     # -------------------- access-point --------------------
 
-    def set(self, args: dict[str, Any]) -> bool:
+    def set(self, args: dict[str, Any], skips: bool) -> bool:
         s: bool = False
         for tag, value in args.items():
             match tag:
                 case 'setButtonActive':
                     s = True
-                    if isinstance(value, bool):
-                        self.setButtonActive(value)
-                    else:
-                        raise ValueError('setButtonActive expects a bool')
+                    if not skips:
+                        if isinstance(value, bool):
+                            self.setButtonActive(value)
+                        else:
+                            raise ValueError('setButtonActive expects a bool')
                 case 'addTriggerEvent':
                     s = True
-                    if isinstance(value, str):
-                        self.addTriggerEvent(value)
-                    else:
-                        raise ValueError('addTriggerEvent expects a eventID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.addTriggerEvent(value)
+                        else:
+                            raise ValueError('addTriggerEvent expects a eventID')
                 case 'removeTriggerEvent':
                     s = True
-                    if isinstance(value, str):
-                        self.removeTriggerEvent(value)
-                    else:
-                        raise ValueError('removeTriggerEvent expects a eventID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.removeTriggerEvent(value)
+                        else:
+                            raise ValueError('removeTriggerEvent expects a eventID')
                 case 'addGlobalTriggerEvent':
                     s = True
-                    if isinstance(value, str):
-                        self.addGlobalTriggerEvent(value)
-                    else:
-                        raise ValueError('addGlobalTriggerEvent expects a eventID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.addGlobalTriggerEvent(value)
+                        else:
+                            raise ValueError('addGlobalTriggerEvent expects a eventID')
                 case 'removeGlobalTriggerEvent':
                     s = True
-                    if isinstance(value, str):
-                        self.removeGlobalTriggerEvent(value)
-                    else:
-                        raise ValueError('removeGlobalTriggerEvent expects a eventID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.removeGlobalTriggerEvent(value)
+                        else:
+                            raise ValueError('removeGlobalTriggerEvent expects a eventID')
                 case 'subscribeToClick':
                     s = True
-                    if isinstance(value, str):
-                        self.subscribeToClick(value)
-                    else:
-                        raise ValueError('subscribeToClick expects a callbackID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.subscribeToClick(value)
+                        else:
+                            raise ValueError('subscribeToClick expects a callbackID')
                 case 'unsubscribeToClick':
                     s = True
-                    if isinstance(value, str):
-                        self.unsubscribeToClick(value)
-                    else:
-                        raise ValueError('unsubscribeToClick expects a callbackID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.unsubscribeToClick(value)
+                        else:
+                            raise ValueError('unsubscribeToClick expects a callbackID')
                 case 'quickSubscribeToClick':
                     s = True
-                    if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
-                        self.quickSubscribeToClick(value[0], *value[1])
-                    else:
-                        raise ValueError('quickSubscribeToClick expects a 2-tuple with a Callable and a list of arguments')
+                    if not skips:
+                        if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
+                            self.quickSubscribeToClick(value[0], *value[1])
+                        else:
+                            raise ValueError('quickSubscribeToClick expects a 2-tuple with a Callable and a list of arguments')
                 case 'subscribeToSelect':
                     s = True
-                    if isinstance(value, str):
-                        self.subscribeToToggleState(1, value)
-                    else:
-                        raise ValueError('subscribeToSelect expects a callbackID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.subscribeToToggleState(1, value)
+                        else:
+                            raise ValueError('subscribeToSelect expects a callbackID')
                 case 'unsubscribeToSelect':
                     s = True
-                    if isinstance(value, str):
-                        self.unsubscribeToToggleState(1, value)
-                    else:
-                        raise ValueError('unsubscribeToSelect expects a callbackID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.unsubscribeToToggleState(1, value)
+                        else:
+                            raise ValueError('unsubscribeToSelect expects a callbackID')
                 case 'quickSubscribeToSelect':
                     s = True
-                    if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
-                        self.quickSubscribeToToggleState(1, value[0], *value[1])
-                    else:
-                        raise ValueError('quickSubscribeToSelect expects a 2-tuple with a Callable and a list of arguments')
+                    if not skips:
+                        if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
+                            self.quickSubscribeToToggleState(1, value[0], *value[1])
+                        else:
+                            raise ValueError('quickSubscribeToSelect expects a 2-tuple with a Callable and a list of arguments')
                 case 'subscribeToDeselect':
                     s = True
-                    if isinstance(value, str):
-                        self.subscribeToToggleState(0, value)
-                    else:
-                        raise ValueError('subscribeToDeselect expects a callbackID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.subscribeToToggleState(0, value)
+                        else:
+                            raise ValueError('subscribeToDeselect expects a callbackID')
                 case 'unsubscribeToDeselect':
                     s = True
-                    if isinstance(value, str):
-                        self.unsubscribeToToggleState(0, value)
-                    else:
-                        raise ValueError('unsubscribeToDeselect expects a callbackID')
+                    if not skips:
+                        if isinstance(value, str):
+                            self.unsubscribeToToggleState(0, value)
+                        else:
+                            raise ValueError('unsubscribeToDeselect expects a callbackID')
                 case 'quickSubscribeToDeselect':
                     s = True
-                    if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
-                        self.quickSubscribeToToggleState(0, value[0], *value[1])
-                    else:
-                        raise ValueError('quickSubscribeToDeselect expects a 2-tuple with a Callable and a list of arguments')
+                    if not skips:
+                        if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
+                            self.quickSubscribeToToggleState(0, value[0], *value[1])
+                        else:
+                            raise ValueError('quickSubscribeToDeselect expects a 2-tuple with a Callable and a list of arguments')
         return s
 
-    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
-        return self._inner.set(args, sets, maxDepth)
+    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
+        return self._inner.set(args, sets, maxDepth, skips)

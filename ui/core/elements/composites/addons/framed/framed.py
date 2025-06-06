@@ -13,9 +13,7 @@ class Framed(Addon[FramedCore, FramedData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, inner: Element, renderData: FramedData | dict[str, Any], offset: int=0, active: bool = True) -> None:
-        if isinstance(renderData, dict):
-            renderData = FramedData.parseFromArgs(renderData)
+    def __init__(self, inner: Element, renderData: FramedData, offset: int=0, active: bool = True) -> None:
         super().__init__(FramedCore(inner, offset=offset), renderData, active)
         self._renderData.alignInner(self)
 
@@ -85,7 +83,12 @@ class Framed(Addon[FramedCore, FramedData]):
 
     #-------------------- access-point --------------------
 
-    def set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
+    @override
+    def _set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: bool = False) -> bool:
+        return super()._set(args, sets, maxDepth, skips)
+
+    @override
+    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: list[int] = [0]) -> int:
         """
         set is a general access point to an element. It has some basic functionality implemented and is overridden
         by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
@@ -94,14 +97,21 @@ class Framed(Addon[FramedCore, FramedData]):
 
         Returns (int): the amount of 'sets' applied
         """
-        s: int = super().set(args, sets, maxDepth)
+        ts: int = 0
+        s: bool = self._set(args, sets, maxDepth, bool(skips[0]))
+        ts += int(s and not skips[0])
         if 0 <= maxDepth < 2:
-            return s
-        if sets < 0 or s < sets:
-            s += self._renderData.setinner(args, sets-s, maxDepth-1)
-        if sets < 0 or s < sets:
-            s += self._core.setinner(args, sets-s, maxDepth-1)
-        return s
+            return ts
+        skips[0] = max(0, skips[0]-ts)
+        if sets < 0 or ts < sets:
+            cs: int = self._core.setinner(args, sets-ts, maxDepth-1, skips)
+            skips[0] = max(0, skips[0]-cs)
+            ts += cs
+        if sets < 0 or ts < sets:
+            cs: int = self._renderData.setinner(args, sets-ts, maxDepth-1, skips)
+            skips[0] = max(0, skips[0]-cs)
+            ts += cs
+        return ts
 
     # -------------------- rendering --------------------
 

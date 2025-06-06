@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, override
 
-from ......utility import AlignType, Rect
+from ......utility import AlignType
 from ....element import Element
 from ..addondata import AddonData
 from ..grouped   import Grouped
@@ -46,14 +46,14 @@ class DropdownData(AddonData):
                     offset = int(DropdownData.extractNum(v))
                 case 'size' | 'sizes' | 'sizing' | 'sizings':
                     sizings = list(map(DropdownData.parseNum, DropdownData.adjustList(list(map(str, sizings)), DropdownData.parseList(v))))
-        gpd: Grouped = Grouped(Rect(), *zip(inner[1:], sizings), alignVertical=verticalDropdown, offset=offset)
+        gpd: Grouped = Grouped(list(zip(inner[1:], sizings)), alignVertical=verticalDropdown, offset=offset)
         gpd.setActive(False)
         return DropdownData(gpd, offset, len(sizings), sum(sizings), verticalDropdown)
 
     # -------------------- access-point --------------------
 
-    def set(self, args: dict[str, Any]) -> bool:
+    def set(self, args: dict[str, Any], skips: bool) -> bool:
         return False
 
-    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
-        return self.dropdown.set(args, sets, maxDepth)
+    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
+        return self.dropdown.set(args, sets, maxDepth, skips)

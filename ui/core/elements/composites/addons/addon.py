@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Any, Generic, TypeVar, override
+from typing import Generic, TypeVar, override
 
 from ...element import Element
 from .addoncore import AddonCore

@@ -11,13 +11,13 @@ class TextCore(AtomCore):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, content: str) -> None:
-        super().__init__(rect)
+    def __init__(self, content: str) -> None:
+        super().__init__(Rect())
         self._content = content
 
     @override
     def copy(self) -> 'TextCore':
-        return TextCore(Rect(), self._content)
+        return TextCore(self._content)
 
     # -------------------- content --------------------
     
@@ -41,14 +41,15 @@ class TextCore(AtomCore):
     #-------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any]) -> bool:
-        sets: bool = False
+    def set(self, args: dict[str, Any], skips: bool) -> bool:
+        s: bool = False
         for tag, value in args.items():
             match tag:
                 case 'content':
-                    sets = True
-                    if isinstance(value, str):
-                        self._content = value
-                    else:
-                        raise ValueError('content expects a str')
-        return sets
+                    s = True
+                    if not skips:
+                        if isinstance(value, str):
+                            self._content = value
+                        else:
+                            raise ValueError('content expects a str')
+        return s

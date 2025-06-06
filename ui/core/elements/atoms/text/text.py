@@ -16,20 +16,20 @@ class Text(Atom[TextCore, TextData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, rect: Rect, content: str, renderData: TextData, active: bool=True) -> None:
-        super().__init__(TextCore(rect, content), renderData, active)
+    def __init__(self, content: str, renderData: TextData, active: bool=True) -> None:
+        super().__init__(TextCore(content), renderData, active)
 
         self.__renderCache = None
         EventManager.quickSubscribe(Body.getLayoutUpdateEvent(), self.updateRenderData)
 
     @override
     def copy(self) -> 'Text':
-        return Text(Rect(), self._core.getContent(), renderData=self._renderData.copy(), active=self.isActive())
+        return Text(self._core.getContent(), renderData=self._renderData.copy(), active=self.isActive())
 
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, str]) -> 'Text':
-        return Text(Rect(), args['content'], renderData=TextData.parseFromArgs(args))
+        return Text(args['content'], renderData=TextData.parseFromArgs(args))
 
 
     # -------------------- rendering --------------------

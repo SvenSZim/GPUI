@@ -15,5 +15,5 @@ class AtomData(ElementData, ABC):
     # -------------------- access-point --------------------
 
     @abstractmethod
-    def set(self, args: dict[str, Any]) -> bool:
+    def set(self, args: dict[str, Any], skips: bool) -> bool:
         pass

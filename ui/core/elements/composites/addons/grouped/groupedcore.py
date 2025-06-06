@@ -13,13 +13,13 @@ class GroupedCore(AddonCore[list[Element]]):
     __offset: int
     __relativeSizing: list[float]
 
-    def __init__(self, rect: Rect, *inner: tuple[Element, float], alignVertical: bool=True, offset: int=0) -> None:
+    def __init__(self, inner: list[tuple[Element, float]], alignVertical: bool=True, offset: int=0) -> None:
         self.__alignVertical = alignVertical
         self.__offset = offset
 
         self.__relativeSizing = [el[1] for el in inner]
 
-        super().__init__(rect, [el[0] for el in inner])
+        super().__init__(Rect(), [el[0] for el in inner])
 
     @override
     def _alignInner(self) -> None:
@@ -76,9 +76,12 @@ class GroupedCore(AddonCore[list[Element]]):
 
     # -------------------- access-point --------------------
 
-    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
+    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
         s: int = 0
+        cs: int
         for el in self._inner:
             if sets < 0 or s < sets:
-                s += el.set(args, sets-s, maxDepth)
+                cs = el.set(args, sets-s, maxDepth, skips)
+                skips[0] = max(0, skips[0]-cs)
+                s += cs
         return s

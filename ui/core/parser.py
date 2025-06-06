@@ -145,7 +145,9 @@ class Parser:
 
         # -------------------- post-parsing --------------------
         if 'text' in attributes:
-            newElement.set({'content':attributes['text']}, sets=1)
+            for i, txt in enumerate(Element.parseList(attributes['text'])):
+                if len(txt):
+                    newElement.set({'content':txt}, sets=1, skips=[i])
 
         # -------------------- id --------------------
         newID: Optional[str] = getID(attributes, idTags, set(namedElements))

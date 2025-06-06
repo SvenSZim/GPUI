@@ -14,8 +14,8 @@ class Toggle(Interactable[ToggleCore, ToggleData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, renderData: ToggleData, startState: int=0, elementCycleActive: bool=True, active: bool = True) -> None:
-        super().__init__(ToggleCore(len(renderData.stateElements), startState=startState, buttonActive=elementCycleActive), renderData, active)
+    def __init__(self, renderData: ToggleData, startState: int=0, toggleActive: bool=True, active: bool = True) -> None:
+        super().__init__(ToggleCore(len(renderData.stateElements), startState=startState, buttonActive=toggleActive), renderData, active)
         renderData.alignInner(self)
         self._core.quickSubscribeToClick(self.changeState)
     
@@ -61,7 +61,7 @@ class Toggle(Interactable[ToggleCore, ToggleData]):
             el.setActive(False)
 
         bactive: bool = True
-        button: Toggle = Toggle(data, elementCycleActive=bactive)
+        button: Toggle = Toggle(data, toggleActive=bactive)
         
         hasTrigger: bool = False
         for tag, value in args.items():
@@ -94,7 +94,42 @@ class Toggle(Interactable[ToggleCore, ToggleData]):
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1) -> int:
+    def _set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: bool = False) -> bool:
+        s: bool = super()._set(args, sets, maxDepth, skips)
+        for tag, value in args.items():
+            match tag:
+                case 'subscribeToToggleState':
+                    s = True
+                    if not skips:
+                        if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
+                            self._core.subscribeToToggleState(value[0], value[1])
+                        else:
+                            raise ValueError('subscribeToSelect expects 2-tuple with the toggle state (int) and a callbackID')
+                case 'unsubscribeToToggleState':
+                    s = True
+                    if not skips:
+                        if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
+                            self._core.unsubscribeToToggleState(value[0], value[1])
+                        else:
+                            raise ValueError('unsubscribeToToggleState expects 2-tuple with the toggle state (int) and a callbackID')
+                case 'quickSubscribeToToggleState':
+                    s = True
+                    if not skips:
+                        if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], Callable) and isinstance(value[2], list):
+                            self._core.quickSubscribeToToggleState(value[0], value[1], *value[2])
+                        else:
+                            raise ValueError('quickSubscribeToToggleState expects a 3-tuple the toggle state (int), with a Callable and a list of arguments')
+                case 'toggleCheck':
+                    s = True
+                    if not skips:
+                        if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
+                            value[0](*value[1])
+                        else:
+                            raise ValueError('toggleCheck expects a 2-tuple with a Callable and a list of arguments')
+        return s
+
+    @override
+    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: list[int] = [0]) -> int:
         """
         set is a general access point to an element. It has some basic functionality implemented and is overridden
         by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
@@ -103,36 +138,17 @@ class Toggle(Interactable[ToggleCore, ToggleData]):
 
         Returns (int): the amount of 'sets' applied
         """
-        s: int = super().set(args, sets, maxDepth)
-        for tag, value in args.items():
-            match tag:
-                case 'subscribeToToggleState':
-                    s = 1
-                    if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
-                        self._core.subscribeToToggleState(value[0], value[1])
-                    else:
-                        raise ValueError('subscribeToSelect expects 2-tuple with the toggle state (int) and a callbackID')
-                case 'unsubscribeToToggleState':
-                    s = 1
-                    if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], str):
-                        self._core.unsubscribeToToggleState(value[0], value[1])
-                    else:
-                        raise ValueError('unsubscribeToToggleState expects 2-tuple with the toggle state (int) and a callbackID')
-                case 'quickSubscribeToToggleState':
-                    s = 1
-                    if isinstance(value, tuple) and isinstance(value[0], int) and isinstance(value[1], Callable) and isinstance(value[2], list):
-                        self._core.quickSubscribeToToggleState(value[0], value[1], *value[2])
-                    else:
-                        raise ValueError('quickSubscribeToToggleState expects a 3-tuple the toggle state (int), with a Callable and a list of arguments')
-                case 'toggleCheck':
-                    s = 1
-                    if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
-                        value[0](*value[1])
-                    else:
-                        raise ValueError('toggleCheck expects a 2-tuple with a Callable and a list of arguments')
-        if (maxDepth < 0 or maxDepth > 1) and (sets < 0 or s < sets):
-             s += self._renderData.setinner(args, sets-s, maxDepth-1)
-        return s
+        ts: int = 0
+        s: bool = self._set(args, sets, maxDepth, bool(skips[0]))
+        ts += int(s and not skips[0])
+        if 0 <= maxDepth < 2:
+            return ts
+        skips[0] = max(0, skips[0]-ts)
+        if sets < 0 or ts < sets:
+            cs: int = self._renderData.setinner(args, sets-ts, maxDepth-1, skips)
+            skips[0] = max(0, skips[0]-cs)
+            ts += cs
+        return ts
     
     # -------------------- rendering --------------------
 

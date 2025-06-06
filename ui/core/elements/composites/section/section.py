@@ -14,8 +14,8 @@ class Section(Element[SectionCore, SectionData]):
 
     def __init__(self, renderData: SectionData, header: Optional[tuple[Element, float]], footer: Optional[tuple[Element, float]],
                  *inner: tuple[Element, float], innerLimit: float=5.0, offset: int=0, active: bool = True) -> None:
-        btn1: Optional[Element] = Section.getDefaultElement(StyledDefault.BUTTON_TXT)
-        btn2: Optional[Element] = Section.getDefaultElement(StyledDefault.BUTTON_TXT)
+        btn1: Optional[Element] = Section.getStyledElement(StyledDefault.BUTTON_TXT)
+        btn2: Optional[Element] = Section.getStyledElement(StyledDefault.BUTTON_TXT)
         if btn1 is None:
             btn1 = Box.parseFromArgs({})
         if btn2 is None:
@@ -55,6 +55,12 @@ class Section(Element[SectionCore, SectionData]):
         bb = super().toggleActive()
         self._core.setActive(bb)
         return bb
+
+    # -------------------- access-point --------------------
+
+    @override
+    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: list[int] = [0]) -> int:
+        return int(self._set(args, sets, maxDepth, bool(skips[0])))
 
     # -------------------- rendering --------------------
 

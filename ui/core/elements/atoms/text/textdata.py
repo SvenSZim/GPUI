@@ -36,70 +36,75 @@ class TextData(AtomData):
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'TextData':
         data: TextData = TextData()
-        data.set(args)
+        data.set(args, False)
         return data
 
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any]) -> bool:
-        sets: bool = False
+    def set(self, args: dict[str, Any], skips: bool) -> bool:
+        s: bool = False
         for arg, value in args.items():
             match arg:
                 case 'inset':
-                    sets = True
-                    self.inset = TextData.parsePartial(value)
+                    s = True
+                    if not skips:
+                        self.inset = TextData.parsePartial(value)
                 case 'color' | 'col':
-                    sets = True
-                    self.textColor = TextData.parseColor(value)
+                    s = True
+                    if not skips:
+                        self.textColor = TextData.parseColor(value)
                 case 'fontsize' | 'size':
-                    sets = True
-                    if 'd' in value:
-                        self.dynamicText = True
-                    else:
-                        sizeconv: dict[str, int] = {x:i for i, x in enumerate(['xxs','xs','s','ms','sm','m','lm','ml','l','xl','xxl'])}
-                        if value.lower() in sizeconv:
-                            self.fontSize = fontSizeFunction(sizeconv[value.lower()])
+                    s = True
+                    if not skips:
+                        if 'd' in value:
+                            self.dynamicText = True
                         else:
-                            self.fontSize = int(TextData.extractNum(value))
+                            sizeconv: dict[str, int] = {x:i for i, x in enumerate(['xxs','xs','s','ms','sm','m','lm','ml','l','xl','xxl'])}
+                            if value.lower() in sizeconv:
+                                self.fontSize = fontSizeFunction(sizeconv[value.lower()])
+                            else:
+                                self.fontSize = int(TextData.extractNum(value))
                 case 'fontname' | 'sysfont' | 'font':
-                    sets = True
-                    self.sysFontName = value
+                    s = True
+                    if not skips:
+                        self.sysFontName = value
                 case 'align':
-                    sets = True
-                    if ',' in value:
-                        xx, yy = 0.5, 0.5
-                        x, y = [v.strip() for v in value.split(',')][:2]
-                        if '.' in x:
-                            vk, nk = [TextData.extractNum(v) for v in x.split('.')][:2]
-                            xx = int(vk) + int(nk)/10**len(nk)
+                    s = True
+                    if not skips:
+                        if ',' in value:
+                            xx, yy = 0.5, 0.5
+                            x, y = [v.strip() for v in value.split(',')][:2]
+                            if '.' in x:
+                                vk, nk = [TextData.extractNum(v) for v in x.split('.')][:2]
+                                xx = int(vk) + int(nk)/10**len(nk)
+                            else:
+                                match x.lower()[0]:
+                                    case 'l':
+                                        xx = 0.0
+                                    case 'r':
+                                        xx = 1.0
+                            if '.' in y:
+                                vk, nk = [TextData.extractNum(v) for v in y.split('.')][:2]
+                                yy = int(vk) + int(nk)/10**len(nk)
+                            else:
+                                match y.lower()[0]:
+                                    case 't':
+                                        yy = 0.0
+                                    case 'b':
+                                        yy = 1.0
+                            self.fontAlign = (xx, yy)
                         else:
-                            match x.lower()[0]:
-                                case 'l':
-                                    xx = 0.0
-                                case 'r':
-                                    xx = 1.0
-                        if '.' in y:
-                            vk, nk = [TextData.extractNum(v) for v in y.split('.')][:2]
-                            yy = int(vk) + int(nk)/10**len(nk)
-                        else:
-                            match y.lower()[0]:
-                                case 't':
-                                    yy = 0.0
-                                case 'b':
-                                    yy = 1.0
-                        self.fontAlign = (xx, yy)
-                    else:
-                        xx = 0.5
-                        x = value.strip()
-                        if '.' in x:
-                            vk, nk = [TextData.extractNum(v) for v in x.split('.')][:2]
-                            xx = int(vk) + int(nk)/10**len(nk)
-                        else:
-                            match x.lower()[0]:
-                                case 'l':
-                                    xx = 0.0
-                                case 'r':
-                                    xx = 1.0
-                        self.fontAlign = (xx, xx)
-        return sets
+                            xx = 0.5
+                            x = value.strip()
+                            if '.' in x:
+                                vk, nk = [TextData.extractNum(v) for v in x.split('.')][:2]
+                                xx = int(vk) + int(nk)/10**len(nk)
+                            else:
+                                match x.lower()[0]:
+                                    case 'l':
+                                        xx = 0.0
+                                    case 'r':
+                                        xx = 1.0
+                            self.fontAlign = (xx, xx)
+        return s

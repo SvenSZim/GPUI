@@ -19,6 +19,9 @@ class MultiselectData(InteractableData):
         self.group.align(against)
         self.group.alignSize(against)
 
+    def setinner(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: list[int] = [0]) -> int:
+        return self.group.set(args, sets, maxDepth, skips)
+
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'MultiselectData':

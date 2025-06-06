@@ -50,7 +50,7 @@ class Multiselect(Interactable[MultiselectCore, MultiselectData]):
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1) -> int:
+    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: list[int] = [0]) -> int:
         """
         set is a general access point to an element. It has some basic functionality implemented and is overridden
         by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
@@ -59,10 +59,17 @@ class Multiselect(Interactable[MultiselectCore, MultiselectData]):
 
         Returns (int): the amount of 'sets' applied
         """
-        s: int = super().set(args, sets, maxDepth)
-        if (maxDepth < 0 or maxDepth > 1) and sets < 0 or s < sets:
-            s += self._renderData.group.set(args, sets-s, maxDepth-1)
-        return s
+        ts: int = 0
+        s: bool = self._set(args, sets, maxDepth, bool(skips[0]))
+        ts += int(s and not skips[0])
+        if 0 <= maxDepth < 2:
+            return ts
+        skips[0] = max(0, skips[0]-ts)
+        if sets < 0 or ts < sets:
+            cs: int = self._renderData.setinner(args, sets-ts, maxDepth-1, skips)
+            skips[0] = max(0, skips[0]-cs)
+            ts += cs
+        return ts
 
     # -------------------- rendering --------------------
 

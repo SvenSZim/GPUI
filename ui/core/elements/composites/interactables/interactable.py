@@ -29,64 +29,63 @@ class Interactable(Element[Core, Data], ABC):
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
-        """
-        set is a general access point to an element. It has some basic functionality implemented and is overridden
-        by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
-        set also recursivly applies the given args to all children until the given amount of
-        'sets' or the maxDepth is reached. A 'set' is counted, if any of the given args can be applied to the element.
-
-        Returns (int): the amount of 'sets' applied
-        """
-        s: int = super().set(args, sets, maxDepth)
+    def _set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: bool = False) -> bool:
+        s: bool = super()._set(args, sets, maxDepth, skips)
         for tag, value in args.items():
             match tag:
                 case 'setButtonActive':
-                    s = 1
+                    s = True
                     if isinstance(value, bool):
                         self._core.setButtonActive(value)
                     else:
                         raise ValueError('setButtonActive expects a bool')
                 case 'addTriggerEvent':
-                    s = 1
-                    if isinstance(value, str):
-                        self._core.addTriggerEvent(value)
-                    else:
-                        raise ValueError('addTriggerEvent expects a eventID')
+                    s = True
+                    if not skips:
+                        if isinstance(value, str):
+                            self._core.addTriggerEvent(value)
+                        else:
+                            raise ValueError('addTriggerEvent expects a eventID')
                 case 'removeTriggerEvent':
-                    s = 1
-                    if isinstance(value, str):
-                        self._core.removeTriggerEvent(value)
-                    else:
-                        raise ValueError('removeTriggerEvent expects a eventID')
+                    s = True
+                    if not skips:
+                        if isinstance(value, str):
+                            self._core.removeTriggerEvent(value)
+                        else:
+                            raise ValueError('removeTriggerEvent expects a eventID')
                 case 'addGlobalTriggerEvent':
-                    s = 1
-                    if isinstance(value, str):
-                        self._core.addGlobalTriggerEvent(value)
-                    else:
-                        raise ValueError('addGlobalTriggerEvent expects a eventID')
+                    s = True
+                    if not skips:
+                        if isinstance(value, str):
+                            self._core.addGlobalTriggerEvent(value)
+                        else:
+                            raise ValueError('addGlobalTriggerEvent expects a eventID')
                 case 'removeGlobalTriggerEvent':
-                    s = 1
-                    if isinstance(value, str):
-                        self._core.removeGlobalTriggerEvent(value)
-                    else:
-                        raise ValueError('removeGlobalTriggerEvent expects a eventID')
+                    s = True
+                    if not skips:
+                        if isinstance(value, str):
+                            self._core.removeGlobalTriggerEvent(value)
+                        else:
+                            raise ValueError('removeGlobalTriggerEvent expects a eventID')
                 case 'subscribeToClick':
-                    s = 1
-                    if isinstance(value, str):
-                        self._core.subscribeToClick(value)
-                    else:
-                        raise ValueError('subscribeToClick expects a callbackID')
+                    s = True
+                    if not skips:
+                        if isinstance(value, str):
+                            self._core.subscribeToClick(value)
+                        else:
+                            raise ValueError('subscribeToClick expects a callbackID')
                 case 'unsubscribeToClick':
-                    s = 1
-                    if isinstance(value, str):
-                        self._core.unsubscribeToClick(value)
-                    else:
-                        raise ValueError('unsubscribeToClick expects a callbackID')
+                    s = True
+                    if not skips:
+                        if isinstance(value, str):
+                            self._core.unsubscribeToClick(value)
+                        else:
+                            raise ValueError('unsubscribeToClick expects a callbackID')
                 case 'quickSubscribeToClick':
-                    s = 1
-                    if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
-                        self._core.quickSubscribeToClick(value[0], *value[1])
-                    else:
-                        raise ValueError('quickSubscribeToClick expects a 2-tuple with a Callable and a list of arguments')
+                    s = True
+                    if not skips:
+                        if isinstance(value, tuple) and isinstance(value[0], Callable) and isinstance(value[1], list):
+                            self._core.quickSubscribeToClick(value[0], *value[1])
+                        else:
+                            raise ValueError('quickSubscribeToClick expects a 2-tuple with a Callable and a list of arguments')
         return s

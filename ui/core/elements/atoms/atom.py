@@ -25,7 +25,16 @@ class Atom(Generic[Core, RenderData], Element[Core, RenderData], ABC):
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
+    def _set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: bool=False) -> bool:
+        s: bool = super()._set(args, sets, maxDepth, skips)
+        s |= self._core.set(args, skips)
+        s |= self._renderData.set(args, skips)
+        if s:
+            self.updateRenderData()
+        return s
+
+    @override
+    def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: list[int]=[0]) -> int:
         """
         set is a general access point to an element. It has some basic functionality implemented and is overridden
         by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
@@ -34,11 +43,10 @@ class Atom(Generic[Core, RenderData], Element[Core, RenderData], ABC):
 
         Returns (int): the amount of 'sets' applied
         """
-        s: bool = bool(super().set(args, sets, maxDepth))
-        s |= self._core.set(args)
-        s |= self._renderData.set(args)
-        if s:
-            self.updateRenderData()
+        s: bool = self._set(args, sets, maxDepth, bool(skips[0]))
+        if s and skips[0]:
+            skips[0] -= 1
+            return 0
         return int(s)
 
     # -------------------- rendering --------------------

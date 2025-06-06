@@ -36,14 +36,14 @@ class LineData(AtomData):
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'LineData':
         data: LineData = LineData()
-        data.set(args)
+        data.set(args, False)
         return data
 
     # -------------------- access-point --------------------
 
     @override
-    def set(self, args: dict[str, Any]) -> bool:
-        sets: bool = False
+    def set(self, args: dict[str, Any], skips: bool) -> bool:
+        s: bool = False
         for arg, v in args.items():
             if arg not in ['inset', 'flip', 'sectionorder', 'order']:
                 if not isinstance(v, str):
@@ -61,34 +61,41 @@ class LineData(AtomData):
                         value = vv[1]
                     match arg:
                         case 'colors' | 'color' | 'col':
-                            sets = True
-                            self.colors[label] = LineData.parseColor(value)
+                            s = True
+                            if not skips:
+                                self.colors[label] = LineData.parseColor(value)
                         case 'thickness' | 'width':
-                            sets = True
-                            self.thickness[label] = int(LineData.extractNum(value))
+                            s = True
+                            if not skips:
+                                self.thickness[label] = int(LineData.extractNum(value))
                         case 'sizes' | 'size':
-                            sets = True
-                            match value:
-                                case 's':
-                                    self.sizes[label] = 10
-                                case 'l':
-                                    self.sizes[label] = 20
-                                case _:
-                                    self.sizes[label] = LineData.parseNum(value)
+                            s = True
+                            if not skips:
+                                match value:
+                                    case 's':
+                                        self.sizes[label] = 10
+                                    case 'l':
+                                        self.sizes[label] = 20
+                                    case _:
+                                        self.sizes[label] = LineData.parseNum(value)
                         case 'altmode' | 'mode':
-                            sets = True
-                            match value:
-                                case 'cross':
-                                    self.altmode[label] = AltMode.CROSS
+                            s = True
+                            if not skips:
+                                match value:
+                                    case 'cross':
+                                        self.altmode[label] = AltMode.CROSS
             else:
                 match arg:
                     case 'inset':
-                        sets = True
-                        self.inset = LineData.parsePartial(v)
+                        s = True
+                        if not skips:
+                            self.inset = LineData.parsePartial(v)
                     case 'flip':
-                        sets = True
-                        self.flip = True
+                        s = True
+                        if not skips:
+                            self.flip = True
                     case 'sectionorder' | 'order':
-                        sets = True
-                        self.order = LineData.parseList(v)
-        return sets
+                        s = True
+                        if not skips:
+                            self.order = LineData.parseList(v)
+        return s

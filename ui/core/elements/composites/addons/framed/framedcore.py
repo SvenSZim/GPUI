@@ -36,5 +36,5 @@ class FramedCore(AddonCore[Element]):
 
     # -------------------- access-point --------------------
 
-    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1) -> int:
-        return self._inner.set(args, sets, maxDepth)
+    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
+        return self._inner.set(args, sets, maxDepth, skips)
