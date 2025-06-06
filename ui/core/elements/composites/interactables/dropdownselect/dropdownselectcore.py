@@ -34,8 +34,8 @@ class DropdownselectCore(InteractableCore, Togglable):
         kwargs['inner'] = inner
         self.__dropdown = Dropdown.parseFromArgs(kwargs)
 
-        self.__dropdown.set({'removeTriggerEvent':InputManager.getEvent(InputEvent.LEFTDOWN)})
-        self.__dropdown.set({'addGlobalTriggerEvent':self._onclick})
+        self.__dropdown.set({'removeTriggerEvent':InputManager.getEvent(InputEvent.LEFTDOWN)}, 1)
+        self.__dropdown.set({'addGlobalTriggerEvent':self._onclick}, 1)
 
         self.__dropdown.align(self)
         self.__dropdown.alignSize(self)
@@ -51,9 +51,9 @@ class DropdownselectCore(InteractableCore, Togglable):
                             event = InputManager.getEvent(InputEvent.LEFTDOWN)
                         else:
                             event = InputManager.getEvent(InputEvent.fromStr(v))
-                        self.addTriggerEvent(event)
+                        self.__dropdown.set({'addTriggerEvent':event}, 1)
         if not hasTrigger:
-            self.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+            self.__dropdown.set({'addTriggerEvent':InputManager.getEvent(InputEvent.LEFTDOWN)}, 1)
 
     # -------------------- getter --------------------
 

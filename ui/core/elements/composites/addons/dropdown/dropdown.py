@@ -12,7 +12,7 @@ class Dropdown(Addon[DropdownCore, DropdownData]):
     # -------------------- creation --------------------
 
     def __init__(self, head: Element, renderData: DropdownData, dropdownActive: bool=True, active: bool = True) -> None:
-        Addon.__init__(self, DropdownCore(head, buttonActive=dropdownActive), renderData, active)
+        Addon.__init__(self, DropdownCore(head, renderData.dropdown, buttonActive=dropdownActive), renderData, active)
 
         self._renderData.alignInner(self)
         self._core.quickSubscribeToToggleState(0, self._renderData.dropdown.setActive, False)

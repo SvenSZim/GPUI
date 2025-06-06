@@ -21,6 +21,8 @@ class GroupedCore(AddonCore[list[Element]]):
 
         super().__init__(Rect(), [el[0] for el in inner])
 
+    # -------------------- inner --------------------
+
     @override
     def _alignInner(self) -> None:
         if len(self._inner) == 0:
@@ -73,6 +75,11 @@ class GroupedCore(AddonCore[list[Element]]):
     def setActive(self, active: bool) -> None:
         for el in self._inner:
             el.setActive(active)
+
+    @override
+    def setZIndex(self, zindex: int) -> None:
+        for el in self._inner:
+            el.setZIndex(zindex)
 
     # -------------------- access-point --------------------
 

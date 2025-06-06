@@ -57,3 +57,6 @@ class DropdownData(AddonData):
 
     def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
         return self.dropdown.set(args, sets, maxDepth, skips)
+
+    def setZIndex(self, zindex: int) -> None:
+        self.dropdown.setZIndex(zindex+100)

@@ -13,3 +13,7 @@ class GroupedData(AddonData):
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'GroupedData':
         return GroupedData()
+
+    @override
+    def setZIndex(self, zindex: int) -> None:
+        pass

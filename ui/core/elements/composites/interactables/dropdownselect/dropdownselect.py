@@ -173,6 +173,13 @@ class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
     # -------------------- rendering --------------------
 
     @override
+    def setZIndex(self, zindex: int) -> None:
+        super().setZIndex(zindex)
+        for el in self._renderData.heads:
+            el.setZIndex(zindex)
+        self._core.getDropdown().setZIndex(zindex)
+
+    @override
     def render(self, surface: Surface) -> None:
         """
         render renders the UI-Element onto the given surface

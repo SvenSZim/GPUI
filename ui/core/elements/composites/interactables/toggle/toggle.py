@@ -153,6 +153,13 @@ class Toggle(Interactable[ToggleCore, ToggleData]):
     # -------------------- rendering --------------------
 
     @override
+    def setZIndex(self, zindex: int) -> None:
+        super().setZIndex(zindex)
+        for el in self._renderData.stateElements:
+            el.setZIndex(zindex)
+        self._core.setPriority(zindex)
+
+    @override
     def render(self, surface: Surface) -> None:
         """
         render renders the UI-Element onto the given surface

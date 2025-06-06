@@ -29,14 +29,14 @@ class SectionCore(ElementCore):
     __nextButton: Optional[Element]
 
     def __init__(self, header: Optional[tuple[Element, float]], footer: Optional[tuple[Element, float]], buttons: tuple[Element, Element],
-                 *inner: tuple[Element, float], innerLimit: float=5.0, offset: int=0) -> None:
+                 inner: list[tuple[Element, float]], innerLimit: float=5.0, offset: int=0) -> None:
         ElementCore.__init__(self, Rect())
         self._buttonActive = True
 
         self.__header = header
         self.__footer = footer
 
-        self.__inner = list(inner)
+        self.__inner = inner
         self.__innerLimit = innerLimit
         self.__offset = offset
 
@@ -143,16 +143,19 @@ class SectionCore(ElementCore):
         return self.__footer[0] if self.__footer is not None else None
 
     def getInner(self) -> list[Element]:
+        return [x[0] for x in self.__inner]
+
+    def getCurrentSectionElements(self) -> list[Element]:
         return self.__sections[self.__currentSection]
 
     def getButtons(self) -> list[Element]:
         return [x for x in [self.__prevButton, self.__nextButton] if x is not None]
 
     def setSection(self, section: int) -> None:
-        for el in self.getInner():
+        for el in self.getCurrentSectionElements():
             el.setActive(False)
         self.__currentSection = max(0, min(section, self.__sectionAmount-1))
-        for el in self.getInner():
+        for el in self.getCurrentSectionElements():
             el.setActive(True)
 
     def prevSection(self) -> None:

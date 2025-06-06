@@ -48,6 +48,15 @@ class Clickable(iRect, ABC):
         self._buttonActive = not self._buttonActive
         return self._buttonActive
 
+    # -------------------- change-priority --------------------
+
+    def setPriority(self, priority: int) -> None:
+        """
+        setPriority sets the priority of the passive- and active-trigger-callbacks
+        """
+        EventManager.setPriority(self._passiveTriggerCallback, priority)
+        EventManager.setPriority(self._activeTriggerCallback, priority)
+
     # -------------------- triggering --------------------
 
     def _onTrigger(self) -> bool:

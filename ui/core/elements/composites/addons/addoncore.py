@@ -23,6 +23,12 @@ class AddonCore(Generic[Inner], ElementCore, ABC):
     def getInner(self) -> Inner:
         return self._inner
 
+    # -------------------- setter --------------------
+
+    @abstractmethod
+    def setZIndex(self, zindex: int) -> None:
+        pass
+
     # -------------------- layout --------------------
 
     @abstractmethod
@@ -34,3 +40,4 @@ class AddonCore(Generic[Inner], ElementCore, ABC):
     @abstractmethod
     def setActive(self, active: bool) -> None:
         pass
+

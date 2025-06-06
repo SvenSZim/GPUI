@@ -16,7 +16,6 @@ class Button(Interactable[ButtonCore, ButtonData]):
     # -------------------- creation --------------------
 
     def __init__(self, off: Element, on: Optional[Element], buttonActive: bool=True, active: bool = True) -> None:
-
         super().__init__(ButtonCore(buttonActive), ButtonData(off, on), active)
         
         self._renderData.alignInner(self)
@@ -74,7 +73,7 @@ class Button(Interactable[ButtonCore, ButtonData]):
     # -------------------- access-point --------------------
 
     @override
-    def _set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: int = 0) -> bool:
+    def _set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: bool = False) -> bool:
         s: bool = super()._set(args, sets, maxDepth, skips)
         for tag, value in args.items():
             match tag:
@@ -131,6 +130,14 @@ class Button(Interactable[ButtonCore, ButtonData]):
         return ts
 
     # -------------------- rendering --------------------
+
+    @override
+    def setZIndex(self, zindex: int) -> None:
+        super().setZIndex(zindex)
+        self._renderData.off.setZIndex(zindex)
+        if self._renderData.on:
+            self._renderData.on.setZIndex(zindex)
+        self._core.setPriority(zindex)
 
     @override
     def render(self, surface: Surface) -> None:

@@ -10,10 +10,14 @@ class FramedCore(AddonCore[Element]):
     """
     __offset: int
 
+    # -------------------- creation --------------------
+
     def __init__(self, inner: Element, offset: int=0) -> None:
         self.__offset = offset
         rect: Rect = Rect((inner.getLeft() - self.__offset, inner.getTop() - self.__offset), (inner.getWidth() + 2 * self.__offset, inner.getHeight() + 2 * self.__offset))
         super().__init__(rect, inner)
+
+    # -------------------- inner --------------------
 
     @override
     def _alignInner(self) -> None:
@@ -30,11 +34,16 @@ class FramedCore(AddonCore[Element]):
             return x, y
         return x + self.__offset, y + self.__offset
 
+    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
+        return self._inner.set(args, sets, maxDepth, skips)
+    
+    @override
+    def setZIndex(self, zindex: int) -> None:
+        self._inner.setZIndex(zindex)
+
+    # -------------------- active-state --------------------
+
     @override
     def setActive(self, active: bool) -> None:
         self._inner.setActive(active)
 
-    # -------------------- access-point --------------------
-
-    def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
-        return self._inner.set(args, sets, maxDepth, skips)

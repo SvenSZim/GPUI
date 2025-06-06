@@ -23,3 +23,9 @@ class Addon(Generic[Core, Data], Element[Core, Data], ABC):
         bb = super().toggleActive()
         self._core.setActive(bb)
         return bb
+
+    @override
+    def setZIndex(self, zindex: int) -> None:
+        super().setZIndex(zindex)
+        self._core.setZIndex(zindex)
+        self._renderData.setZIndex(zindex)

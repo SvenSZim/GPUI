@@ -22,7 +22,7 @@ class EventManager:
     # -------------------- creation --------------------
 
     @staticmethod
-    def createCallback(f: Callable, *args: Any) -> str:
+    def createCallback(f: Callable, *args: Any, priority: int=0) -> str:
         """
         createCallback takes a function with its arguments and converts
         them into a callback which can be used to subscribe to events.
@@ -38,7 +38,7 @@ class EventManager:
         while EventManager.__d_callbacks.get(random_hashstring):
             random_hashstring = getHashstring()
 
-        event: Callback = Callback(f, *args) # create Callback
+        event: Callback = Callback(f, *args, priority=priority) # create Callback
         EventManager.__d_callbacks[random_hashstring] = event # store Callback
         return random_hashstring
 
@@ -74,6 +74,37 @@ class EventManager:
         """
         return bool(EventManager.__d_events.get(name, False))
 
+    @staticmethod
+    def getPriority(id: str) -> int:
+        """
+        getPriority returns the priority of the callback with the given id
+
+        Args:
+            id (str): id of the callback to access
+
+        Returns (int): the priority of the callback (if it exists else -1)
+        """
+        if EventManager.__d_callbacks.get(id):
+            return EventManager.__d_callbacks[id].getPriority()
+        return -1
+
+    # -------------------- setter --------------------
+
+    @staticmethod
+    def setPriority(id: str, priority: int) -> bool:
+        """
+        setPriority sets the priority of the callback with the given id
+        to the given priority
+
+        Args:
+            id       (str): id of the callback to set the priority of
+            priority (int): the new priority to set to the callback
+        """
+        if EventManager.__d_callbacks.get(id):
+            EventManager.__d_callbacks[id].setPriority(priority)
+            return True
+        return False
+
     # -------------------- managing --------------------
 
     @staticmethod
@@ -96,8 +127,11 @@ class EventManager:
         Returns (bool): if the event got triggered successfully
         """
         if EventManager.contains(name):
-            for callback in EventManager.__d_events[name].trigger():
-                if EventManager.__triggerCallback(callback):
+            callbacks: list[str] = EventManager.__d_events[name].trigger()
+            if len(callbacks) > 1:
+                callbacks.sort(key=lambda x: EventManager.getPriority(x), reverse=True)
+            for clb in callbacks:
+                if EventManager.__triggerCallback(clb):
                     break
             return True
         return False

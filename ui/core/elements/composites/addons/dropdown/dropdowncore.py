@@ -4,29 +4,20 @@ from ......utility      import Parsable
 from ......interaction  import InputEvent, InputManager, Togglable
 from ....element    import Element
 from ..addoncore    import AddonCore
+from ..grouped      import Grouped
 
 class DropdownCore(AddonCore[Element], Togglable):
     """
     DropdownCore is the core object of the addon 'Dropdown'.
     """
+    # -------------------- creation --------------------
 
-    def __init__(self, inner: Element, buttonActive: bool=True) -> None:
+    def __init__(self, inner: Element, dpd: Grouped, buttonActive: bool=True) -> None:
         AddonCore.__init__(self, inner.getRect(), inner)
         Togglable.__init__(self, numberOfStates=2, buttonActive=buttonActive)
 
-    @override
-    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]) -> tuple[int, int]:
-        return self._inner.getInnerSizing(elSize)
-
-    @override
-    def _alignInner(self) -> None:
-        self._inner.align(self)
-        self._inner.alignSize(self)
-
-    @override
-    def setActive(self, active: bool) -> None:
-        self.setButtonActive(active)
-        self._inner.setActive(active)
+        self.quickSubscribeToToggleState(0, dpd.setActive, False)
+        self.quickSubscribeToToggleState(1, dpd.setActive, True)
 
     def adjustFromArgs(self, args: dict[str, Any], hasTrigger: bool=True) -> None:
         for tag, value in args.items():
@@ -47,6 +38,28 @@ class DropdownCore(AddonCore[Element], Togglable):
                             self.addGlobalTriggerEvent(InputManager.getEvent(InputEvent.fromStr(value)))
         if not hasTrigger:
             self.addTriggerEvent(InputManager.getEvent(InputEvent.LEFTDOWN))
+
+    # -------------------- inner --------------------
+
+    @override
+    def getInnerSizing(self, elSize: tuple[int, int], args: dict[str, Any]) -> tuple[int, int]:
+        return self._inner.getInnerSizing(elSize)
+
+    @override
+    def _alignInner(self) -> None:
+        self._inner.align(self)
+        self._inner.alignSize(self)
+
+    @override
+    def setZIndex(self, zindex: int) -> None:
+        self._inner.setZIndex(zindex)
+
+    # -------------------- active-state --------------------
+
+    @override
+    def setActive(self, active: bool) -> None:
+        self.setButtonActive(active)
+        self._inner.setActive(active)
 
     # -------------------- access-point --------------------
 
@@ -153,6 +166,7 @@ class DropdownCore(AddonCore[Element], Togglable):
                         else:
                             raise ValueError('quickSubscribeToDeselect expects a 2-tuple with a Callable and a list of arguments')
         return s
-
+    
     def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
         return self._inner.set(args, sets, maxDepth, skips)
+

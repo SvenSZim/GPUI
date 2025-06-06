@@ -3,7 +3,7 @@ from typing import Any, Optional, override
 from .....utility import StyledDefault
 from .....display   import Surface
 from ...element     import Element
-from ...atoms       import Text, Box
+from ...atoms       import Box
 
 from .sectioncore         import SectionCore
 from .sectiondata         import SectionData
@@ -13,17 +13,24 @@ class Section(Element[SectionCore, SectionData]):
     # -------------------- creation --------------------
 
     def __init__(self, renderData: SectionData, header: Optional[tuple[Element, float]], footer: Optional[tuple[Element, float]],
-                 *inner: tuple[Element, float], innerLimit: float=5.0, offset: int=0, active: bool = True) -> None:
+                 inner: list[tuple[Element, float]], innerLimit: float=5.0, offset: int=0, active: bool = True) -> None:
         btn1: Optional[Element] = Section.getStyledElement(StyledDefault.BUTTON_TXT)
         btn2: Optional[Element] = Section.getStyledElement(StyledDefault.BUTTON_TXT)
         if btn1 is None:
             btn1 = Box.parseFromArgs({})
         if btn2 is None:
             btn2 = Box.parseFromArgs({})
-        super().__init__(SectionCore(header, footer, (btn1, btn2), *inner, innerLimit=innerLimit, offset=offset), renderData, active)
+        btn1.setZIndex(5)
+        btn2.setZIndex(5)
+        super().__init__(SectionCore(header, footer, (btn1, btn2), inner, innerLimit=innerLimit, offset=offset), renderData, active)
         self._renderData.alignInner(self._core.getVBox(), (header[1]/self._core.getTotalRelHeight() if header is not None else 0.0,
                                                            footer[1]/self._core.getTotalRelHeight() if footer is not None else 0.0))
-    
+ 
+    @staticmethod
+    @override
+    def getMinRequiredChildren() -> int:
+        return 1
+
     @staticmethod
     @override
     def parseFromArgs(args: dict[str, Any]) -> 'Section':
@@ -31,6 +38,8 @@ class Section(Element[SectionCore, SectionData]):
         offset = 0
         sizings: list[float] = [1.0 for _ in inner]
         limit: int = 5
+        useheader: bool = False
+        usefooter: bool = False
         for arg, v in args.items():
             match arg.lower():
                 case 'offset' | 'spacing':
@@ -40,8 +49,20 @@ class Section(Element[SectionCore, SectionData]):
 
                 case 'limit' | 'innerlimit' | 'inneramount':
                     limit = int(Section.extractNum(v))
-        return Section(SectionData.parseFromArgs({}), (Text.parseFromArgs({'content':'Cool Section', 'fontsize':'d', 'col':'white'}), 2.0),
-                       (Text.parseFromArgs({'content':'Cool Footer', 'col':'red'}), 0.9), *zip(inner, sizings), innerLimit=limit, offset=offset)
+                case 'header':
+                    useheader = True
+                case 'footer':
+                    usefooter = True
+        if len(inner) == 1:
+            return Section(SectionData.parseFromArgs({}), None, None, list(zip(inner, sizings)), innerLimit=limit, offset=offset)
+        if useheader and usefooter and len(inner) > 2:
+            return Section(SectionData.parseFromArgs({}), (inner[0], sizings[0]), (inner[1], sizings[1]), list(zip(inner[2:], sizings[2:])), innerLimit=limit, offset=offset)
+        elif useheader:
+            return Section(SectionData.parseFromArgs({}), (inner[0], sizings[0]), None, list(zip(inner[1:], sizings[1:])), innerLimit=limit, offset=offset)
+        elif usefooter:
+            return Section(SectionData.parseFromArgs({}), None, (inner[0], sizings[0]), list(zip(inner[1:], sizings[1:])), innerLimit=limit, offset=offset)
+        return Section(SectionData.parseFromArgs({}), None, None, list(zip(inner, sizings)), innerLimit=limit, offset=offset)
+
 
     # -------------------- active-state --------------------
 
@@ -65,6 +86,19 @@ class Section(Element[SectionCore, SectionData]):
     # -------------------- rendering --------------------
 
     @override
+    def setZIndex(self, zindex: int) -> None:
+        super().setZIndex(zindex)
+        for el in self._core.getInner():
+            el.setZIndex(zindex)
+        for btn in self._core.getButtons():
+            btn.setZIndex(zindex+5)
+        hd, ft = self._core.getHeader(), self._core.getFooter()
+        if hd:
+            hd.setZIndex(zindex+2)
+        if ft:
+            ft.setZIndex(zindex+1)
+
+    @override
     def render(self, surface: Surface) -> None:
         """
         render renders the UI-Element onto the given surface
@@ -82,7 +116,7 @@ class Section(Element[SectionCore, SectionData]):
         footer: Optional[Element] = self._core.getFooter()
         if footer is not None:
             footer.render(surface)
-        for el in self._core.getInner():
+        for el in self._core.getCurrentSectionElements():
             el.render(surface)
         for btn in self._core.getButtons():
             btn.render(surface)

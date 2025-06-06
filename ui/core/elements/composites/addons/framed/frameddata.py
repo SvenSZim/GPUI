@@ -32,6 +32,12 @@ class FramedData(AddonData):
     def parseFromArgs(args: dict[str, Any]) -> 'FramedData':
         return FramedData(Box.parseFromArgs({}), (Box.parseFromArgs({}), Box.parseFromArgs({}), Box.parseFromArgs({}), Box.parseFromArgs({})))
 
+    @override
+    def setZIndex(self, zindex: int) -> None:
+        self.fillData.setZIndex(zindex-1)
+        for brd in self.borderData:
+            brd.setZIndex(zindex+1)
+
     # -------------------- access-point --------------------
 
     def setinner(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:

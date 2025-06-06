@@ -74,6 +74,11 @@ class Multiselect(Interactable[MultiselectCore, MultiselectData]):
     # -------------------- rendering --------------------
 
     @override
+    def setZIndex(self, zindex: int) -> None:
+        super().setZIndex(zindex)
+        self._renderData.group.setZIndex(zindex)
+
+    @override
     def render(self, surface: Surface) -> None:
         """
         render renders the UI-Element onto the given surface

@@ -102,6 +102,13 @@ class Slider(Interactable[SliderCore, SliderData]):
     # -------------------- rendering --------------------
 
     @override
+    def setZIndex(self, zindex: int) -> None:
+        super().setZIndex(zindex)
+        self._renderData.fillData.setZIndex(zindex)
+        self._renderData.lineData.setZIndex(zindex)
+        self._core.setPriority(zindex)
+
+    @override
     def render(self, surface: Surface) -> None:
         """
         render renders the UI-Element onto the given surface
