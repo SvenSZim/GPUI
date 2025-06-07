@@ -8,12 +8,10 @@
   <button id="button_def"></button>
   <button id="button_txt">
     <framed>
-      <line color="white"></line>
       <box inset="0.05" color=";a:midnightblue" mode="cb" orders=",a"></box>
       <text col="white"></text>
     </framed>
     <framed>
-      <line color="white"></line>
       <box color="darkgreen"></box>
       <text col="white"></text>
     </framed>

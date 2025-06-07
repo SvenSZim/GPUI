@@ -51,6 +51,7 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
         super().__init__(active)
         self._core = core
         self._renderData = renderData
+        self.setZIndex(0) # set default z-index
 
     # -------------------- iRect-implementation --------------------
 

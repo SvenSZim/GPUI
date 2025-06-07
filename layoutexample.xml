@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<section spacing="20" limit="6">
+<section spacing="20" limit="6" header="" footer="" sizings="1.7,1.1">
+  <f2 text="Section Header"></f2>
+  <f1 text="Section Footer"></f1>
   <multiselect limit="3" offset="20">
     <f3 text="10,SELECTED"></f3>
     <f3 text=",SELECTED"></f3>

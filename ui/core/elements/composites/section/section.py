@@ -12,19 +12,15 @@ class Section(Element[SectionCore, SectionData]):
 
     # -------------------- creation --------------------
 
-    def __init__(self, renderData: SectionData, header: Optional[tuple[Element, float]], footer: Optional[tuple[Element, float]],
-                 inner: list[tuple[Element, float]], innerLimit: float=5.0, offset: int=0, active: bool = True) -> None:
+    def __init__(self, header: Optional[tuple[Element, float]], footer: Optional[tuple[Element, float]], inner: list[tuple[Element, float]],
+                 separators: tuple[Optional[Element], Optional[Element]]=(None, None), innerLimit: float=5.0, offset: int=0, active: bool = True) -> None:
         btn1: Optional[Element] = Section.getStyledElement(StyledDefault.BUTTON_TXT)
         btn2: Optional[Element] = Section.getStyledElement(StyledDefault.BUTTON_TXT)
         if btn1 is None:
             btn1 = Box.parseFromArgs({})
         if btn2 is None:
             btn2 = Box.parseFromArgs({})
-        btn1.setZIndex(5)
-        btn2.setZIndex(5)
-        super().__init__(SectionCore(header, footer, (btn1, btn2), inner, innerLimit=innerLimit, offset=offset), renderData, active)
-        self._renderData.alignInner(self._core.getVBox(), (header[1]/self._core.getTotalRelHeight() if header is not None else 0.0,
-                                                           footer[1]/self._core.getTotalRelHeight() if footer is not None else 0.0))
+        super().__init__(SectionCore(header, footer, (btn1, btn2), inner, separators=separators, innerLimit=innerLimit, offset=offset), SectionData(), active)
  
     @staticmethod
     @override
@@ -54,14 +50,17 @@ class Section(Element[SectionCore, SectionData]):
                 case 'footer':
                     usefooter = True
         if len(inner) == 1:
-            return Section(SectionData.parseFromArgs({}), None, None, list(zip(inner, sizings)), innerLimit=limit, offset=offset)
+            return Section(None, None, list(zip(inner, sizings)), innerLimit=limit, offset=offset)
         if useheader and usefooter and len(inner) > 2:
-            return Section(SectionData.parseFromArgs({}), (inner[0], sizings[0]), (inner[1], sizings[1]), list(zip(inner[2:], sizings[2:])), innerLimit=limit, offset=offset)
+            separators = (Section.getStyledElement(StyledDefault.BORDER), Section.getStyledElement(StyledDefault.BORDER))
+            return Section((inner[0], sizings[0]), (inner[1], sizings[1]), list(zip(inner[2:], sizings[2:])), separators=separators, innerLimit=limit, offset=offset)
         elif useheader:
-            return Section(SectionData.parseFromArgs({}), (inner[0], sizings[0]), None, list(zip(inner[1:], sizings[1:])), innerLimit=limit, offset=offset)
+            separators = (Section.getStyledElement(StyledDefault.BORDER), None)
+            return Section((inner[0], sizings[0]), None, list(zip(inner[1:], sizings[1:])), separators=separators, innerLimit=limit, offset=offset)
         elif usefooter:
-            return Section(SectionData.parseFromArgs({}), None, (inner[0], sizings[0]), list(zip(inner[1:], sizings[1:])), innerLimit=limit, offset=offset)
-        return Section(SectionData.parseFromArgs({}), None, None, list(zip(inner, sizings)), innerLimit=limit, offset=offset)
+            separators = (None, Section.getStyledElement(StyledDefault.BORDER))
+            return Section(None, (inner[0], sizings[0]), list(zip(inner[1:], sizings[1:])), separators=separators, innerLimit=limit, offset=offset)
+        return Section(None, None, list(zip(inner, sizings)), innerLimit=limit, offset=offset)
 
 
     # -------------------- active-state --------------------
@@ -78,6 +77,19 @@ class Section(Element[SectionCore, SectionData]):
         return bb
 
     # -------------------- access-point --------------------
+
+    @override
+    def _set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: bool = False) -> bool:
+        s: bool = super()._set(args, sets, maxDepth, skips)
+        for tag, value in args.items():
+            match tag.lower():
+                case 'setInnerLimit' | 'setLimit' | 'limit':
+                    s = True
+                    if isinstance(value, float):
+                        self._core.setInnerLimit(value)
+                    else:
+                        raise ValueError('setInnerLimit expects a float')
+        return s
 
     @override
     def set(self, args: dict[str, Any], sets: int = -1, maxDepth: int = -1, skips: list[int] = [0]) -> int:
@@ -118,12 +130,17 @@ class Section(Element[SectionCore, SectionData]):
             footer.render(surface)
         for el in self._core.getCurrentSectionElements():
             el.render(surface)
-        for btn in self._core.getButtons():
-            btn.render(surface)
         if header is not None:
             header.render(surface)
+        for btn in self._core.getButtons():
+            btn.render(surface)
 
         # separators
-        self._renderData.borderData[0].render(surface)
-        self._renderData.borderData[1].render(surface)
+        headsep: Optional[Element]
+        footsep: Optional[Element]
+        headsep, footsep = self._core.getSeparators()
+        if headsep:
+            headsep.render(surface)
+        if footsep:
+            footsep.render(surface)
 

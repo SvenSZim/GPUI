@@ -30,16 +30,19 @@ def main():
     Parser.loadStyleFromXML("styleexample.xml")
     Parser.setDefaultStyle('moon')
     layout = Parser.loadLayoutFromXML("layoutexample.xml")
-    relSize = (0.7, 0.7)
+    relSize = (0.8, 0.85)
     layout.align(Rect(topleft=(int(screen_size[0]*(1-relSize[0])*0.5),int(screen_size[1]*(1-relSize[1])*0.5))))
     layout.alignSize(Rect(size=(int(screen_size[0]*relSize[0]),int(screen_size[1]*relSize[1]))))
-    layout.updateLayout()
     layout.setActive(True)
 
     txt = Parser.getElementByID('imp')
     txt.set({'content':'UNIMPORTANT'})
 
+    layout.set({'limit':6.0})
+
     print(Parser.getAllStyles())
+    
+    layout.updateLayout()
 
     # ------------------------------ runtime-loop ------------------------------
     rt = 0
