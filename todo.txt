@@ -20,15 +20,10 @@ DONE:
   - SectionV2 (parsable)
   - StyleV2
 
-TODO:
+IN WORK:
   - ui (combine everything into a dynamic element that creates usable layouts)
 
-  - Create a XML-Parser to load and store UI-layouts (in progress):
-    - rework dropdownselect (60%)
-    - rework elementcycle
-    - rework multiselect
-
-  Optional:
-    - atom: image
-    - Interactables: TextInput, DraggableRect
-    - Popups (Hovered, Notification, Modal)
+Optionals:
+  - atom: image
+  - Interactables: TextInput, DraggableRect
+  - Popups (Hovered, Notification, Modal)

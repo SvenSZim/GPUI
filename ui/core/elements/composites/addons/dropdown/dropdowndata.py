@@ -61,4 +61,3 @@ class DropdownData(AddonData):
     @override
     def setZIndex(self, zindex: int) -> None:
         self.dropdown.setZIndex(zindex+100)
-        print(self.dropdown._zIndex)

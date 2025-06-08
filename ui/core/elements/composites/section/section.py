@@ -33,7 +33,7 @@ class Section(Element[SectionCore, SectionData]):
         inner: list[Element] = args['inner']
         offset = 0
         sizings: list[float] = [1.0 for _ in inner]
-        limit: int = 5
+        limit: float = 5.0
         useheader: bool = False
         usefooter: bool = False
         for arg, v in args.items():
@@ -44,7 +44,7 @@ class Section(Element[SectionCore, SectionData]):
                     sizings = list(map(Section.parseNum, Section.adjustList(list(map(str, sizings)), Section.parseList(v))))
 
                 case 'limit' | 'innerlimit' | 'inneramount':
-                    limit = int(Section.extractNum(v))
+                    limit = float(Section.parseNum(v))
                 case 'header':
                     useheader = True
                 case 'footer':
@@ -85,10 +85,10 @@ class Section(Element[SectionCore, SectionData]):
             match tag.lower():
                 case 'setInnerLimit' | 'setLimit' | 'limit':
                     s = True
-                    if isinstance(value, float):
-                        self._core.setInnerLimit(value)
+                    if isinstance(value, float) or isinstance(value, int):
+                        self._core.setInnerLimit(float(value))
                     else:
-                        raise ValueError('setInnerLimit expects a float')
+                        raise ValueError('setInnerLimit expects a float or int')
         return s
 
     @override

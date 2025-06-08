@@ -107,7 +107,7 @@ class SectionCore(ElementCore):
         elif self.__footersep:
             self.__footersep.setActive(False)
 
-        if not self.__sectionAmount:
+        if self.__sectionAmount < 2:
             self.__prevButton.setActive(False)
             self.__nextButton.setActive(False)
         else:

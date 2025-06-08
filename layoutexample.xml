@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<section spacing="20" limit="6" header="" footer="" sizings="1.7,1.1">
+<section limit="6" header="" footer="" sizings="1.7,1.1">
   <f2 text="Section Header"></f2>
-  <f1 text="Section Footer"></f1>
-  <multiselect limit="3" offset="20">
+  <f1 text="Footer"></f1>
+  <multiselect limit="3">
     <f3 text="10,SELECTED"></f3>
     <f3 text=",SELECTED"></f3>
     <f3 text="30,SELECTED"></f3>
@@ -35,8 +35,8 @@
     <box color="(0,255,0)"></box>
     <box color="(0,0,255)"></box>
   </cycle>
-  <group spacing="40" hor="" sizings="0.5,0.3,0.2">
-    <group spacing="20" sizing="2=1.4">
+  <group hor="" sizings="0.5,0.3,0.2">
+    <group sizing="2=1.4">
       <framed>
         <checkbox trigger="click" global="i"></checkbox>
       </framed>

@@ -71,25 +71,22 @@ class Renderer(ABC):
     # #################### CLASS-METHODS ####################
 
     _drawer: type[SurfaceDrawer] | None = None
-    _renderstyle: str = ''
 
     __cachedSortedRenderer: list['Renderer'] = []
 
-    __postRenderQueue: list['Renderer'] = []
+    _postRenderQueue: list['Renderer'] = []
 
     @staticmethod
-    def init(drawer: type[SurfaceDrawer], font: type[Font], renderstyle: str='') -> None:
+    def init(drawer: type[SurfaceDrawer], font: type[Font]) -> None:
         """
         init initializes the meta info necessary for rendering the UI-Elements on the screen.
 
         Args:
             drawer      (type[SurfaceDrawer) : the engine to be used for drawing on screen
             font        (type[Font])         : the font-implementation to be used for rendering font
-            renderstyle (RenderStyle)        : the render-style to be used for styling UI-Elements
         """
         Renderer._drawer = drawer
         FontManager.setFont(font)
-        Renderer._renderstyle = renderstyle
 
     @staticmethod
     def addPostRenderElement(element: 'Renderer') -> None:
@@ -97,14 +94,14 @@ class Renderer(ABC):
         addPostRenderElement adds a element to the post-render-queue of the renderer.
         Thereby the element get forcefully rendered after all 'normal' renders.
         """
-        Renderer.__postRenderQueue.append(element)
+        Renderer._postRenderQueue.append(element)
 
     @staticmethod
-    def __renderPost(screen: Surface) -> None:
-        assert Renderer._drawer is not None and Renderer._renderstyle is not None
-        for el in Renderer.__postRenderQueue:
+    def _renderPost(screen: Surface) -> None:
+        assert Renderer._drawer is not None
+        for el in Renderer._postRenderQueue:
             el.render(screen)
-        Renderer.__postRenderQueue = []
+        Renderer._postRenderQueue = []
 
     @staticmethod
     def renderAll(screen: Surface, elements: list['Renderer']) -> list['Renderer']:
@@ -118,16 +115,13 @@ class Renderer(ABC):
         if Renderer._drawer is None:
             raise ValueError("Renderer::drawer not instantiated!")
         
-        if Renderer._renderstyle is None:
-            raise ValueError("Renderer::renderstyle is not instantiated!")
-        
         if elements != Renderer.__cachedSortedRenderer:
             elements = sorted(elements, key=lambda x: x.getZIndex())
             Renderer.__cachedSortedRenderer = elements
         for element in elements:
             element.render(screen)
 
-        if len(Renderer.__postRenderQueue) > 0:
-            Renderer.__renderPost(screen)
+        if len(Renderer._postRenderQueue) > 0:
+            Renderer._renderPost(screen)
 
         return elements

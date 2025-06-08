@@ -3,7 +3,7 @@ import pygame as pg
 
 from pygamesetup import PygameDrawer, PygameSurface, PygameFont, PygameInputHandler
 
-from ui import Rect, Parser, InputManager, InputEvent, Element
+from ui import Parser, InputManager, InputEvent, UI
 
 def main():
     pg.init()
@@ -11,7 +11,7 @@ def main():
 
     # ------------------------------ setup ------------------------------
     InputManager.init(PygameInputHandler)
-    Element.init(PygameDrawer, PygameFont)
+    UI.init(PygameDrawer, PygameFont)
 
     running: bool = True
 
@@ -29,20 +29,14 @@ def main():
  
     Parser.loadStyleFromXML("styleexample.xml")
     Parser.setDefaultStyle('moon')
-    layout = Parser.loadLayoutFromXML("layoutexample.xml")
-    relSize = (0.8, 0.85)
-    layout.align(Rect(topleft=(int(screen_size[0]*(1-relSize[0])*0.5),int(screen_size[1]*(1-relSize[1])*0.5))))
-    layout.alignSize(Rect(size=(int(screen_size[0]*relSize[0]),int(screen_size[1]*relSize[1]))))
-    layout.setActive(True)
+    ui: UI = Parser.loadLayoutFromXML("layoutexample.xml")
+    ui.setSize(screen_size)
+    ui.setActive(True)
 
-    txt = Parser.getElementByID('imp')
+    txt = ui.getElementByID('imp')
     txt.set({'content':'UNIMPORTANT'})
 
-    layout.set({'limit':6.0})
-
     print(Parser.getAllStyles())
-    
-    layout.updateLayout()
 
     # ------------------------------ runtime-loop ------------------------------
     rt = 0
@@ -53,7 +47,7 @@ def main():
 
         main_screen.fill(background_color)
         s = perf_counter_ns()
-        layout.renderAll(PygameSurface(main_screen), [layout])
+        ui.render(PygameSurface(main_screen))
         rt += perf_counter_ns() - s
         fc += 1
 

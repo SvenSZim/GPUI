@@ -8,17 +8,19 @@ from .style import StyleManager
 from .elements import Element, Line, Box, Text
 from .elements import Framed, Grouped, Dropdown
 from .elements import Button, Toggle, Slider, Multiselect, Dropdownselect
-from .elements import Section
+from .elements import Section, UI
 
 class Parser:
 
     @staticmethod
-    def loadLayoutFromXML(path: str) -> Element:
+    def loadLayoutFromXML(path: str) -> UI:
         tree: ET.ElementTree = ET.parse(path)
-        newEl, namedElements = Parser.__fromNode(tree.getroot())
+        newEl, rawNamedElements = Parser.__fromNode(tree.getroot())
         if newEl is None:
             raise ValueError('Could not find root element!')
-        Parser.__namedElements = {k:v[1] for k, v in namedElements.items()}
+        if not isinstance(newEl, UI):
+            namedElements = {k:v[1] for k, v in rawNamedElements.items()}
+            return UI.parseFromArgs({'inner':[newEl], 'named': namedElements})
         return newEl
 
     @staticmethod
@@ -131,6 +133,11 @@ class Parser:
             case 'section' | 'sec' | 's':
                 if len(childs) >= Section.getMinRequiredChildren():
                     newElement = Section.parseFromArgs(attributes)
+            case 'ui':
+                if len(childs) >= UI.getMinRequiredChildren():
+                    attributes['named'] = {k:v[1] for k, v in namedElements.items()}
+                    newElement = UI.parseFromArgs(attributes)
+
             case _:
                 styleValue: str = StyleManager.defaultStyle
                 if any([x in attributes for x in styleTags]):

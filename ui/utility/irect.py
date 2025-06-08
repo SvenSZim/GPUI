@@ -88,3 +88,11 @@ class iRect(ABC):
         width, height = self.getSize()
         left, top = self.getPosition()
         return (int(left + relativePosition[0] * width), int(top + relativePosition[1] * height))
+
+    def isZero(self) -> bool:
+        """
+        isZero returns if both width and height of the Rect are zero.
+
+        Returns (bool): if the rects width and height are both zero.
+        """
+        return self.getWidth() == 0 and self.getHeight() == 0
