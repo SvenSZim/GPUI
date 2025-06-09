@@ -20,7 +20,6 @@ DONE:
   - SectionV2 (parsable)
   - StyleV2
 
-IN WORK:
   - ui (combine everything into a dynamic element that creates usable layouts)
 
 Optionals:

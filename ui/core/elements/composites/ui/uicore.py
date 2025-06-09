@@ -59,16 +59,29 @@ class UICore(ElementCore):
             return
         
         elementSize: tuple[int, int] = (int(self.getWidth()/6 * self.__sizing), int(50 * self.__sizing))
-        topBarHeight: int = elementSize[1]
-        bottomBarHeight: int = elementSize[1]
+        topBarHeight: int = int(elementSize[1] * 1.4)
+        bottomBarHeight: int = int(elementSize[1] * 1.1)
         barSizes: list[Rect]
-        if self.__useHeader and self.__useFooter:
+        usedInner: int = 0
+
+        if self.__useHeader and self.__useFooter and len(self.__inner) > 1:
             barSizes = [
                 Rect(                                                        size=(self.getWidth(), topBarHeight)),                                 # topbar
                 Rect(topleft=(0,          self.getBottom()-bottomBarHeight), size=(self.getWidth(), bottomBarHeight)),                              # bottombar
                 Rect(topleft=(self.getRight()-elementSize[0], topBarHeight), size=(elementSize[0], self.getHeight()-topBarHeight-bottomBarHeight)), # rightbar
                 Rect(topleft=(0,                              topBarHeight), size=(elementSize[0], self.getHeight()-topBarHeight-bottomBarHeight)), # leftbar
             ]
+            header: Element = self.__inner[0]
+            header.align(barSizes[0])
+            header.alignSize(barSizes[0])
+            self.__topBars.append([header])
+            self.__numberOfTopBars += 1
+            footer: Element = self.__inner[1]
+            footer.align(barSizes[1])
+            footer.alignSize(barSizes[1])
+            self.__bottomBars.append([footer])
+            self.__numberOfBottomBars += 1
+            usedInner += 2
         elif self.__useHeader:
             bottomBarHeight = 0
             barSizes = [
@@ -77,6 +90,12 @@ class UICore(ElementCore):
                 Rect(topleft=(self.getRight()-elementSize[0], topBarHeight), size=(elementSize[0], self.getHeight()-topBarHeight-bottomBarHeight)), # rightbar
                 Rect(topleft=(0,                              topBarHeight), size=(elementSize[0], self.getHeight()-topBarHeight-bottomBarHeight)), # leftbar
             ]
+            header: Element = self.__inner[0]
+            header.align(barSizes[0])
+            header.alignSize(barSizes[0])
+            self.__topBars.append([header])
+            self.__numberOfTopBars += 1
+            usedInner += 1
         elif self.__useFooter:
             topBarHeight = 0
             barSizes = [
@@ -85,6 +104,12 @@ class UICore(ElementCore):
                 Rect(topleft=(self.getRight()-elementSize[0], topBarHeight), size=(elementSize[0], self.getHeight()-topBarHeight-bottomBarHeight)), # rightbar
                 Rect(topleft=(0,                              topBarHeight), size=(elementSize[0], self.getHeight()-topBarHeight-bottomBarHeight)), # leftbar
             ]
+            footer: Element = self.__inner[0]
+            footer.align(barSizes[1])
+            footer.alignSize(barSizes[1])
+            self.__bottomBars.append([footer])
+            self.__numberOfBottomBars += 1
+            usedInner += 1
         else:
             topBarHeight = 0
             bottomBarHeight = 0
@@ -101,7 +126,7 @@ class UICore(ElementCore):
         bars: list[list[Element]]   = [[] for _ in barSizes]
         cSizes: list[int]           = [0 for _ in barSizes]
         
-        for el in self.__inner:
+        for el in self.__inner[usedInner:]:
             el.setActive(False)
             elSize: tuple[int, int] = el.getInnerSizing(elementSize)
             wasAdded: bool = False

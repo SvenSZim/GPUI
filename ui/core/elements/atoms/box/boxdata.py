@@ -54,7 +54,7 @@ class BoxData(AtomData):
     def set(self, args: dict[str, Any], skips: bool) -> bool:
         s: bool = False
         for arg, v in args.items():
-            if arg not in ['partitioning', 'part']:
+            if arg not in ['boxpart', 'partitioning', 'part']:
                 if not isinstance(v, str):
                     continue
                 values = v.split(';')
@@ -69,19 +69,19 @@ class BoxData(AtomData):
                         label = BoxData.parseLabel(vv[0])
                         value = vv[1]
                     match arg:
-                        case 'inset' | 'partial' | 'shrink':
+                        case 'boxinset' | 'inset' | 'partial' | 'shrink':
                             s = True
                             if not skips:
                                 self.partialInset[label] = BoxData.parsePartial(value)
-                        case 'colors' | 'color' | 'col':
+                        case 'boxcolor' | 'colors' | 'color' | 'col':
                             s = True
                             if not skips:
                                 self.colors[label] = BoxData.parseColor(value)
-                        case 'sectionorders' | 'orders' | 'ord':
+                        case 'boxorder' | 'sectionorders' | 'orders' | 'ord':
                             s = True
                             if not skips:
                                 self.orders[label] = BoxData.parseList(value)
-                        case 'fillmodes' | 'fillmode' | 'fills' | 'fill' | 'altmodes' | 'altmode' | 'modes' | 'mode':
+                        case 'boxmode' | 'fillmodes' | 'fillmode' | 'fills' | 'fill' | 'altmodes' | 'altmode' | 'modes' | 'mode':
                             s = True
                             if not skips:
                                 match value:
@@ -91,7 +91,7 @@ class BoxData(AtomData):
                                         self.altMode[label] = AltMode.STRIPED_V
                                     case 'striped_hor' | 'strh':
                                         self.altMode[label] = AltMode.STRIPED_H
-                        case 'fillsizes' | 'fillsize' | 'innersizings' | 'innersizing' | 'sizes' | 'size':
+                        case 'boxsize' | 'fillsizes' | 'fillsize' | 'innersizings' | 'innersizing' | 'sizes' | 'size':
                             s = True
                             if not skips:
                                 match value:
@@ -101,7 +101,7 @@ class BoxData(AtomData):
                                         self.altLen[label] = 20
                                     case _:
                                         self.altLen[label] = BoxData.parseNum(value)
-                        case 'filters' | 'filter' | 'filt':
+                        case 'boxfilter' | 'filters' | 'filter' | 'filt':
                             s = True
                             if not skips:
                                 filtype, *options = [vvv.strip() for vvv in value.split('=')]
@@ -122,7 +122,7 @@ class BoxData(AtomData):
                                         pass
             else:
                 match arg:
-                    case 'partitioning' | 'part':
+                    case 'boxpart' | 'partitioning' | 'part':
                         s = True
                         if not skips:
                             self.partitioning = BoxData.parsePartition(v)

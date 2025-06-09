@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<framed>
-  <line color="white">
-  </line>
-  <text inset="100" color="red" fontsize="l" align="0.3,0.9">Hello World</text>
-</framed>

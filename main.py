@@ -1,64 +1,88 @@
-from time import perf_counter_ns
+from time import perf_counter
 import pygame as pg
+import numpy as np
 
 from pygamesetup import PygameDrawer, PygameSurface, PygameFont, PygameInputHandler
 
 from ui import Parser, InputManager, InputEvent, UI
+
+from exampleEngine import Engine
 
 def main():
     pg.init()
     pg.font.init()
 
     # ------------------------------ setup ------------------------------
-    InputManager.init(PygameInputHandler)
-    UI.init(PygameDrawer, PygameFont)
-
     running: bool = True
 
     def quit():
         nonlocal running
         running = False
 
+    screen_size: tuple[int, int] = (1280, 720)
+    main_screen: pg.Surface = pg.display.set_mode(screen_size)
+
+    # physics-setup
+    physicsEngine: Engine = Engine(np.array(screen_size)/2, np.float64(min(screen_size)/2.6), np.float64(25))
+    
+    # ui-setup
+    InputManager.init(PygameInputHandler)   # initialize ui-input module
     InputManager.quickSubscribe(InputEvent.QUIT, quit)
     
-    screen_size = (1280, 720)
-    main_screen = pg.display.set_mode(screen_size)
-    background_color = 'black'
+    UI.init(PygameDrawer, PygameFont)   # initialize ui-rendering module
     
-    # ------------------------------ load-layouts ------------------------------
- 
-    Parser.loadStyleFromXML("styleexample.xml")
-    Parser.setDefaultStyle('moon')
-    ui: UI = Parser.loadLayoutFromXML("layoutexample.xml")
-    ui.setSize(screen_size)
-    ui.setActive(True)
+    Parser.loadStyleFromXML("styleexample.xml")             # load style
+    Parser.setDefaultStyle('moon')                          # set style
+    ui: UI = Parser.loadLayoutFromXML("layoutexample.xml")  # load layout
+    ui.setSize(screen_size)                                 # set layout size
 
-    txt = ui.getElementByID('imp')
-    txt.set({'content':'UNIMPORTANT'})
+    # set colors of gravity cycle
+    ui.getElementByID("gravityMode").set({'boxcolor':'gray'},sets=1)
+    ui.getElementByID("gravityMode").set({'boxcolor':'darkred'},sets=1,skips=[1])
+    ui.getElementByID("gravityMode").set({'boxcolor':'blue'},sets=1,skips=[2])
 
-    print(Parser.getAllStyles())
+    # button functionality
+    def addObject():
+        nonlocal physicsEngine
+        physicsEngine.addObject(np.array(screen_size)/2 + np.array([100, -100]), np.zeros(2))
+
+    ui.getElementByID('addObject').set({'quickSubscribeToClick':(addObject, [])})
+    ui.getElementByID('tpObjects').set({'quickSubscribeToClick':(physicsEngine.applyRandomTeleports, [350.0])})
+    ui.getElementByID('toggleCollisions').set({'quickSubscribeToClick':(physicsEngine.toggleCollisions, [])})
+    ui.getElementByID('toggleRandomRad').set({'quickSubscribeToClick':(physicsEngine.toggleRandomRadOff, [])})
+    [ui.getElementByID('gravityMode').set({'quickSubscribeToToggleState':(x, physicsEngine.setGravityMode, [x])}) for x in range(3)]
+    ui.getElementByID('clearObjects').set({'quickSubscribeToClick':(physicsEngine.clear, [])})
 
     # ------------------------------ runtime-loop ------------------------------
-    rt = 0
-    fc = 0
+    last_frame_time: float = perf_counter()
 
     while running:
+        # input update
         InputManager.update()
 
-        main_screen.fill(background_color)
-        s = perf_counter_ns()
-        ui.render(PygameSurface(main_screen))
-        rt += perf_counter_ns() - s
-        fc += 1
+        # physics update
+        dt: float = perf_counter() - last_frame_time
+        last_frame_time = perf_counter()
+        physicsEngine.update(np.float64(dt))
 
-        #if fc > 1000:
-        #    print(f'Avg rendertime: {rt/fc/1000}')
+        # ui update
+        fps = round(1/dt, 2)
+        ui.getElementByID('fps').set({'content':f'{fps}'},sets=1,skips=[1])
+        ui.getElementByID('balls').set({'content':f'{len(physicsEngine.getAllObjectPositions())}'},sets=1,skips=[1])
+
+        # rendering
+        main_screen.fill("black")
+
+        # physics rendering
+        pg.draw.circle(main_screen, "red", [int(x) for x in physicsEngine.worldcenter[:2]], int(physicsEngine.worldrad), width=1)
+        for pos, rad in physicsEngine.getAllObjectPositions():
+            pg.draw.circle(main_screen, "white", [int(x) for x in pos[:2]], int(rad))
+        
+        # ui rendering
+        ui.render(PygameSurface(main_screen))
 
         pg.display.flip()
-        background_color = 'black'
 
-    print(f'Avg rendertime: {rt/fc/1000}')
-    
 
     pg.font.quit()
     pg.quit()

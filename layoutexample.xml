@@ -1,58 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<section limit="6" header="" footer="" sizings="1.7,1.1">
-  <f2 text="Section Header"></f2>
-  <f1 text="Footer"></f1>
-  <multiselect limit="3">
-    <f3 text="10,SELECTED"></f3>
-    <f3 text=",SELECTED"></f3>
-    <f3 text="30,SELECTED"></f3>
-    <f3 text=",SELECTED"></f3>
-    <f3 text="50,SELECTED"></f3>
-    <f3></f3>
-  </multiselect>
-  <dropselect head="f1" customheads="2">
-    Option1, Option2, Option3, Option4, Option5
-    <framed>
-      <line color="red"></line>
-      <box color="red"></box>
-      <text color="blue" fontsize="d">Hello!</text>
-    </framed>
-    <framed id="imp">
-      <line color="red"></line>
-      <text color="white" fontsize="d">IMPORTANT!</text>
-    </framed>
-    <framed>
-      <line color="white"></line>
-      <box color="green"></box>
-      <button><text color="blue" fontsize="d">Hello World</text></button>
-    </framed>
-    <button><f1></f1></button>
-    <button><f2></f2></button>
-  </dropselect>
-  <cycle textbox="f2">
-    1, 2, 3, 4, rofl
-    <box color="(255,0,0)"></box>
-    <box color="(0,255,0)"></box>
-    <box color="(0,0,255)"></box>
-  </cycle>
-  <group hor="" sizings="0.5,0.3,0.2">
-    <group sizing="2=1.4">
-      <framed>
-        <checkbox trigger="click" global="i"></checkbox>
-      </framed>
-      <checkbox trigger="click" global="i"></checkbox>
-      <framed>
-        <checkbox trigger="click" global="i"></checkbox>
-      </framed>
-    </group>
-    <button trigger="click" global="i"></button>
-    <framed>
-      <checkbox trigger="click" global="i"></checkbox>
-    </framed>
-  </group>
-  <framed>
-    <slider id="sld1">
-      <box inset="10" color=";a:red" mode="cb" orders=",a"></box>
-    </slider>
-  </framed>
-</section>
+<ui header="true" footer="true">
+  <f2 text="UI Example"></f2>
+  <f3 text="By Sven"></f3>
+  <section limit="8" header="true" sizings="1.7,1.1" spacing="5">
+    <f1 text="Verlet Solver"></f1>
+    <button_txt id="addObject" text="Add Object, adding..."></button_txt>
+    <cb id="toggleRandomRad" text="Fixed Radius, Random Radius"></cb>
+    <button_txt id="tpObjects" text="Random TP, teleporting..."></button_txt>
+    <cb id="toggleCollisions" text="Collisions: OFF, Collisions: ON"></cb>
+    <cycle id="gravityMode">Normal Gravity, No Gravity, Center Gravity</cycle>
+    <button_txt id="clearObjects" text="Clear, clearing..."></button_txt>
+  </section>
+  <section limit="6" header="true" sizings="1.7">
+    <f1 text="Stats"></f1>
+    <doubletext id="fps" text="FPS:,10"></doubletext>
+    <doubletext id="balls" text="Balls:,0"></doubletext>
+  </section>
+</ui>

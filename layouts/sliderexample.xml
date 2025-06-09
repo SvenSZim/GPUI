@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<framed>
-  <line color="white"></line>
-  <slider id="sld1">
-    <box inset="10" color=";a:red" mode="cb" orders=",a"></box>
-  </slider>
-</framed>

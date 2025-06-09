@@ -45,7 +45,7 @@ class LineData(AtomData):
     def set(self, args: dict[str, Any], skips: bool) -> bool:
         s: bool = False
         for arg, v in args.items():
-            if arg not in ['inset', 'flip', 'sectionorder', 'order']:
+            if arg not in ['lineinset', 'inset', 'flip', 'lineorder', 'sectionorder', 'order']:
                 if not isinstance(v, str):
                     continue
                 values = v.split(';')
@@ -60,7 +60,7 @@ class LineData(AtomData):
                         label = LineData.parseLabel(vv[0])
                         value = vv[1]
                     match arg:
-                        case 'colors' | 'color' | 'col':
+                        case 'linecolor' | 'colors' | 'color' | 'col':
                             s = True
                             if not skips:
                                 self.colors[label] = LineData.parseColor(value)
@@ -68,7 +68,7 @@ class LineData(AtomData):
                             s = True
                             if not skips:
                                 self.thickness[label] = int(LineData.extractNum(value))
-                        case 'sizes' | 'size':
+                        case 'linesize' | 'sizes' | 'size':
                             s = True
                             if not skips:
                                 match value:
@@ -78,7 +78,7 @@ class LineData(AtomData):
                                         self.sizes[label] = 20
                                     case _:
                                         self.sizes[label] = LineData.parseNum(value)
-                        case 'altmode' | 'mode':
+                        case 'linemode' | 'altmode' | 'mode':
                             s = True
                             if not skips:
                                 match value:
@@ -86,7 +86,7 @@ class LineData(AtomData):
                                         self.altmode[label] = AltMode.CROSS
             else:
                 match arg:
-                    case 'inset':
+                    case 'lineinset' | 'inset':
                         s = True
                         if not skips:
                             self.inset = LineData.parsePartial(v)
@@ -94,7 +94,7 @@ class LineData(AtomData):
                         s = True
                         if not skips:
                             self.flip = True
-                    case 'sectionorder' | 'order':
+                    case 'lineorder' | 'sectionorder' | 'order':
                         s = True
                         if not skips:
                             self.order = LineData.parseList(v)

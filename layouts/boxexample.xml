@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<framed>
-  <line color="white">
-  </line>
-  <box partitioning="4x2; [a,b,a,b][2=c,4=c]" filter="b:it=0.5,0.0,0.5+0.0" inset="80" colors="(240,30,30);c1:(120,30,30);c2:(60,60,60)" fillmode="a:strh;b:cb;c:strv" fillsize="40" sectionorders="c3;a:c1,c2;b:c1,c2;c:c1,c2">
-  </box>
-</framed>
-
