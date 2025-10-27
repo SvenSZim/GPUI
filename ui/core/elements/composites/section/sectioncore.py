@@ -8,8 +8,18 @@ from ...elementcore import ElementCore
 from ...atoms           import Box
 
 class SectionCore(ElementCore):
-    """
-    SectionCore is the core object of the addon 'Section'.
+    """Core implementation for the Section composite managing content pagination and layout.
+    
+    Handles the internal organization of sectioned content including:
+    - Content pagination based on height limits
+    - Header and footer placement
+    - Navigation button management
+    - Section transition logic
+    - Keyboard input handling
+    - Element sizing and positioning
+    
+    The core automatically splits content into sections when it exceeds the specified
+    height limit and manages the visibility of navigation controls based on section count.
     """
     ___vbox: Box
     _buttonActive: bool

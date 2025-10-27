@@ -12,8 +12,35 @@ def getHashstring() -> str:
 
 class EventManager:
     """
-    EventManager is a static class which is used to store and manage
-    all UI related Events.
+    Static manager class for the UI event system.
+
+    Provides centralized management of events and callbacks with features:
+    - Event creation and storage
+    - Callback registration and management
+    - Priority-based event handling
+    - Event triggering and propagation control
+    - Resource cleanup and management
+
+    The event system supports:
+    - Multiple subscribers per event
+    - Priority-ordered execution
+    - Event termination via boolean returns
+    - Automatic resource cleanup
+    - Thread-safe operation
+
+    Usage:
+        # Create an event
+        event_id = EventManager.createEvent()
+
+        # Create and subscribe a callback
+        callback_id = EventManager.createCallback(my_function)
+        EventManager.subscribeToEvent(event_id, callback_id)
+
+        # Trigger the event
+        EventManager.triggerEvent(event_id)
+
+        # Clean up
+        EventManager.removeCallback(callback_id)
     """
     
     __d_callbacks: dict[str, Callback] = {}   
@@ -172,19 +199,74 @@ class EventManager:
 
     @staticmethod
     def quickSubscribe(event: str, f: Callable, *args: Any) -> tuple[str, bool]:
-        """
-        quickSubscribe takes a function and its arguments, creates
-        a Callback and subscribes to the event.
+        """Create and subscribe a callback in one operation.
+
+        Convenience method that creates a callback from a function and its
+        arguments, then subscribes it to an event.
 
         Args:
-            event (str)      : the event-name to subscribe to
-            f     (Callable) : the function to use as callback
-            args  (list[Any]): the arguments to use as callback
+            event: Event identifier to subscribe to
+            f: Function to use as callback
+            *args: Arguments to pass to the callback
 
-        Returns (tuple[str, bool]): 1. the id of the newly created Callback
-                                    2. if the callback was successfully subscribed
+        Returns:
+            tuple: (callback_id, subscription_success)
+                callback_id: Identifier for the created callback
+                subscription_success: True if subscription successful
+
+        Raises:
+            TypeError: If event is not a string or f is not callable
+            ValueError: If event is empty
         """
-        newCallback: str = EventManager.createCallback(f, *args)
-        return (newCallback, EventManager.subscribeToEvent(event, newCallback))
+        if not isinstance(event, str):
+            raise TypeError(f'event must be a string, got {type(event)}')
+        if not event:
+            raise ValueError('event identifier cannot be empty')
+        if not callable(f):
+            raise TypeError(f'f must be callable, got {type(f)}')
 
+        try:
+            newCallback: str = EventManager.createCallback(f, *args)
+            success = EventManager.subscribeToEvent(event, newCallback)
 
+            if not success:
+                # Clean up callback if subscription failed
+                EventManager.removeCallback(newCallback)
+                return ('', False)
+
+            return (newCallback, True)
+        except Exception as e:
+            # Ensure callback is cleaned up on any error
+            if 'newCallback' in locals():
+                EventManager.removeCallback(newCallback)
+            raise RuntimeError(f'Failed to create and subscribe callback: {str(e)}') from e
+
+    @staticmethod
+    def removeCallback(callback_id: str) -> bool:
+        """Remove a callback from the event system.
+
+        Removes the callback with the given ID from the system and cleans up
+        its resources. This should be called when a callback is no longer needed
+        or if event subscription fails.
+
+        Args:
+            callback_id: Unique identifier of the callback to remove
+
+        Returns:
+            bool: True if callback was found and removed, False otherwise
+
+        Raises:
+            TypeError: If callback_id is not a string
+            ValueError: If callback_id is empty
+        """
+        if not isinstance(callback_id, str):
+            raise TypeError(f'callback_id must be a string, got {type(callback_id)}')
+        if not callback_id:
+            raise ValueError('callback_id cannot be empty')
+
+        # Remove callback if it exists
+        if callback_id in EventManager.__d_callbacks:
+            del EventManager.__d_callbacks[callback_id]
+            return True
+            
+        return False

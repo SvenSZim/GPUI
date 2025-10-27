@@ -6,9 +6,17 @@ from ..interactabledata     import InteractableData
 
 @dataclass
 class ButtonData(InteractableData):
-    """
-    ButtonData is the storage class for all render-information
-    for the interactable 'Button'.
+    """Storage class for Button visual states and render information.
+    
+    Manages the visual representation of button states including:
+    - Normal state element (off)
+    - Pressed state element (on, optional)
+    - Element alignment and sizing
+    - Visual state transitions
+    
+    This class handles the rendering data needed to display the button
+    in its different states while maintaining proper layout alignment.
+    The on state is optional, defaulting to the off state if not provided.
     """
     off: Element
     on: Optional[Element]

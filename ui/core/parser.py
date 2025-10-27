@@ -14,10 +14,25 @@ class Parser:
 
     @staticmethod
     def loadLayoutFromXML(path: str) -> UI:
-        tree: ET.ElementTree = ET.parse(path)
-        newEl, rawNamedElements = Parser.__fromNode(tree.getroot())
+        """Load and parse a UI layout from an XML file.
+
+        Args:
+            path (str): Path to the XML layout file
+
+        Returns:
+            UI: The parsed UI tree
+
+        Raises:
+            ValueError: If no valid root element is found
+            ET.ParseError: If XML is malformed
+        """
+        tree = ET.parse(path)
+        root = tree.getroot()
+        if root is None:
+            raise ValueError('XML file contains no root element')
+        newEl, rawNamedElements = Parser.__fromNode(root)
         if newEl is None:
-            raise ValueError('Could not find root element!')
+            raise ValueError('Failed to parse root element from XML layout file')
         if not isinstance(newEl, UI):
             namedElements = {k:v[1] for k, v in rawNamedElements.items()}
             return UI.parseFromArgs({'inner':[newEl], 'named': namedElements})
@@ -25,8 +40,19 @@ class Parser:
 
     @staticmethod
     def loadStyleFromXML(path: str) -> None:
-        tree: ET.ElementTree = ET.parse(path)
-        Parser.__fromNode(tree.getroot())
+        """Load style definitions from an XML file into the StyleManager.
+        
+        Args:
+            path (str): Path to the XML style file
+            
+        Raises:
+            ET.ParseError: If XML is malformed
+        """
+        tree = ET.parse(path)
+        root = tree.getroot()
+        if root is None:
+            raise ValueError('XML file contains no root element')
+        Parser.__fromNode(root)
 
     @staticmethod
     def getAllStyles() -> list[str]:
@@ -48,7 +74,22 @@ class Parser:
         idTags   : list[str] = ['label', 'tag', 'id', 'name']
         styleTags: list[str] = Element.styleTags
 
-        def getID(attributes: dict[str, Any], tags: list[str], usedTags: set[str]=set()) -> Optional[str]:
+        def getID(attributes: dict[str, Any], tags: list[str], usedTags: set[str] | None = None) -> Optional[str]:
+            """
+            getID extracts the first matching identifier from attributes using the
+            provided tags list. If usedTags is provided the found id is checked
+            for duplicates and an error is raised when a duplicate is encountered.
+
+            Args:
+                attributes: attribute dict from the parsed XML node
+                tags: ordered list of keys to check for an id
+                usedTags: optional set of already-used ids to validate uniqueness
+
+            Returns:
+                The found id string or None if no id key is present.
+            """
+            if usedTags is None:
+                usedTags = set()
             if any([x in attributes for x in tags]):
                 tagValue: str = attributes[tags[[x in attributes for x in tags].index(True)]]
                 if tagValue in usedTags:
@@ -61,15 +102,15 @@ class Parser:
 
         namedElements: dict[str, tuple[ET.Element, Element]] = {}
 
-        childs: list[Element] = []
+        children: list[Element] = []
         for c in node:
             newEl, subNamedElement = Parser.__fromNode(c)
             if newEl is not None:
-                childs.append(newEl)
+                children.append(newEl)
             if len(namedElements) + len(subNamedElement) != len(set(namedElements).union(subNamedElement)):
                 raise ValueError(f'labels={set(namedElements).intersection(subNamedElement)} appear twice!')
             namedElements |= subNamedElement
-        attributes['inner'] = childs
+        attributes['inner'] = children
 
         # -------------------- styles --------------------
         if node.tag.lower() in styleTags:
@@ -90,51 +131,51 @@ class Parser:
         newElement: Optional[Element] = None
         match node.tag.lower():
             case 'line' | 'l':
-                if len(childs) >= Line.getMinRequiredChildren():
+                if len(children) >= Line.getMinRequiredChildren():
                     newElement = Line.parseFromArgs(attributes)
             case 'box' | 'b':
-                if len(childs) >= Box.getMinRequiredChildren():
+                if len(children) >= Box.getMinRequiredChildren():
                     newElement = Box.parseFromArgs(attributes)
             case 'text' | 't':
-                if len(childs) >= Text.getMinRequiredChildren():
+                if len(children) >= Text.getMinRequiredChildren():
                     newElement = Text.parseFromArgs(attributes)
             case 'framed' | 'fr' | 'f':
-                if len(childs) >= Framed.getMinRequiredChildren():
+                if len(children) >= Framed.getMinRequiredChildren():
                     newElement = Framed.parseFromArgs(attributes)
             case 'group' | 'grouped' | 'gr' | 'g':
-                if len(childs) >= Grouped.getMinRequiredChildren():
+                if len(children) >= Grouped.getMinRequiredChildren():
                     newElement = Grouped.parseFromArgs(attributes)
             case 'dropdown' | 'dpd':
-                if len(childs) >= Dropdown.getMinRequiredChildren():
+                if len(children) >= Dropdown.getMinRequiredChildren():
                     newElement = Dropdown.parseFromArgs(attributes)
             
             case 'button':
-                if len(childs) >= Button.getMinRequiredChildren():
+                if len(children) >= Button.getMinRequiredChildren():
                     newElement = Button.parseFromArgs(attributes)
             
             case 'checkbox' | 'selector':
                 attributes['typ'] = 'checkbox'
-                if len(childs) >= Toggle.getMinRequiredChildren():
+                if len(children) >= Toggle.getMinRequiredChildren():
                     newElement = Toggle.parseFromArgs(attributes)
             case 'elementcycle' | 'cycle' | 'cyclebutton':
                 attributes['typ'] = 'cycle'
-                if len(childs) >= Toggle.getMinRequiredChildren():
+                if len(children) >= Toggle.getMinRequiredChildren():
                     newElement = Toggle.parseFromArgs(attributes)
 
             case 'slider':
-                if len(childs) >= Slider.getMinRequiredChildren():
+                if len(children) >= Slider.getMinRequiredChildren():
                     newElement = Slider.parseFromArgs(attributes)
             case 'multiselect' | 'multi':
-                if len(childs) >= Multiselect.getMinRequiredChildren():
+                if len(children) >= Multiselect.getMinRequiredChildren():
                     newElement = Multiselect.parseFromArgs(attributes)
             case 'dropdownselect' | 'dropselect' | 'downselect' | 'dropsel' | 'dpds':
-                if len(childs) >= Dropdownselect.getMinRequiredChildren():
+                if len(children) >= Dropdownselect.getMinRequiredChildren():
                     newElement = Dropdownselect.parseFromArgs(attributes)
             case 'section' | 'sec' | 's':
-                if len(childs) >= Section.getMinRequiredChildren():
+                if len(children) >= Section.getMinRequiredChildren():
                     newElement = Section.parseFromArgs(attributes)
             case 'ui':
-                if len(childs) >= UI.getMinRequiredChildren():
+                if len(children) >= UI.getMinRequiredChildren():
                     attributes['named'] = {k:v[1] for k, v in namedElements.items()}
                     newElement = UI.parseFromArgs(attributes)
 
@@ -172,12 +213,22 @@ class Parser:
             Element.parserResponse = Parser.__fromNode(elementRequest)[0]
 
 
-    # TEMPORARY
     @staticmethod
     def getElementByID(id: str) -> Element:
+        """Retrieve a UI element by its ID.
+        
+        Args:
+            id (str): The ID of the element to find
+            
+        Returns:
+            Element: The element with the specified ID
+            
+        Raises:
+            ValueError: If no element exists with the given ID
+        """
         if id in Parser.__namedElements:
             return Parser.__namedElements[id]
-        raise ValueError(f'{id=} does not exist')
+        raise ValueError(f'No UI element found with ID "{id}". Available IDs: {list(Parser.__namedElements.keys())}')
 
 
 EventManager.quickSubscribe(Element.parserCallEvent, Parser.answerElementRequest)

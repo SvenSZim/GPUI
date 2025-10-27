@@ -2,7 +2,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional, override
 
-from .....utility import Color
+from .....utility import tColor, Color
 from ..atomdata import AtomData
 
 def adjustedFontSizeFunction(medium: int, mediumFontSize: int, differenceAroundMedium: int, minFontSize: int) -> Callable[[int], int]:
@@ -17,8 +17,27 @@ fontSizeFunction: Callable[[int], int] = adjustedFontSizeFunction(6, 24, 2, 8)
 @dataclass
 class TextData(AtomData):
     """
-    TextData is the storage class for all render-information
-    for the atom 'Text'.
+    TextData
+
+    Storage for rendering parameters used by the `Text` atom.
+
+    Fields
+    - `inset` : either a number (absolute pixels or fractional when float) or
+      a two-tuple describing horizontal/vertical insets. Floats are treated
+      as fractions of the corresponding box dimension.
+    - `dynamicText` : if True, `fontSize` is computed automatically to fit
+      the available box.
+    - `textColor` : Optional color specification accepted by `tColor`.
+      Consumers should handle `tColor` instances as well as RGB/RGBA tuples
+      and named/hex strings.
+    - `sysFontName` : system font family name to use for rendering
+    - `fontSize` : optional explicit font size (ignored when `dynamicText` is True)
+    - `fontAlign` : tuple of horizontal and vertical alignment (0..1)
+
+    Responsibilities
+    - Provide parsing (`parseFromArgs`) and `set()` for applying attribute
+      updates originating from XML/args. `set()` performs defensive type
+      checks and raises informative errors for invalid input.
     """
     inset       : tuple[float, float] | float | tuple[int, int] | int = 0
     dynamicText : bool                  = False
@@ -53,25 +72,36 @@ class TextData(AtomData):
                 case 'color' | 'col':
                     s = True
                     if not skips:
-                        self.textColor = TextData.parseColor(value)
+                        try:
+                            # tColor validates strings, tuples and names
+                            self.textColor = tColor(value)
+                        except Exception as e:
+                            raise ValueError(f'invalid text color: {value}') from e
                 case 'fontsize' | 'size':
                     s = True
                     if not skips:
-                        if 'd' in value:
+                        if isinstance(value, str) and 'd' in value:
                             self.dynamicText = True
                         else:
                             sizeconv: dict[str, int] = {x:i for i, x in enumerate(['xxs','xs','s','ms','sm','m','lm','ml','l','xl','xxl'])}
-                            if value.lower() in sizeconv:
+                            if isinstance(value, str) and value.lower() in sizeconv:
                                 self.fontSize = fontSizeFunction(sizeconv[value.lower()])
                             else:
-                                self.fontSize = int(TextData.extractNum(value))
+                                try:
+                                    self.fontSize = int(TextData.extractNum(str(value)))
+                                except Exception:
+                                    raise ValueError(f'invalid fontsize: {value}')
                 case 'fontname' | 'sysfont' | 'font':
                     s = True
                     if not skips:
+                        if not isinstance(value, str):
+                            raise TypeError('fontname must be a string')
                         self.sysFontName = value
                 case 'align':
                     s = True
                     if not skips:
+                        if not isinstance(value, str):
+                            raise TypeError('align must be a string')
                         if ',' in value:
                             xx, yy = 0.5, 0.5
                             x, y = [v.strip() for v in value.split(',')][:2]

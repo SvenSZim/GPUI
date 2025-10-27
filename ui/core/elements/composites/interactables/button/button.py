@@ -12,6 +12,21 @@ from .buttoncore    import ButtonCore
 from .buttondata    import ButtonData
 
 class Button(Interactable[ButtonCore, ButtonData]):
+    """A basic interactive button element with press and hold states.
+    
+    The Button provides a clickable interface element that:
+    - Supports different visual states for normal and pressed states
+    - Handles click and hold interactions
+    - Supports both local and global trigger events
+    - Manages custom callback subscriptions
+    - Can be styled through the style system
+    
+    Buttons serve as the primary interaction point in UIs, used for:
+    - Action triggers (e.g., submit, cancel)
+    - Navigation controls
+    - State toggles with visual feedback
+    - Hold-to-activate functionality
+    """
 
     # -------------------- creation --------------------
 

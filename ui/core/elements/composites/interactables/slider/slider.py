@@ -9,6 +9,18 @@ from .slidercore    import SliderCore
 from .sliderdata    import SliderData
 
 class Slider(Interactable[SliderCore, SliderData]):
+    """An interactive element allowing continuous value selection within a range.
+    
+    The Slider provides a draggable interface that:
+    - Supports horizontal or vertical orientation
+    - Maintains a continuous value state (0.0 to 1.0)
+    - Handles click-and-drag interactions
+    - Updates visual state based on current value
+    - Supports value change subscriptions
+    
+    Commonly used for volume controls, progress indicators, or any interface
+    requiring continuous value selection through mouse interaction.
+    """
 
     __prevRenderState: float
 

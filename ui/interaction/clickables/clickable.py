@@ -6,17 +6,55 @@ from ..event        import EventManager
 from ..inputmanager import InputManager
 
 class Clickable(iRect, ABC):
+    """Abstract base class for clickable UI elements with event handling.
+
+    Provides core functionality for UI elements that can be clicked or triggered:
+    - Click detection with mouse position checking
+    - Active and passive trigger modes
+    - Event subscription system
+    - Priority-based event handling
+    - Enable/disable functionality
+
+    Features:
+    - Supports both mouse and keyboard triggers
+    - Maintains active/inactive state
+    - Handles event subscriptions
+    - Supports priority levels
+    - Provides collision detection
+
+    Attributes:
+        _activeTriggerCallback (str): ID for mouse-position-checked trigger
+        _passiveTriggerCallback (str): ID for unchecked trigger
+        _onclick (str): Event ID for click handling
+        _buttonActive (bool): Current active state
+    """
 
     _activeTriggerCallback: str
     _passiveTriggerCallback: str
-
     _onclick: str
     _buttonActive: bool
 
     def __init__(self, buttonActive: bool=True) -> None:
+        """Initialize a new clickable element.
+
+        Args:
+            buttonActive (bool, optional): Initial active state. Defaults to True.
+
+        Raises:
+            TypeError: If buttonActive is not a boolean
+        """
+        if not isinstance(buttonActive, bool):
+            raise TypeError(f'buttonActive must be a boolean, got {type(buttonActive)}')
+
         self._buttonActive = buttonActive
         self._onclick = EventManager.createEvent()
-
+        
+        # Create bound callbacks with proper type checking
+        if not hasattr(self, 'activeTrigger') or not callable(getattr(self, 'activeTrigger')):
+            raise TypeError('Class must implement activeTrigger method')
+        if not hasattr(self, 'passiveTrigger') or not callable(getattr(self, 'passiveTrigger')):
+            raise TypeError('Class must implement passiveTrigger method')
+            
         self._activeTriggerCallback = EventManager.createCallback(self.activeTrigger)
         self._passiveTriggerCallback = EventManager.createCallback(self.passiveTrigger)
 
@@ -51,9 +89,23 @@ class Clickable(iRect, ABC):
     # -------------------- change-priority --------------------
 
     def setPriority(self, priority: int) -> None:
+        """Set the execution priority for both trigger callbacks.
+
+        Updates priority for both active (mouse-checked) and passive triggers.
+        Higher priority callbacks execute before lower priority ones.
+
+        Args:
+            priority (int): New priority level (-1000 to 1000)
+
+        Raises:
+            TypeError: If priority is not an integer
+            ValueError: If priority is outside valid range
         """
-        setPriority sets the priority of the passive- and active-trigger-callbacks
-        """
+        if not isinstance(priority, int):
+            raise TypeError(f'priority must be an integer, got {type(priority)}')
+        if not -1000 <= priority <= 1000:
+            raise ValueError(f'priority must be between -1000 and 1000, got {priority}')
+
         EventManager.setPriority(self._passiveTriggerCallback, priority)
         EventManager.setPriority(self._activeTriggerCallback, priority)
 
@@ -69,84 +121,180 @@ class Clickable(iRect, ABC):
         return False
 
     def activeTrigger(self) -> bool:
+        """Trigger the clickable only if mouse is within bounds.
+
+        Performs mouse position collision detection before triggering.
+        Used for normal mouse-click handling.
+
+        Returns:
+            bool: True if triggered and active, False otherwise
+
+        Raises:
+            RuntimeError: If position or size getters fail
         """
-        activeTrigger is the default function to call when trying to trigger the
-        Button. It checks if the mouse is inside the bounds of the Button before triggering.
-        """
-        if Rect(self.getPosition(), self.getSize()).collidepoint(InputManager.getMousePosition()):
-            return self._onTrigger()
-        return False
+        try:
+            clickBounds = Rect(self.getPosition(), self.getSize())
+            mousePos = InputManager.getMousePosition()
+            if clickBounds.collidepoint(mousePos):
+                return self._onTrigger()
+            return False
+        except Exception as e:
+            raise RuntimeError(f'Failed to check click bounds: {str(e)}')
 
     def passiveTrigger(self) -> None:
-        """
-        passiveTrigger is the global alternative of activeTrigger which does not
-        check for the mouse to be inside the bounds. (useful for using keys to trigger buttons)
+        """Trigger the clickable without position checking.
+
+        Global trigger used for keyboard shortcuts or programmatic
+        activation without mouse position requirements.
+
+        Note:
+            Does not return trigger result to maintain compatibility
+            with existing event system.
         """
         self._onTrigger()
 
     # -------------------- managing-trigger-events --------------------
 
     def addTriggerEvent(self, event: str) -> bool:
+        """Subscribe to an event that triggers with mouse position checking.
+
+        Args:
+            event (str): Event identifier to subscribe to
+
+        Returns:
+            bool: True if subscription successful, False otherwise
+
+        Raises:
+            TypeError: If event is not a string
+            ValueError: If event is empty
         """
-        addTriggerEvent adds a event which activates the activeTrigger.
-        """
+        if not isinstance(event, str):
+            raise TypeError(f'event must be a string, got {type(event)}')
+        if not event:
+            raise ValueError('event identifier cannot be empty')
         return EventManager.subscribeToEvent(event, self._activeTriggerCallback)
 
     def removeTriggerEvent(self, event: str) -> bool:
+        """Remove a mouse-position-checked trigger event subscription.
+
+        Args:
+            event (str): Event identifier to unsubscribe from
+
+        Returns:
+            bool: True if unsubscription successful, False otherwise
+
+        Raises:
+            TypeError: If event is not a string
+            ValueError: If event is empty
         """
-        removeTriggerEvent removes a event which activates the activeTrigger.
-        """
+        if not isinstance(event, str):
+            raise TypeError(f'event must be a string, got {type(event)}')
+        if not event:
+            raise ValueError('event identifier cannot be empty')
         return EventManager.unsubscribeToEvent(event, self._activeTriggerCallback)
     
     def addGlobalTriggerEvent(self, event: str) -> bool:
+        """Subscribe to an event that triggers immediately without checks.
+
+        Args:
+            event (str): Event identifier to subscribe to
+
+        Returns:
+            bool: True if subscription successful, False otherwise
+
+        Raises:
+            TypeError: If event is not a string
+            ValueError: If event is empty
         """
-        addGlobalTriggerEvent adds a event which immediatly triggers the button.
-        """
+        if not isinstance(event, str):
+            raise TypeError(f'event must be a string, got {type(event)}')
+        if not event:
+            raise ValueError('event identifier cannot be empty')
         return EventManager.subscribeToEvent(event, self._passiveTriggerCallback)
 
     def removeGlobalTriggerEvent(self, event: str) -> bool:
+        """Remove an immediate trigger event subscription.
+
+        Args:
+            event (str): Event identifier to unsubscribe from
+
+        Returns:
+            bool: True if unsubscription successful, False otherwise
+
+        Raises:
+            TypeError: If event is not a string
+            ValueError: If event is empty
         """
-        removeGlobalTriggerEvent removes a event which immediatly triggers the button.
-        """
+        if not isinstance(event, str):
+            raise TypeError(f'event must be a string, got {type(event)}')
+        if not event:
+            raise ValueError('event identifier cannot be empty')
         return EventManager.unsubscribeToEvent(event, self._passiveTriggerCallback)
     
     # -------------------- subscriptions --------------------
 
     def subscribeToClick(self, callback: str) -> bool:
-        """
-        subscribeToClick subscribes a Callback to the Event of the object
-        getting clicked.
+        """Subscribe a callback to handle click events.
 
         Args:
-            callback (str): the id of the callback to subscribe to the click
+            callback (str): Callback identifier to subscribe
 
-        Returns (bool): returns if the subscription was successful
+        Returns:
+            bool: True if subscription successful, False otherwise
+
+        Raises:
+            TypeError: If callback is not a string
+            ValueError: If callback is empty
         """
+        if not isinstance(callback, str):
+            raise TypeError(f'callback must be a string, got {type(callback)}')
+        if not callback:
+            raise ValueError('callback identifier cannot be empty')
         return EventManager.subscribeToEvent(self._onclick, callback)
     
     def unsubscribeToClick(self, callback: str) -> bool:
-        """
-        unsubscribeToClick unsubscribes a callback (by id) from the Event of the
-        object getting clicked.
+        """Remove a click event callback subscription.
 
         Args:
-            callback (str): the id of the callback to unsubscribe
+            callback (str): Callback identifier to unsubscribe
 
-        Returns (bool): if the unsubscription was successful
+        Returns:
+            bool: True if unsubscription successful, False otherwise
+
+        Raises:
+            TypeError: If callback is not a string
+            ValueError: If callback is empty
         """
+        if not isinstance(callback, str):
+            raise TypeError(f'callback must be a string, got {type(callback)}')
+        if not callback:
+            raise ValueError('callback identifier cannot be empty')
         return EventManager.unsubscribeToEvent(self._onclick, callback)
 
     def quickSubscribeToClick(self, f: Callable, *args: Any) -> tuple[str, bool]:
-        """
-        quickSubscribeToClick takes a function and its arguments, creates
-        a Callback and subscribes to the Event of the object getting clicked.
+        """Create and subscribe a new callback function for click events.
+
+        Convenience method that creates a callback from a function and its
+        arguments, then subscribes it to handle click events.
 
         Args:
-            f     (Callable) : the function to use as callback
-            args  (list[Any]): the arguments to use as callback
+            f: Function to call when clicked
+            *args: Arguments to pass to the function
 
-        Returns (tuple[str, bool]): 1. the id of the newly created Callback
-                                    2. if the callback was successfully subscribed
+        Returns:
+            tuple: (callback_id, subscription_success)
+                callback_id: Identifier for the created callback
+                subscription_success: True if subscription successful
+
+        Raises:
+            TypeError: If f is not callable
         """
+        if not callable(f):
+            raise TypeError(f'f must be callable, got {type(f)}')
+        
         newCallback: str = EventManager.createCallback(f, *args)
-        return (newCallback, EventManager.subscribeToEvent(self._onclick, newCallback))
+        success = EventManager.subscribeToEvent(self._onclick, newCallback)
+        if not success:
+            # Clean up callback if subscription failed
+            EventManager.removeCallback(newCallback)
+        return (newCallback, success)

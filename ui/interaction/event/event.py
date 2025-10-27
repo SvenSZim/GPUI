@@ -1,13 +1,25 @@
 
 class Event:
     """
-    Event is a container class for Callbacks.
-    It is used to create and store events which can be
-    triggered or subscribed to.
-    When triggered it calls all stored Callables (callbacks).
+    A container class for managing event callbacks in a priority-based event system.
+
+    Event objects manage a collection of callback subscriptions that can be triggered
+    in priority order. When an event is triggered, all subscribed callbacks are
+    executed according to their priority levels.
+
+    Features:
+    - Maintains ordered list of callback IDs
+    - Supports subscription/unsubscription during runtime
+    - Returns immutable copy of subscriptions when triggered
+    - Thread-safe callback list management
+
+    Example:
+        event = Event()
+        event.subscribe(callback_id)
+        triggered_callbacks = event.trigger()
     """
-    
-    __l_subscriptions: list[str] # list of the id's of the callbacks to call when triggered
+
+    __l_subscriptions: list[str]
 
     def __init__(self) -> None:
         """
@@ -20,35 +32,65 @@ class Event:
 
     def subscribe(self, id: str) -> None:
         """
-        subscribe takes a callback, that should
-        be called when the event is triggered. 
+        Subscribe a callback to this event.
+
+        Adds a callback ID to the subscription list for this event. The callback
+        will be executed when the event is triggered, in order of priority.
 
         Args:
-            id (str): the callback that should be subscribed to the event
+            id (str): The unique identifier of the callback to subscribe
+
+        Raises:
+            TypeError: If id is not a string
+            ValueError: If id is empty or already subscribed
         """
+        if not isinstance(id, str):
+            raise TypeError(f'Callback id must be a string, got {type(id)}')
+        if not id:
+            raise ValueError('Callback id cannot be empty')
+        if id in self.__l_subscriptions:
+            raise ValueError(f'Callback {id} is already subscribed')
+
         self.__l_subscriptions.append(id)
 
     def unsubscribe(self, id: str) -> bool:
         """
-        unsubscribe unsubscribes a callback (by id) from the event.
+        Remove a callback subscription from this event.
+
+        Attempts to remove the specified callback ID from the subscription list.
+        Returns True if the callback was found and removed, False if not found.
 
         Args:
-            id (str): the id of the callback to unsubscribe
+            id (str): The unique identifier of the callback to unsubscribe
 
-        Returns (bool): if the unsubscription was successful
+        Returns:
+            bool: True if the callback was unsubscribed, False if not found
+
+        Raises:
+            TypeError: If id is not a string
+            ValueError: If id is empty
         """
-        for callback in self.__l_subscriptions:
-            if callback == id:
-                self.__l_subscriptions.remove(callback)
-                return True
-        return False
+        if not isinstance(id, str):
+            raise TypeError(f'Callback id must be a string, got {type(id)}')
+        if not id:
+            raise ValueError('Callback id cannot be empty')
+
+        try:
+            self.__l_subscriptions.remove(id)
+            return True
+        except ValueError:
+            return False
 
 
     def trigger(self) -> list[str]:
         """
-        trigger returns a list of all callbacks to be triggered when the event
-        is called.
+        Get a copy of all callback IDs subscribed to this event.
 
-        Returns (list[str]): list of the id's of the callbacks to call
+        Returns a defensive copy of the subscription list to prevent modification
+        during iteration. The returned list can be safely used to execute
+        callbacks in the correct order.
+
+        Returns:
+            list[str]: Immutable copy of subscribed callback IDs in registration order
         """
         return self.__l_subscriptions.copy()

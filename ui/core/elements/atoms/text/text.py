@@ -11,12 +11,43 @@ from .textdata          import TextData
 
 class Text(Atom[TextCore, TextData]):
     """
-    Text is a simple ui-atom-element for drawing a text.
+    Text
+
+    A lightweight atomic UI element for drawing a single block of text.
+
+    Responsibilities
+    - Hold textual content in a `TextCore` and rendering parameters in `TextData`.
+    - Maintain a render-cache (surface + position) computed by
+      `updateRenderData()` and used by `render()`.
+    - Subscribe to layout updates (via `Body.getLayoutUpdateEvent()`) and
+      recompute its render cache when layout or data changes.
+
+    Rendering contract
+    - `updateRenderData()` computes the surface used to draw the text and
+      the top-left position where it should be blitted. It must not perform
+      long-running operations and should return quickly.
+    - `render(surface)` simply blits the prepared surface if available.
+
+    Color and font handling
+    - `TextData.textColor` may be a `tColor` instance, an RGB/RGBA tuple or
+      a named/hex string; `Text` will try to pass the value to the active
+      `Font` implementation and contains fallbacks to common representations
+      (`.rgb` / `.value`) for compatibility with different font backends.
+
+    Notes
+    - This class performs lightweight validation in the constructor; heavy
+      parsing/validation belongs in `TextData.set` / `parseFromArgs`.
+    - Thread-safety: methods are intended to be called from the main UI
+      thread. Event subscription is used to trigger updates.
     """
 
     # -------------------- creation --------------------
 
     def __init__(self, content: str, renderData: TextData, active: bool=True) -> None:
+        if not isinstance(content, str):
+            raise TypeError(f'content must be a str, got {type(content)}')
+        if not isinstance(renderData, TextData):
+            raise TypeError(f'renderData must be a TextData instance, got {type(renderData)}')
         super().__init__(TextCore(content), renderData, active)
 
         self.__renderCache = None
@@ -38,6 +69,24 @@ class Text(Atom[TextCore, TextData]):
 
     @override
     def updateRenderData(self) -> None:
+        """
+        Recompute the render cache (surface and blit position) for this
+        Text atom.
+
+        Responsibilities:
+        - Determine the available rectangle via `getRect()` and apply
+          configured insets (absolute or fractional).
+        - If dynamic text sizing is enabled, compute `fontSize` so the text
+          fits into the available box using `getDynamicFontSize()`.
+        - Use the active `Font` implementation to render the text. The
+          method attempts the provided color format first and falls back
+          to `.rgb`/`.value` attributes for compatibility.
+        - Store the resulting `(Surface, (x,y))` tuple in `self.__renderCache`
+          so `render()` can blit it.
+
+        The method avoids raising exceptions for transient rendering errors;
+        instead it clears the render cache so nothing is drawn.
+        """
         self.__renderCache = None
         #calculate render borderbox
         rect: Rect = self.getRect()
@@ -50,22 +99,28 @@ class Text(Atom[TextCore, TextData]):
         if rect.height < 0:
             rect = Rect((rect.left, rect.top + rect.height), (rect.width, -rect.height))
         
-        #apply partialInset
+        # apply partialInset (support numeric or 2-tuple (float or int))
         def applyPartial(rect: Rect, partialInset: tuple[float, float] | float | tuple[int, int] | int) -> Rect:
-            if isinstance(partialInset, tuple):
-                if isinstance(partialInset[0], float):
-                    rect = Rect((rect.left + int(rect.width * (1.0 - partialInset[0])),
-                                 rect.top + int(rect.height * (1.0 - partialInset[1]))),
-                                (int(rect.width * (1.0 - 2 * partialInset[0])), int(rect.height * (1.0 - 2 * partialInset[1]))))
-                else:
-                    assert isinstance(partialInset[1], int)
-                    rect = Rect((rect.left + partialInset[0], rect.top + partialInset[1]), (rect.width - 2 * partialInset[0], rect.height - 2 * partialInset[1]))
-            elif isinstance(partialInset, float):
-                inset: int = int(min(rect.width, rect.height) * partialInset)
-                rect = Rect((rect.left + inset, rect.top + inset),
-                            (rect.width - 2 * inset, rect.height - 2 * inset))
-            else:
-                rect = Rect((rect.left + partialInset, rect.top + partialInset), (rect.width - 2 * partialInset, rect.height - 2 * partialInset))
+            # numeric inset (int or float)
+            if isinstance(partialInset, (int, float)):
+                inset = int(min(rect.width, rect.height) * float(partialInset)) if isinstance(partialInset, float) else int(partialInset)
+                return Rect((rect.left + inset, rect.top + inset), (rect.width - 2 * inset, rect.height - 2 * inset))
+
+            # tuple inset - expect 2 elements
+            if isinstance(partialInset, tuple) and len(partialInset) == 2:
+                a, b = partialInset
+                # if fractional (float) treat as percentage of corresponding dimension
+                if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+                    if isinstance(a, float) or isinstance(b, float):
+                        left = rect.left + int(rect.width * (1.0 - float(a)))
+                        top = rect.top + int(rect.height * (1.0 - float(b)))
+                        width = int(rect.width * (1.0 - 2 * float(a)))
+                        height = int(rect.height * (1.0 - 2 * float(b)))
+                        return Rect((left, top), (width, height))
+                    else:
+                        return Rect((rect.left + int(a), rect.top + int(b)), (rect.width - 2 * int(a), rect.height - 2 * int(b)))
+
+            # unknown format - return rect unchanged
             return rect
         
         globalInset: tuple[float, float] | float | tuple[int, int] | int = self._renderData.inset
@@ -78,7 +133,24 @@ class Text(Atom[TextCore, TextData]):
 
         if self._renderData.textColor is not None and self._renderData.fontSize is not None:
             font: Font = FontManager.getFont().SysFont(self._renderData.sysFontName, self._renderData.fontSize)
-            text_render: Surface = font.render(self._core.getContent(), self._renderData.textColor)
+            # Attempt to render using the color as provided; on failure, try common fallbacks
+            color_param = self._renderData.textColor
+            try:
+                text_render: Surface = font.render(self._core.getContent(), color_param)
+            except Exception:
+                # fallback: if tColor instance, try rgb tuple then rgba tuple
+                try:
+                    if hasattr(color_param, 'rgb'):
+                        text_render = font.render(self._core.getContent(), color_param)
+                    elif hasattr(color_param, 'value'):
+                        text_render = font.render(self._core.getContent(), color_param)
+                    else:
+                        raise
+                except Exception:
+                    # Cannot render text with provided color; clear cache and exit
+                    self.__renderCache = None
+                    return
+
             text_size: tuple[int, int] = text_render.getSize()
             textPosX: int = int(rect.left + (rect.width - text_size[0]) * self._renderData.fontAlign[0])
             textPosY: int = int(rect.top + (rect.height - text_size[1]) * self._renderData.fontAlign[1])

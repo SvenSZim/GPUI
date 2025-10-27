@@ -79,11 +79,11 @@ class Renderer(ABC):
     @staticmethod
     def init(drawer: type[SurfaceDrawer], font: type[Font]) -> None:
         """
-        init initializes the meta info necessary for rendering the UI-Elements on the screen.
+        Initialize renderer globals required for drawing UI elements.
 
         Args:
-            drawer      (type[SurfaceDrawer) : the engine to be used for drawing on screen
-            font        (type[Font])         : the font-implementation to be used for rendering font
+            drawer (type[SurfaceDrawer]): drawing backend class used to render surfaces.
+            font   (type[Font]): font class implementation to register with FontManager.
         """
         Renderer._drawer = drawer
         FontManager.setFont(font)
@@ -91,13 +91,27 @@ class Renderer(ABC):
     @staticmethod
     def addPostRenderElement(element: 'Renderer') -> None:
         """
-        addPostRenderElement adds a element to the post-render-queue of the renderer.
-        Thereby the element get forcefully rendered after all 'normal' renders.
+        Add an element to be rendered after all normal elements.
+
+        Post-render elements (like tooltips or overlays) are guaranteed to be
+        drawn on top of normal elements, regardless of z-index. The queue is
+        cleared after each render cycle.
+
+        Args:
+            element (Renderer): Element to add to post-render queue
         """
         Renderer._postRenderQueue.append(element)
 
     @staticmethod
     def _renderPost(screen: Surface) -> None:
+        """Render all elements in the post-render queue and clear it.
+        
+        Internal method called by renderAll() after normal elements are drawn.
+        Requires _drawer to be initialized.
+
+        Args:
+            screen (Surface): Target surface to render onto
+        """
         assert Renderer._drawer is not None
         for el in Renderer._postRenderQueue:
             el.render(screen)
@@ -106,11 +120,21 @@ class Renderer(ABC):
     @staticmethod
     def renderAll(screen: Surface, elements: list['Renderer']) -> list['Renderer']:
         """
-        renderAll renders all the given uiobjects onto the given screen.
+        Render all elements in z-index order followed by post-render elements.
+
+        Elements are sorted by z-index if the list has changed since last render.
+        After normal elements are drawn, any elements in the post-render queue
+        are rendered on top.
 
         Args:
-            screen   (Surface)        : the surface to be drawn onto
-            elements (list[Renderer]) : the elements to be drawn
+            screen (Surface): Target surface to render onto
+            elements (list[Renderer]): List of elements to render
+
+        Returns:
+            list[Renderer]: The sorted list of elements that were rendered
+
+        Raises:
+            ValueError: If renderer was not initialized with a drawer
         """
         if Renderer._drawer is None:
             raise ValueError("Renderer::drawer not instantiated!")

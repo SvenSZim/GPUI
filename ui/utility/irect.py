@@ -1,9 +1,27 @@
 from abc import ABC, abstractmethod
 
 class iRect(ABC):
-    """
-    iRect is a abstract class to specify behavior of rect-elements
-    (elements that contain positional and sizing information similar to rectangles)
+    """Abstract interface for rectangular UI elements.
+
+    Defines the contract for elements that have rectangular bounds,
+    providing position and size information. Used as base for all
+    UI elements that need spatial representation.
+
+    Features:
+    - Position access (left, top, right, bottom)
+    - Size information (width, height)
+    - Point calculation
+    - Bounds checking
+
+    Implementation Notes:
+    - All coordinate values are integers
+    - Origin is top-left corner
+    - Positive y goes downward
+    - Width/height must be non-negative
+
+    Thread Safety:
+    - Implementation dependent
+    - Methods should be thread-safe if element is immutable
     """
 
     # -------------------- base-methods --------------------
@@ -77,22 +95,74 @@ class iRect(ABC):
         return self.getPosition()[1] + self.getSize()[1]
 
     def getPoint(self, relativePosition: tuple[float, float]) -> tuple[int, int]:
-        """
-        getPoint returns the absolute coordinate of a relative position inside the object.
+        """Calculate absolute coordinates from relative position.
+
+        Converts a relative position (0.0-1.0) within the rectangle
+        to absolute coordinates in the UI space.
 
         Args:
-            relativePosition (tuple[float, float]): the relative position inside the object
+            relativePosition: (x,y) floats between 0.0-1.0
+                where (0,0) is top-left and (1,1) is bottom-right
 
-        Returns (tuple[int, int]): the absolute position in world-space
+        Returns:
+            tuple[int, int]: Absolute (x,y) coordinates
+
+        Raises:
+            ValueError: If relative position is invalid
+            TypeError: If relative position has wrong type
         """
+        if not isinstance(relativePosition, tuple) or len(relativePosition) != 2:
+            raise TypeError(
+                f'relativePosition must be (float,float), '
+                f'got {relativePosition}')
+
+        rx, ry = relativePosition
+        if not all(isinstance(v, (int, float)) for v in (rx, ry)):
+            raise TypeError('Relative coordinates must be numbers')
+            
+        if not (0 <= rx <= 1 and 0 <= ry <= 1):
+            raise ValueError(
+                f'Relative coordinates must be between 0 and 1, '
+                f'got {relativePosition}')
+
         width, height = self.getSize()
         left, top = self.getPosition()
-        return (int(left + relativePosition[0] * width), int(top + relativePosition[1] * height))
+        
+        return (int(left + rx * width), int(top + ry * height))
 
     def isZero(self) -> bool:
-        """
-        isZero returns if both width and height of the Rect are zero.
+        """Check if rectangle has zero area.
 
-        Returns (bool): if the rects width and height are both zero.
+        Returns:
+            bool: True if both width and height are zero
         """
         return self.getWidth() == 0 and self.getHeight() == 0
+
+    def isValid(self) -> bool:
+        """Check if rectangle has valid dimensions.
+
+        Validates:
+        - Non-negative width/height
+        - Position coordinates are valid integers
+
+        Returns:
+            bool: True if rectangle is valid
+        """
+        try:
+            w, h = self.getSize()
+            x, y = self.getPosition()
+            return (isinstance(w, int) and isinstance(h, int) and
+                    isinstance(x, int) and isinstance(y, int) and
+                    w >= 0 and h >= 0)
+        except (TypeError, ValueError):
+            return False
+
+    def isEmpty(self) -> bool:
+        """Check if rectangle has zero area.
+
+        Different from isZero() as this checks actual area.
+
+        Returns:
+            bool: True if width or height is zero
+        """
+        return self.getWidth() <= 0 or self.getHeight() <= 0

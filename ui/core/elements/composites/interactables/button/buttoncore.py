@@ -5,8 +5,17 @@ from ......interaction  import Holdable
 from ..interactablecore import InteractableCore
 
 class ButtonCore(InteractableCore, Holdable):
-    """
-    ButtonCore is the core object of the interactable 'Button'.
+    """Core implementation for Button elements managing press and hold states.
+    
+    Combines InteractableCore for basic interaction with Holdable for
+    press-and-hold functionality. This class manages:
+    - Button press state tracking
+    - Hold duration monitoring
+    - Press/release event handling
+    - Click and hold callbacks
+    
+    The core maintains the button's interactive state and triggers
+    appropriate callbacks based on user interaction patterns.
     """
     def __init__(self, buttonActive: bool=True) -> None:
         InteractableCore.__init__(self, Rect())

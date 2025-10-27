@@ -11,6 +11,19 @@ from .dropdownselectcore         import DropdownselectCore
 from .dropdownselectdata         import DropdownselectData
 
 class Dropdownselect(Interactable[DropdownselectCore, DropdownselectData]):
+    """An interactive dropdown menu for selecting from a list of options.
+    
+    The Dropdownselect provides a collapsible selection interface that:
+    - Shows a single selected item when collapsed
+    - Expands to show all options when clicked
+    - Supports custom headers and dropdown items
+    - Handles option selection and state management
+    - Maintains dropdown visibility state
+    
+    Commonly used for space-efficient selection interfaces where only
+    one option can be selected at a time. Supports both text-based
+    and custom element options with configurable layouts.
+    """
 
     # -------------------- creation --------------------
 

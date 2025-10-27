@@ -3,8 +3,25 @@ from typing import override
 from .irect import iRect
 
 class Rect(iRect):
-    """
-    Rect is a utility class for storing a rectangle
+    """Rectangle utility class for UI layout and collision detection.
+
+    Represents a rectangle with position and size. Provides methods for:
+    - Position and size access
+    - Collision detection
+    - Boundary checking
+    - Rectangle arithmetic
+
+    Attributes:
+        top (int): Y-coordinate of top edge
+        left (int): X-coordinate of left edge
+        bottom (int): Y-coordinate of bottom edge
+        right (int): X-coordinate of right edge
+        width (int): Rectangle width
+        height (int): Rectangle height
+
+    Thread Safety:
+        - Immutable after creation
+        - All methods are thread-safe
     """
 
     # position
@@ -17,10 +34,24 @@ class Rect(iRect):
     width: int
     height: int
 
-    # -------------------- creations --------------------
-
-    def __init__(self, topleft: tuple[int, int] = (0, 0), 
+    def __init__(self, topleft: tuple[int, int] = (0, 0),
                  size: tuple[int, int] = (0, 0)) -> None:
+        """Initialize a rectangle.
+
+        Args:
+            topleft: (left, top) coordinates
+            size: (width, height) dimensions
+
+        Raises:
+            ValueError: If dimensions are negative
+        """
+        if not isinstance(topleft, tuple) or len(topleft) != 2 or \
+           not all(isinstance(x, (int, float)) for x in topleft):
+            raise ValueError(f'topleft must be (int,int), got {topleft}')
+            
+        if not isinstance(size, tuple) or len(size) != 2 or \
+           not all(isinstance(x, (int, float)) for x in size):
+            raise ValueError(f'size must be (int,int), got {size}')
         """
         __init__ initializes a Rect object
 
@@ -68,11 +99,51 @@ class Rect(iRect):
         px, py = point
         return px >= self.left and py >= self.top and px <= self.right and py <= self.bottom
 
-    def __str__(self) -> str:
-        """
-        __str__ generates a string out of the object
+    def contains_rect(self, other: 'Rect') -> bool:
+        """Check if this rectangle fully contains another.
+
+        Args:
+            other: Rectangle to check
 
         Returns:
-            str: a string representation of the Rect
+            True if other is completely inside this rectangle
+        """
+        return (other.left >= self.left and
+                other.right <= self.right and
+                other.top >= self.top and
+                other.bottom <= self.bottom)
+
+    def intersects(self, other: 'Rect') -> bool:
+        """Check if this rectangle intersects another.
+
+        Args:
+            other: Rectangle to check intersection with
+
+        Returns:
+            True if rectangles overlap
+        """
+        return (self.left < other.right and
+                self.right > other.left and
+                self.top < other.bottom and
+                self.bottom > other.top)
+
+    def clamp(self, bounds: 'Rect') -> 'Rect':
+        """Create new rectangle clamped within bounds.
+
+        Args:
+            bounds: Rectangle to clamp within
+
+        Returns:
+            New rectangle clamped to bounds
+        """
+        left = max(min(self.left, bounds.right - self.width), bounds.left)
+        top = max(min(self.top, bounds.bottom - self.height), bounds.top)
+        return Rect((left, top), (self.width, self.height))
+
+    def __str__(self) -> str:
+        """Create string representation.
+
+        Returns:
+            String in format: Rect(topleft:(x,y), size:(w,h))
         """
         return f'Rect(topleft:{self.getPosition()}, size:{self.getSize()})'

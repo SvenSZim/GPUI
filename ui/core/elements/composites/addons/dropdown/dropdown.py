@@ -8,6 +8,18 @@ from .dropdowncore         import DropdownCore
 from .dropdowndata         import DropdownData
 
 class Dropdown(Addon[DropdownCore, DropdownData]):
+    """An addon that adds collapsible dropdown functionality to an element.
+    
+    Wraps a header element with dropdown behavior that:
+    - Shows/hides a dropdown panel on interaction
+    - Manages dropdown panel positioning
+    - Handles z-index layering for proper overlap
+    - Controls dropdown state and animations
+    
+    Commonly used to create dropdown menus, expandable panels,
+    or any interface element that needs to show/hide content
+    based on user interaction.
+    """
 
     # -------------------- creation --------------------
 

@@ -9,6 +9,19 @@ Core = TypeVar('Core', bound=InteractableCore)
 Data = TypeVar('Data', bound=InteractableData)
 
 class Interactable(Element[Core, Data], ABC):
+    """Abstract base class for interactive UI elements supporting click events and state changes.
+    
+    Provides common functionality for user-interactive elements including:
+    - Click event handling and subscription
+    - Active state management
+    - Global and local trigger event system
+    - Custom callback registration
+    
+    This class serves as the foundation for interactive elements like buttons,
+    toggles, sliders, and other clickable/interactive UI components. It manages
+    the interaction state and event handling while delegating rendering specifics
+    to concrete implementations.
+    """
 
     def __init__(self, core: Core, renderData: Data, renderActive: bool = True) -> None:
         Element.__init__(self, core, renderData, renderActive)

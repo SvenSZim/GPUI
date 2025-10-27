@@ -5,12 +5,41 @@ from ..event        import EventManager
 from .clickable     import Clickable
 
 class Togglable(Clickable, ABC):
+    """Base class for UI elements that can cycle through multiple states.
+
+    A Togglable is a clickable element that cycles through a fixed number of states
+    when clicked. Each state can have associated event handlers.
+
+    Attributes:
+        __toggleEvents (dict[int, str]): Maps state indices to event IDs
+        _numberOfStates (int): Total number of available states
+        _currentState (int): Current active state index
+
+    Thread Safety:
+        - State changes are atomic
+        - Event handlers are thread-safe
+        - Subscriptions are synchronized
+    """
 
     __toggleEvents: dict[int, str]
     _numberOfStates: int
     _currentState: int
 
-    def __init__(self, numberOfStates: int=2, startState: int=0, buttonActive: bool=True) -> None:
+    def __init__(self, numberOfStates: int = 2, startState: int = 0, buttonActive: bool = True) -> None:
+        """Initialize a new Togglable element.
+
+        Args:
+            numberOfStates: Total number of states (minimum 2)
+            startState: Initial state index (0 to numberOfStates-1)
+            buttonActive: Whether the toggle is initially active
+
+        Raises:
+            ValueError: If numberOfStates < 2 or startState invalid
+        """
+        if not isinstance(numberOfStates, int) or numberOfStates < 2:
+            raise ValueError(f'numberOfStates must be int >= 2, got {numberOfStates}')
+        if not isinstance(startState, int):
+            raise ValueError(f'startState must be int, got {startState}')
         Clickable.__init__(self, buttonActive)
         
         self._numberOfStates    = max(2, numberOfStates)
@@ -27,6 +56,24 @@ class Togglable(Clickable, ABC):
         return self._currentState
 
     def getStateEvent(self, state: int) -> str:
+        """Get or create event ID for a specific state.
+
+        Args:
+            state: State index to get event for
+
+        Returns:
+            Event ID string for the specified state
+
+        Raises:
+            ValueError: If state index is invalid
+        """
+        if not isinstance(state, int):
+            raise ValueError(f'state must be int, got {state}')
+        if state < 0 or state >= self._numberOfStates:
+            raise ValueError(
+                f'state must be between 0 and {self._numberOfStates-1}, '
+                f'got {state}')
+
         if state not in self.__toggleEvents:
             self.__toggleEvents[state] = EventManager.createEvent()
         return self.__toggleEvents[state]

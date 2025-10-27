@@ -8,6 +8,15 @@ from .uicore        import UICore
 from .uidata        import UIData
 
 class UI(Element[UICore, UIData]):
+    """A container element that manages and renders named UI elements in a structured layout.
+    
+    The UI composite provides a flexible container for organizing elements into header, footer,
+    and side bars. It supports named element lookup and maintains element activation states.
+    Elements can be positioned and sized automatically based on the container's dimensions.
+    
+    Attributes:
+        __namedElements (dict[str, Element]): Maps element IDs to their corresponding Element instances
+    """
 
     __namedElements: dict[str, Element]
 

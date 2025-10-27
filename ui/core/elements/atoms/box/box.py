@@ -13,12 +13,26 @@ filtertype = Filters | tuple[Filters, tuple[float, float, tuple[float, float]], 
 
 class Box(Atom[BoxCore, BoxData]):
     """
-    Box is a simple ui-atom-element for drawing a box.
+    Box is a UI atom element for rendering rectangular shapes with various fill patterns and filters.
+
+    The Box element supports:
+    - Solid color fills
+    - Partitioned sections with different colors
+    - Pattern fills (checkerboard, vertical stripes, horizontal stripes)
+    - Geometric filters (linear/triangular, quadratic/circular)
+    - Partial insets for padding/margins
+    - Complex render caching for performance
+
+    Args:
+        renderData (BoxData): Configuration data for rendering the box
+        active (bool, optional): Whether the box is active and should be rendered. Defaults to True.
     """
 
     # -------------------- creation --------------------
 
     def __init__(self, renderData: BoxData, active: bool=True) -> None:
+        self._validateType(renderData, BoxData, 'renderData')
+        self._validateType(active, bool, 'active')
         super().__init__(BoxCore(), renderData, active)
 
         self.__renderCache = []
@@ -26,6 +40,11 @@ class Box(Atom[BoxCore, BoxData]):
 
     @override
     def copy(self) -> 'Box':
+        """Create a deep copy of this Box element with its current state.
+
+        Returns:
+            Box: A new Box instance with copied render data and active state.
+        """
         return Box(renderData=self._renderData.copy(), active=self.isActive())
 
     @staticmethod
@@ -37,23 +56,76 @@ class Box(Atom[BoxCore, BoxData]):
 
     __renderCache: list[tuple[Rect | tuple[tuple[int, int], tuple[int, int], int], Color]]
 
-    @override
-    def updateRenderData(self) -> None:
-        self.__renderCache = []
+    def _validateRect(self, rect: Rect) -> Rect:
+        """Validate and normalize a rectangle for rendering.
 
-        #calculate render borderbox
-        rect: Rect = self.getRect()
+        Args:
+            rect (Rect): The rectangle to validate
 
-        #check for errors in boxsize
-        if rect.isZero():
-            return
+        Returns:
+            Rect: Normalized rectangle with positive width and height
+
+        Raises:
+            TypeError: If rect is not a Rect instance
+        """
+        if not isinstance(rect, Rect):
+            raise TypeError(f'rect must be a Rect instance, got {type(rect)}')
+
+        # Normalize negative dimensions
         if rect.width < 0:
             rect = Rect((rect.left + rect.width, rect.top), (-rect.width, rect.height))
         if rect.height < 0:
             rect = Rect((rect.left, rect.top + rect.height), (rect.width, -rect.height))
+
+        return rect
+
+    def updateRenderData(self) -> None:
+        """Update the cached render data based on current box configuration.
+
+        This method pre-calculates all rendering information and stores it in
+        the render cache for efficient drawing. It handles:
+        - Rectangle normalization
+        - Inset application
+        - Partition processing
+        - Pattern generation
+        - Filter application
+        """
+        self.__renderCache = []
+
+        #calculate render borderbox
+        rect: Rect = self._validateRect(self.getRect())
         
         #apply partialInset
         def applyPartial(rect: Rect, partialInset: tuple[float, float] | float | tuple[int, int] | int) -> Rect:
+            """Apply partial inset to a rectangle.
+
+            Args:
+                rect (Rect): The rectangle to apply inset to
+                partialInset: Inset value(s) as float ratio or pixel counts
+
+            Returns:
+                Rect: New rectangle with inset applied
+
+            Raises:
+                TypeError: If parameters have invalid types
+                ValueError: If inset values are invalid
+            """
+            if not isinstance(rect, Rect):
+                raise TypeError(f'rect must be a Rect instance, got {type(rect)}')
+            
+            # Validate partialInset type and values
+            if isinstance(partialInset, tuple):
+                if len(partialInset) != 2:
+                    raise ValueError('Tuple inset must have exactly 2 values')
+                
+                if isinstance(partialInset[0], (int, float)) and isinstance(partialInset[1], (int, float)):
+                    if isinstance(partialInset[0], float):
+                        if not 0 <= partialInset[0] <= 0.5 or not 0 <= partialInset[1] <= 0.5:
+                            raise ValueError('Float insets must be between 0 and 0.5')
+                else:
+                    raise TypeError('Inset values must be int or float')
+            elif not isinstance(partialInset, (int, float)):
+                raise TypeError(f'partialInset must be tuple, int, or float, got {type(partialInset)}')
             if isinstance(partialInset, tuple):
                 if isinstance(partialInset[0], float):
                     return Rect((rect.left + int(rect.width * partialInset[0]),
@@ -72,7 +144,28 @@ class Box(Atom[BoxCore, BoxData]):
 
         #apply filters
         USE_POINT_TO_CHECK_FILTER = (0.5, 0.5)
-        def isInsideFilter(rect: Rect, filt: filtertype, point: tuple[int, int]):
+        def isInsideFilter(rect: Rect, filt: filtertype, point: tuple[int, int]) -> bool:
+            """Check if a point is inside the filtered area of a rectangle.
+
+            Args:
+                rect (Rect): The rectangle to check against
+                filt: Filter configuration (type, parameters, inversion)
+                point: The point to test (x, y)
+
+            Returns:
+                bool: True if the point is inside the filtered area
+
+            Raises:
+                TypeError: If parameters have invalid types
+                ValueError: If filter parameters are invalid
+            """
+            if not isinstance(rect, Rect):
+                raise TypeError(f'rect must be a Rect instance, got {type(rect)}')
+            if not isinstance(point, tuple) or len(point) != 2:
+                raise TypeError('point must be a tuple of 2 integers')
+            if not isinstance(point[0], int) or not isinstance(point[1], int):
+                raise TypeError('point coordinates must be integers')
+
             if not isinstance(filt, tuple):
                 return True
             match filt[0]:
@@ -267,11 +360,17 @@ class Box(Atom[BoxCore, BoxData]):
 
     @override
     def render(self, surface: Surface) -> None:
-        """
-        render renders the Box onto the given surface
+        """Render the Box onto the given surface using the cached render data.
+
+        This method uses the pre-calculated render cache to efficiently draw the box
+        with its current configuration of colors, patterns, and filters. The cache
+        is updated whenever the box's layout changes.
 
         Args:
-            surface: Surface = the surface the Box should be drawn on
+            surface (Surface): The target surface to render the box onto.
+
+        Raises:
+            AssertionError: If the drawer is not properly initialized or surface is invalid.
         """
         assert self._drawer is not None
         

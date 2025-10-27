@@ -9,6 +9,19 @@ from .multiselectcore         import MultiselectCore
 from .multiselectdata         import MultiselectData
 
 class Multiselect(Interactable[MultiselectCore, MultiselectData]):
+    """An interactive element allowing multiple item selection from a group.
+    
+    The Multiselect provides a grouped selection interface that:
+    - Supports selecting multiple items simultaneously
+    - Maintains a binary state for each item (selected/unselected)
+    - Allows setting maximum selection limit
+    - Handles group layout and positioning
+    - Supports vertical or horizontal arrangements
+    
+    Commonly used for multiple choice selections, filter applications,
+    or any interface requiring selection of multiple items from a set.
+    Each item can be toggled independently within configured limits.
+    """
 
     # -------------------- creation --------------------
 

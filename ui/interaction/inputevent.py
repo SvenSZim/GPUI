@@ -1,9 +1,26 @@
 from enum import Enum
 
 class InputEvent(Enum):
+    """Enumeration of all possible input events in the UI system.
+
+    Categorizes events into:
+    1. Digital Events (discrete on/off)
+        - System events (QUIT, WINDOW_RESIZE)
+        - Mouse buttons (LEFT/RIGHT UP/DOWN)
+        - Keyboard keys (A-Z UP/DOWN)
+        - Arrow keys
+    2. Analog Events (continuous state)
+        - UPDATE
+        - LEFTHELD
+
+    Thread Safety:
+        - Enum values are immutable
+        - fromStr conversion is thread-safe
+    """
+
     # ---------- digital-events ----------
-    NONE = 0
-    QUIT = 1
+    NONE = 0  # No input event
+    QUIT = 1  # Application quit request
 
     WINDOW_RESIZE   = 12
 
@@ -80,9 +97,32 @@ class InputEvent(Enum):
 
     @staticmethod
     def fromStr(s: str) -> 'InputEvent':
+        """Convert a string to an InputEvent.
+
+        Converts single-character strings to corresponding key events.
+        Only processes alphabetic characters (A-Z, case insensitive).
+
+        Args:
+            s: Input string (only first character is used)
+
+        Returns:
+            Corresponding InputEvent for valid character,
+            or InputEvent.NONE for invalid input
+
+        Examples:
+            >>> InputEvent.fromStr('A') 
+            InputEvent.A_DOWN
+            >>> InputEvent.fromStr('') 
+            InputEvent.NONE
+        """
+        if not isinstance(s, str):
+            return InputEvent.NONE
+
         if not len(s):
             return InputEvent.NONE
+
         s = s.lower()[0]
         if ord('a') <= ord(s) <= ord('z'):
             return InputEvent(2*(ord(s) - ord('a')) + 200)
+
         return InputEvent.NONE

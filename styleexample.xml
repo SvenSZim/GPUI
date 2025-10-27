@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style name="moon">
   
-  <line id="border" col="white"></line>
+  <line id="border" color="white"></line>
 
   <button id="button_txt">
     <framed>

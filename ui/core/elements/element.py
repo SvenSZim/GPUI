@@ -22,13 +22,36 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
 
     styleTags: list[str] = ['style', 'styled', 'styleid', 'styledid']
 
+    parserCallEvent: str = EventManager.createEvent()
+    parserRequest: Optional[ET.Element] = None
+    parserResponse: 'Optional[Element]' = None
+
     @staticmethod
     def updateLayout() -> None:
         EventManager.triggerEvent(Body.getLayoutUpdateEvent())
 
-    parserCallEvent: str = EventManager.createEvent()
-    parserRequest: Optional[ET.Element] = None
-    parserResponse: 'Optional[Element]' = None
+    @staticmethod
+    def _validateType(value: Any, expected_type: type | tuple[type, ...], param_name: str) -> None:
+        """Validate a parameter's type with descriptive error message.
+
+        Args:
+            value: Value to check
+            expected_type: Type or tuple of types to validate against
+            param_name: Parameter name for error message
+
+        Raises:
+            ValueError: If value is not of expected type(s)
+        """
+        if not isinstance(value, expected_type):
+            type_names = (
+                [t.__name__ for t in expected_type]
+                if isinstance(expected_type, tuple)
+                else [expected_type.__name__]
+            )
+            got_type = type(value).__name__
+            raise ValueError(
+                f'{param_name} must be {" or ".join(type_names)}, got {got_type}'
+            )
 
     @staticmethod
     def getStyledElement(element: str | StyledDefault, stylename: Optional[str]=None) -> 'Optional[Element]':
@@ -142,7 +165,10 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
             absoluteOffset = (absoluteOffset, absoluteOffset)
 
         if isinstance(relativeAlign, int):
-            raise ValueError('ELEMENT::RELATIVEALIGN IS INT ?!?!')
+            raise ValueError(
+                'relativeAlign must be float or tuple of floats (0.0-1.0), '
+                f'got int: {relativeAlign}'
+            )
 
         mybody.addReferenceConnection(other, (alignX, alignY), (1.0, 1.0), relativeAlign, offset=absoluteOffset, fixedGlobal=(False, False), keepSize=(False, False))
 
@@ -174,66 +200,58 @@ class Element(Generic[Core, Data], Renderer, Parsable, iRect, ABC):
     #-------------------- access-point --------------------
 
     def _set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: bool=False) -> bool:
-        s: bool = False
+        applied: bool = False
         for tag, value in args.items():
             match tag.lower():
                 case 'posx' | 'x':
-                    s = True
+                    applied = True
                     if not skips:
-                        if isinstance(value, int):
-                            self.align(Rect(topleft=(value,0)), alignY=False)
-                        else:
-                            raise ValueError('posX expects an int')
+                        Element._validateType(value, int, 'posX')
+                        self.align(Rect(topleft=(value,0)), alignY=False)
                 case 'posy' | 'y':
-                    s = True
+                    applied = True
                     if not skips:
-                        if isinstance(value, int):
-                            self.align(Rect(topleft=(0,value)), alignX=False)
-                        else:
-                            raise ValueError('posY expects an int')
+                        Element._validateType(value, int, 'posY')
+                        self.align(Rect(topleft=(0,value)), alignX=False)
                 case 'position' | 'pos':
-                    s = True
+                    applied = True
                     if not skips:
-                        if isinstance(value, tuple):
-                            self.align(Rect(topleft=value))
-                        else:
-                            raise ValueError('position expects an 2-tuple of ints')
+                        Element._validateType(value, tuple, 'position')
+                        if len(value) != 2 or not all(isinstance(x, int) for x in value):
+                            raise ValueError('position must be a tuple of 2 integers, got: ' + str(value))
+                        self.align(Rect(topleft=value))
                 case 'width':
-                    s = True
+                    applied = True
                     if not skips:
-                        if isinstance(value, int):
-                            self.alignSize(Rect(size=(value,0)), alignY=False)
-                        else:
-                            raise ValueError('width expects an int')
+                        Element._validateType(value, int, 'width')
+                        self.alignSize(Rect(size=(value,0)), alignY=False)
                 case 'height':
-                    s = True
+                    applied = True
                     if not skips:
-                        if isinstance(value, int):
-                            self.alignSize(Rect(size=(0,value)), alignX=False)
-                        else:
-                            raise ValueError('height expects an int')
+                        Element._validateType(value, int, 'height')
+                        self.alignSize(Rect(size=(0,value)), alignX=False)
                 case 'size':
-                    s = True
+                    applied = True
                     if not skips:
-                        if isinstance(value, tuple):
-                            self.alignSize(Rect(size=value))
-                        else:
-                            raise ValueError('size expects an 2-tuple of ints')
-        return s
+                        Element._validateType(value, tuple, 'size')
+                        if len(value) != 2 or not all(isinstance(x, int) for x in value):
+                            raise ValueError('size must be a tuple of 2 integers, got: ' + str(value))
+                        self.alignSize(Rect(size=value))
+        return applied
 
     @abstractmethod
     def set(self, args: dict[str, Any], sets: int=-1, maxDepth: int=-1, skips: list[int]=[0]) -> int:
         """
         set is a general access point to an element. It has some basic functionality implemented and is overridden
         by some elements for more specific behavior (updating text in Text, subscribing to buttonpresses in button, etc.).
-        set also recursivly applies the given args to all children until the given amount of
-        'sets' or the maxDepth is reached. A 'set' is counted, if any of the given args can be applied to the element.
+        set also recursively applies the given args to all children until the given amount of
+        'sets' or the maxDepth is reached. A 'set' is counted if any of the given args can be applied to the element.
 
         Args:
             args (dict[str, Any]): Arguments to be set
             sets (int)           : Amount of sets to be done (-1 -> no limit)
-            maxDepth (int0       : Maximum depth to apply to (-1 -> no limit)
-            skips (int)          : Amount of sets to skip
+            maxDepth (int)       : Maximum depth to apply to (-1 -> no limit)
+            skips (list[int])    : Indices or keys that should be skipped when applying args
 
         Returns (int): the amount of 'sets' applied
         """

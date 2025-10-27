@@ -8,6 +8,18 @@ from .groupedcore         import GroupedCore
 from .groupeddata         import GroupedData
 
 class Grouped(Addon[GroupedCore, GroupedData]):
+    """An addon that arranges multiple elements in a vertical or horizontal group.
+    
+    Provides layout organization features including:
+    - Vertical or horizontal arrangement of elements
+    - Configurable spacing between elements
+    - Relative sizing through element weights
+    - Automatic alignment and distribution
+    
+    Used for creating structured layouts like toolbars, sidebars,
+    or any interface component requiring organized arrangement of
+    multiple elements with controlled spacing and sizing.
+    """
 
     # -------------------- creation --------------------
 

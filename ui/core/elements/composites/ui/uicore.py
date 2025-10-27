@@ -5,8 +5,16 @@ from ...elementcore import ElementCore
 from ...element     import Element
 
 class UICore(ElementCore):
-    """
-    UICore is the core object of the addon 'UI'.
+    """Core implementation for the UI composite element managing layout and bars.
+    
+    Handles the internal layout logic for UI elements, including:
+    - Header and footer management
+    - Top, bottom, left, and right bar organization
+    - Element sizing and positioning
+    - Bar activation and deactivation
+    
+    The core maintains separate lists for each bar type and handles their visibility
+    based on the UI's active state and configuration.
     """
     __inner: list[Element]
     __offset: int

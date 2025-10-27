@@ -9,6 +9,19 @@ from .sectioncore         import SectionCore
 from .sectiondata         import SectionData
 
 class Section(Element[SectionCore, SectionData]):
+    """A sectioned container element that organizes content into paginated views.
+    
+    The Section composite provides a container that can split its content into
+    multiple pages when it exceeds a specified height limit. It supports:
+    - Optional header and footer elements
+    - Automatic content pagination
+    - Navigation buttons for section traversal
+    - Section separators between header/content/footer
+    - Keyboard navigation (left/right arrows)
+    
+    The content is automatically split into sections based on the innerLimit parameter,
+    with navigation controls appearing when multiple sections are created.
+    """
 
     # -------------------- creation --------------------
 

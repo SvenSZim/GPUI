@@ -11,6 +11,18 @@ from .togglecore  import ToggleCore
 from .toggledata  import ToggleData
 
 class Toggle(Interactable[ToggleCore, ToggleData]):
+    """An interactive element that cycles through multiple states when clicked.
+    
+    The Toggle provides a multi-state interactive element that:
+    - Supports arbitrary number of toggle states
+    - Manages state-specific element visibility
+    - Handles click events to cycle states
+    - Supports state change subscriptions
+    - Can be configured as checkbox or custom toggle
+    
+    Common use cases include checkboxes, radio buttons, or any element that
+    cycles through a predefined set of visual states on interaction.
+    """
 
     # -------------------- creation --------------------
 

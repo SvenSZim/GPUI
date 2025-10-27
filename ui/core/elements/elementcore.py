@@ -7,11 +7,16 @@ from .body      import Body
 Point = tuple[float, float]
 
 class ElementCore(iRect, ABC):
-    """
-    ElementCore is a abstract base class for all ui element cores.
-    Cores are used to store meta-info about ui-elements which is not just
-    about rendering (like content for text elements or the position on the screen).
-    ElementCore has some basic functionality to position elements on the screen.
+    """ElementCore
+
+    Abstract base for UI element cores.
+
+    Cores store non-render-specific metadata and layout-related
+    functionality for UI elements (for example content, logical
+    position, and connections used by the layout engine).
+
+    Subclasses must implement getInnerSizing to calculate inner content
+    sizing behavior.
     """
 
     _body: Body

@@ -9,6 +9,19 @@ Core = TypeVar('Core', bound=AddonCore)
 Data = TypeVar('Data', bound=AddonData)
 
 class Addon(Generic[Core, Data], Element[Core, Data], ABC):
+    """Abstract base class for UI elements that enhance or modify other elements.
+    
+    Addons provide wrapper functionality around existing elements to add features like:
+    - Visual enhancements (frames, backgrounds)
+    - Layout organization (grouping, alignment)
+    - Behavioral modifications (dropdowns, expansions)
+    
+    This class serves as the foundation for all addon components, managing:
+    - Core addon behavior and state
+    - Inner element containment
+    - Active state propagation
+    - Z-index handling for proper layering
+    """
 
     def __init__(self, core: Core, renderData: Data, active: bool = True) -> None:
         super().__init__(core, renderData, active)

@@ -10,6 +10,18 @@ from .framedcore         import FramedCore
 from .frameddata         import FramedData
 
 class Framed(Addon[FramedCore, FramedData]):
+    """An addon that adds a customizable frame around an element.
+    
+    Enhances elements with visual framing features including:
+    - Configurable border elements on all sides
+    - Optional background element
+    - Adjustable padding/offset from content
+    - Support for styled borders and backgrounds
+    
+    Commonly used to add visual structure through borders, backgrounds,
+    and spacing around content elements. Supports both uniform and
+    individually styled borders for flexible visual design.
+    """
 
     # -------------------- creation --------------------
 
