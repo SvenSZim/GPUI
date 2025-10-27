@@ -96,38 +96,48 @@ Notes on the example:
     \item The `ui` root registers named elements (like `mainpanel`) for programmatic lookup at runtime.
 \end{itemize}
 
-
-
-
-\section*{Advanced use}
+\section*{Dynamic Layout System}
 \vspace{-1.2em}
 \rule{\linewidth}{0.4pt}
-The \textbf{GPUI} (General Purpose UI) is built around modular units called \textbf{Elements}.  
-Each Element encapsulates its \textbf{position}, \textbf{functionality}, \textbf{normal data}, and \textbf{render data}, which collectively define its behavior and appearance on the screen.
+One of GPUI's most powerful features is its constraint-based dynamic layout system. Instead of manually positioning elements with absolute coordinates, GPUI uses a sophisticated system of relative positioning and automatic layout management:
 
+\subsection*{Key Features}
 \begin{itemize}
-    \item \textbf{Position} in GPUI is defined through \textit{joints}—dynamic relationships between elements. A joint links a relative position within one element to a relative position in another element (or to a static rectangle). Joints also support \textit{absolute offsets} in both x and y directions and can be used to \textit{fix the size} of elements similarly. This system enables flexible, constraint-based layout behavior.
-
-    \item \textbf{Functionality} refers to the methods available to the element, such as subscribing to button events or responding to user input.
-
-    \item \textbf{Normal data} represents element-specific content that isn’t exclusive to rendering—for example, the text in a text field.
-
-    \item \textbf{Render data} includes appearance-related properties like font color, background color, and other visual attributes.
+    \item \textbf{Automatic Layout}: The UI root element intelligently manages the placement and sizing of all child elements, eliminating the need for manual positioning calculations.
+    
+    \item \textbf{Relative Positioning}: Elements are positioned relative to their containers or siblings using flexible constraints rather than absolute coordinates. This enables:
+    \begin{itemize}
+        \item Automatic resizing when parent containers change size
+        \item Proper scaling across different screen resolutions
+        \item Dynamic rearrangement based on available space
+    \end{itemize}
+    
+    \item \textbf{Constraint-Based Layout}: Elements can be positioned using:
+    \begin{itemize}
+        \item Percentage-based positioning (e.g., "center this at 50\% of parent width")
+        \item Edge alignments (top, bottom, left, right)
+        \item Relative spacing between elements
+        \item Automatic size distribution in groups
+    \end{itemize}
+    
+    \item \textbf{Smart Grouping}: The Group element provides sophisticated layout capabilities:
+    \begin{itemize}
+        \item Automatic vertical or horizontal arrangement
+        \item Dynamic spacing between elements
+        \item Proportional size distribution
+        \item Nested groups for complex layouts
+    \end{itemize}
+\end{itemize}
+The UI root automatically handles:
+\begin{itemize}
+    \item Proper element sizing based on content
+    \item Spacing between elements
+    \item Consistent alignment
+    \item Resolution independence
+    \item Responsive behavior
 \end{itemize}
 
-\subsection*{XML Parser}
-\vspace{-1.2em}
-\rule{\linewidth}{0.4pt}
-GPUI uses \textbf{XML} to define and load layouts.
-
-\hypertarget{tag}{}
-\subsubsection*{Tags}
-
-The \textbf{tag system} provides a shorthand for managing complex rendering logic. A tag is a named reference initialized with element-specific data, such as a color. Elements can then refer to these tags for rendering purposes—for example, using a tag-based \textit{color order} to alternate line segment colors in a \texttt{Line} element.
-
-Tags must be strings that \textbf{do not start with a number} and \textbf{cannot contain} the characters: \texttt{=}, \texttt{:}, \texttt{;}, \texttt{[}, \texttt{]}, \texttt{\{}, or \texttt{\}}.
-
-\subsection*{Event System}
+\section*{Event System}
 \vspace{-1.2em}
 \rule{\linewidth}{0.4pt}
 GPUI includes a lightweight event system used to decouple user interaction (clicks, changes, drags) from application logic. Events are simple named signals that can carry a small payload (context) and are dispatched by elements or emitted programmatically.
@@ -187,6 +197,36 @@ API hooks (common operations):
 
 This event system keeps UI code concise and makes it easy to connect declarative XML layouts to application logic without tight coupling.
 
+
+
+
+\section*{Advanced use}
+\vspace{-1.2em}
+\rule{\linewidth}{0.4pt}
+The \textbf{GPUI} (General Purpose UI) is built around modular units called \textbf{Elements}.  
+Each Element encapsulates its \textbf{position}, \textbf{functionality}, \textbf{normal data}, and \textbf{render data}, which collectively define its behavior and appearance on the screen.
+
+\begin{itemize}
+    \item \textbf{Position} in GPUI is defined through \textit{joints}—dynamic relationships between elements. A joint links a relative position within one element to a relative position in another element (or to a static rectangle). Joints also support \textit{absolute offsets} in both x and y directions and can be used to \textit{fix the size} of elements similarly. This system enables flexible, constraint-based layout behavior.
+
+    \item \textbf{Functionality} refers to the methods available to the element, such as subscribing to button events or responding to user input.
+
+    \item \textbf{Normal data} represents element-specific content that isn’t exclusive to rendering—for example, the text in a text field.
+
+    \item \textbf{Render data} includes appearance-related properties like font color, background color, and other visual attributes.
+\end{itemize}
+
+\subsection*{XML Parser}
+\vspace{-1.2em}
+\rule{\linewidth}{0.4pt}
+GPUI uses \textbf{XML} to define and load layouts.
+
+\hypertarget{tag}{}
+\subsubsection*{Tags}
+
+The \textbf{tag system} provides a shorthand for managing complex rendering logic. A tag is a named reference initialized with element-specific data, such as a color. Elements can then refer to these tags for rendering purposes—for example, using a tag-based \textit{color order} to alternate line segment colors in a \texttt{Line} element.
+
+Tags must be strings that \textbf{do not start with a number} and \textbf{cannot contain} the characters: \texttt{=}, \texttt{:}, \texttt{;}, \texttt{[}, \texttt{]}, \texttt{\{}, or \texttt{\}}.
 
 \newpage
 \subsection*{Available XML-Elements}

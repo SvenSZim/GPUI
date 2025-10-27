@@ -6,6 +6,18 @@ from ....interaction import EventManager
 
 @dataclass
 class RelPoint:
+    """A relative point that defines a positional relationship between two rectangles.
+    
+    This class represents a point that can be either globally fixed (absolute position)
+    or relatively fixed (percentage of size) to another rectangle.
+    
+    Attributes:
+        isGlobal (bool): True if the point is fixed in global coordinates, False if relative
+        myP (float): The relative position on this rectangle (0.0 to 1.0)
+        otherP (float): The relative position on the reference rectangle (0.0 to 1.0)
+        offset (int): Additional pixel offset to apply to the calculated position
+        other (iRect): Reference rectangle used for position calculation
+    """
     isGlobal: bool
     myP: float
     otherP: float
@@ -14,11 +26,47 @@ class RelPoint:
 
 @dataclass
 class RelativePoints:
-    dim: int # 0: x, 1: y
-    relpoint1: RelPoint # newest
+    """Manages two relative points that define a dimension (width or height) of a rectangle.
+    
+    This class maintains two RelPoint instances that together define either the width (x-axis)
+    or height (y-axis) of a rectangle. It handles the logic for updating relative positions
+    while preserving size constraints.
+    
+    Attributes:
+        dim (int): Dimension indicator - 0 for x-axis, 1 for y-axis
+        relpoint1 (RelPoint): Most recently set relative point
+        relpoint2 (RelPoint): Previously set relative point
+    
+    Note:
+        The two points are used to calculate both position and size in the given dimension.
+        When both points are global, they directly define start and end positions.
+        When one point is relative, it affects how size is calculated.
+    """
+    dim: int  # 0: x, 1: y
+    relpoint1: RelPoint  # newest
     relpoint2: RelPoint
 
     def setRelpoint(self, ref: iRect, myP: float, otherP: float, offset: int=0, globalFix: bool=True, keepSize: bool=True):
+        """Updates the relative point configuration for this dimension.
+        
+        This method manages the two relative points that define the rectangle's position
+        and size in one dimension. It handles the logic for when to replace existing
+        points and how to maintain size constraints.
+        
+        Args:
+            ref (iRect): Reference rectangle to position against
+            myP (float): Relative position on this rectangle (0.0 to 1.0)
+            otherP (float): Relative position on reference rectangle (0.0 to 1.0)
+            offset (int, optional): Pixel offset to add to calculated position. Defaults to 0.
+            globalFix (bool, optional): If True, fixes in global coordinates. Defaults to True.
+            keepSize (bool, optional): If True, preserves current size when possible. Defaults to True.
+        
+        Note:
+            The method applies several rules to maintain layout stability:
+            - Won't overwrite local fixes if keepSize is True
+            - Prevents having two local fixes simultaneously
+            - Avoids fixing the same point twice with global coordinates
+        """
         if not (not self.relpoint2.isGlobal and keepSize or not globalFix and not self.relpoint1.isGlobal or (self.relpoint1.isGlobal and globalFix and self.relpoint1.myP == myP)):
             # Exclude: overwriting local fix if keepSize, 2 local fixes, fixing same point twice
             self.relpoint2 = self.relpoint1
@@ -58,13 +106,37 @@ class RelativePoints:
             
 
 Point = tuple[float, float]
+"""Type alias for a 2D point using relative coordinates (0.0 to 1.0 for each dimension)"""
 
 class Body(iRect):
-    """
-    Body is a more advanced class for storing and manipulating a rectangle.
-    It extends the Rect class and works by additionaly storing fixpoints which fix
-    relative positions of the body to fixed coordinates. These can then be used to
-    calculte the actual rect of the body.
+    """A sophisticated rectangle implementation with constraint-based positioning system.
+    
+    The Body class extends iRect by implementing a constraint-based positioning system
+    that allows rectangles to be positioned and sized relative to other rectangles.
+    It maintains a set of relative points (fix points) that define its position and
+    size in relation to other rectangles in the layout.
+    
+    Features:
+        - Constraint-based positioning using relative and absolute fix points
+        - Automatic size calculation based on constraints
+        - Circular dependency detection
+        - Event-based update system for efficient layout recalculation
+        - Alignment helpers for common positioning scenarios
+    
+    The positioning system uses two pairs of RelativePoints (one for x-axis, one for
+    y-axis) to define the rectangle's position and size. Each pair can mix global
+    (absolute) and relative positioning constraints.
+    
+    Example:
+        ```python
+        # Create a body that's 50% the width of another rect and aligned to its center
+        ref_rect = Rect((0, 0), (400, 300))
+        body = Body()
+        body.align(ref_rect, AlignType.CENTER)
+        body.addReferenceConnection(ref_rect, (True, False), 
+                                  (0.0, 0.0), (0.25, 0.0),  # Fix left at 25% of ref
+                                  (0, 0), (True, True))
+        ```
     """
     __resetBodyUpdateStatusEvent: str = EventManager.createEvent()
     __updateBodyEvent: str = EventManager.createEvent()
@@ -83,10 +155,28 @@ class Body(iRect):
 
     @staticmethod
     def getLayoutUpdateEvent() -> str:
+        """Gets the event name used for layout update notifications.
+        
+        This event is triggered when the layout system needs to recalculate
+        positions and sizes of all Body instances in the UI.
+        
+        Returns:
+            str: The layout update event identifier
+        """
         return Body.__updateLayoutEvent
 
     @staticmethod
     def updateBodys() -> None:
+        """Triggers a global update of all Body instances.
+        
+        This method initiates a two-phase update process:
+        1. Resets the update status of all bodies (allows detection of circular deps)
+        2. Triggers the actual update calculation for all bodies
+        
+        Note:
+            This is typically called when the layout needs to be recalculated,
+            such as after window resizing or content changes.
+        """
         EventManager.triggerEvent(Body.__resetBodyUpdateStatusEvent)
         EventManager.triggerEvent(Body.__updateBodyEvent)
 
@@ -115,6 +205,15 @@ class Body(iRect):
         self.__updating = False
 
     def copy(self) -> 'Body':
+        """Creates a new empty Body instance.
+        
+        Returns:
+            Body: A new Body instance with default initialization
+        
+        Note:
+            This is a basic implementation that returns an empty Body.
+            Subclasses should override to implement proper deep copying.
+        """
         return Body()
 
 
@@ -165,6 +264,11 @@ class Body(iRect):
     # -------------------- positional-setter --------------------
 
     def __unsetUpdated(self) -> None:
+        """Internal method to mark this body as needing an update.
+        
+        This is called during the first phase of the global update process
+        to prepare all bodies for recalculation.
+        """
         self.__updated = False
 
     def update(self) -> None:
@@ -172,6 +276,12 @@ class Body(iRect):
             self.__updateDimensions()
 
     def forceUpdate(self) -> None:
+        """Forces an immediate recalculation of this body's position and size.
+        
+        This method explicitly invalidates the current layout calculations
+        and triggers an immediate update, regardless of the body's current
+        update status. Use this when you need to ensure fresh calculations.
+        """
         self.__updated = False
         self.update()
 
